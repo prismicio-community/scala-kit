@@ -29,58 +29,58 @@ object Ref {
   )(unlift(Ref.unapply))
 }
 
-sealed trait Field {
+sealed trait FieldDef {
   def typ: String
   def multiple: Boolean = false
 }
 
-case class SingleField(override val typ: String, default: Option[String]) extends Field {
+case class SingleFieldDef(override val typ: String, default: Option[String]) extends FieldDef {
   override val multiple: Boolean = false
 }
-object SingleField {
+object SingleFieldDef {
   implicit val reader = (
     (__ \ "type").read[String] and
     //((__ \ "multiple").read[Boolean] orElse Reads.pure(false)) and
     (__ \ "default").readNullable[String]
-  )(SingleField.apply _)
+  )(SingleFieldDef.apply _)
 
   val writer = (
     (__ \ "type").write[String] and
     (__ \ "multiple").write[Boolean] and
     (__ \ "default").writeNullable[String]
-  )((field: SingleField) => (field.typ, field.multiple, field.default))
+  )((field: SingleFieldDef) => (field.typ, field.multiple, field.default))
 
 }
-case class MultipleField(override val typ: String, default: Seq[String]) extends Field {
+case class MultipleFieldDef(override val typ: String, default: Seq[String]) extends FieldDef {
   override val multiple: Boolean = true
 }
-object MultipleField {
+object MultipleFieldDef {
   implicit val reader = (
     (__ \ "type").read[String] and
     //((__ \ "multiple").read[Boolean] orElse Reads.pure(false)) and
     ((__ \ "default").read[Seq[String]] orElse Reads.pure(Seq()))
-  )(MultipleField.apply _)
+  )(MultipleFieldDef.apply _)
 
   val writer = (
     (__ \ "type").write[String] and
     (__ \ "multiple").write[Boolean] and
     (__ \ "default").write[Seq[String]]
-  )((field: MultipleField) => (field.typ, field.multiple, field.default))
+  )((field: MultipleFieldDef) => (field.typ, field.multiple, field.default))
 }
 
-object Field {
+object FieldDef {
   implicit val reader = 
     (
       (__ \ 'multiple).read[Boolean] and
       __.json.pick
     ).tupled flatMap { case (multiple, js) => multiple match {
-      case true   => Reads{ _ => Json.fromJson[MultipleField](js) } map { c => c:Field }
-      case false  => Reads{ _ => Json.fromJson[SingleField](js) } map { c => c:Field }
+      case true   => Reads{ _ => Json.fromJson[MultipleFieldDef](js) } map { c => c:FieldDef }
+      case false  => Reads{ _ => Json.fromJson[SingleFieldDef](js) } map { c => c:FieldDef }
     } }
 
-  implicit val writer = Writes[Field]{ field => field match {
-    case s: SingleField   => Json.toJson[SingleField](s)(SingleField.writer)
-    case s: MultipleField => Json.toJson[MultipleField](s)(MultipleField.writer)
+  implicit val writer = Writes[FieldDef]{ field => field match {
+    case s: SingleFieldDef   => Json.toJson[SingleFieldDef](s)(SingleFieldDef.writer)
+    case s: MultipleFieldDef => Json.toJson[MultipleFieldDef](s)(MultipleFieldDef.writer)
   }}
 }
 
@@ -90,7 +90,7 @@ case class Form(
   rel: Option[String], 
   enctype: String, 
   action: String,
-  fields: Map[String, Field]
+  fields: Map[String, FieldDef]
 )
 object Form {
   implicit val reader = Json.reads[Form]
@@ -106,7 +106,7 @@ object ApiData {
   //implicit val reader = Json.reads[ApiData]
   implicit val reader = (
     (__ \ 'refs).read[Seq[Ref]] and
-    (__ \ 'aliases).read[Map[String, String]] and
+    (__ \ 'bookmarks).read[Map[String, String]] and
     (__ \ 'forms).read[Map[String, Form]]
   )(ApiData.apply _)
 
@@ -122,3 +122,4 @@ case class Doc(
 object Doc {
   implicit val reader = Json.reads[Doc]
 }
+
