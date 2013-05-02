@@ -29,7 +29,7 @@ class WroomApiSpec extends Specification {
         },
         duration.Duration("2 seconds")
       )
-      println("res:"+Json.prettyPrint(res.json))
+      println("res:"+res)
 
       success
     }
@@ -48,15 +48,38 @@ class WroomApiSpec extends Specification {
                          .withWidgets("product.name")
                          .submit
           docs3 <- master.form("documents")
-                         .withFields(Field("tagged", Seq("product")))
-                         .withWidgets(Widget("product.name", Render.HTML))
+                         .withFields(FieldFilter("tagged", Seq("product")))
+                         .withWidgets(
+                           WidgetFilter("product.name", Render.HTML).withProps("field1" -> "value1", "field2" -> "value2")
+                         )
                          .submit
         } yield(docs1, docs2, docs3)).map{ case (docs1, docs2, docs3) =>
-          docs1.json must beEqualTo(docs2.json)
-          docs1.json must beEqualTo(docs3.json)
+          docs1 must beEqualTo(docs2)
+          docs1 must beEqualTo(docs3)
         },
         duration.Duration("2 seconds")
       )
     }
+
+
+    "calling document" in {
+      Await.result(
+        (for{
+          api   <- Wroom.getApi("http://twelvesouth.wroom.dev")
+          master = api.master
+          docs1 <- master.form("document")
+                         .withFields(
+                           "id" -> "AAAAAAdbzTgAAAAA",
+                           "ref" -> "AAAAAAdbzT8AAAAA"
+                         )
+                         .withWidgets("article.body" -> Render.HTML)
+                         .submit
+        } yield(docs1)).map{ docs1 =>
+          println("docs1:"+docs1)
+          success
+        },
+        duration.Duration("2 seconds")
+      )
+    }    
   }
 }

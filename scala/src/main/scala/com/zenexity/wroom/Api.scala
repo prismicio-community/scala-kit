@@ -34,21 +34,21 @@ case class RefApi(api: Api, ref: Ref) {
   def getForm(s: String): Option[FormApi] = api.forms.get(s) map { f => FormApi(this, f) }
 
   def documents = form("documents")
-  def document(id: String) = form("document").withFields("id" -> id).submit()
+  def document(id: String) = form("document").withFields("id" -> id)
 }
 
 case class FormApi(
   refapi: RefApi, 
   form: Form, 
-  fields: Seq[Field] = Seq(), 
-  widgets: Seq[Widget] = Seq()
+  fields: Seq[FieldFilter] = Seq(), 
+  widgets: Seq[WidgetFilter] = Seq()
 ) {
-  def withFields(theFields: Field*): FormApi = this.copy( fields = fields ++ theFields )
-  def withFields(field: (String, Any), theFields: (String, Any)*): FormApi = withFields((field +: theFields).map{ case(k,v) => Field(k,v) }:_*)
+  def withFields(theFields: FieldFilter*): FormApi = this.copy( fields = fields ++ theFields )
+  def withFields(field: (String, Any), theFields: (String, Any)*): FormApi = withFields((field +: theFields).map{ case(k,v) => FieldFilter(k,v) }:_*)
 
-  def withWidgets(newWidgets: Widget*): FormApi = this.copy( widgets = widgets ++ newWidgets )
-  def withWidgets(widget: (String, Render), newWidgets: (String, Render)*): FormApi = withWidgets((widget +: newWidgets).map{ case (name, render) => Widget(name, render) }: _*)
-  def withWidgets(widget: String, newWidgets: String*): FormApi = withWidgets((widget +: newWidgets).map{ name => Widget(name) }: _*)
+  def withWidgets(newWidgets: WidgetFilter*): FormApi = this.copy( widgets = widgets ++ newWidgets )
+  def withWidgets(widget: (String, Render), newWidgets: (String, Render)*): FormApi = withWidgets((widget +: newWidgets).map{ case (name, render) => WidgetFilter(name, render) }: _*)
+  def withWidgets(widget: String, newWidgets: String*): FormApi = withWidgets((widget +: newWidgets).map{ name => WidgetFilter(name) }: _*)
 
   private def urlEncodeField(typ: String, multiple: Boolean, value: Any): Seq[String] = {
     typ match {
@@ -62,7 +62,7 @@ case class FormApi(
 
   private def queryString: Map[String, Seq[String]] = {
     (Map("ref" -> Seq(java.net.URLEncoder.encode(refapi.ref.ref))) ++ 
-    fields.map{ case Field(k,v) => 
+    fields.map{ case FieldFilter(k,v) => 
       // converting field according to form fields
       form.fields.get(k) match {
         case Some(field) => k -> urlEncodeField(field.typ, field.multiple, v)
@@ -75,7 +75,7 @@ case class FormApi(
     
   }
   
-  def submit(): Future[Response] = {
+  def submit()(implicit ctx: ExecutionContext): Future[Seq[Document]] = {
     val method = form.method
     val enctype = form.enctype
     var holder = WS.url(form.action)
@@ -88,29 +88,39 @@ case class FormApi(
         }
         // JSON for now
         holder = holder.withHeaders("Accept" -> "application/json")
-        println("holder:"+holder)
-        holder.get()
+        holder.get() map { resp =>
+          val js = resp.json
+          Json.fromJson[Seq[JsObject]](js)
+              .map{ objects => 
+                objects.map{ obj => 
+                  val widgets = obj.fields.map{ case (k, v) =>
+                    v match {
+                      case JsString(s)  => (k -> Widget.Html(name=k, content=s))
+                      case arr: JsArray => 
+                        arr.validate[Seq[JsObject]]
+                           .map{ elts =>
+                             (k -> Widget.Json(name=k, elements=elts))
+                           }.recoverTotal { e => sys.error("unable to parse Document: "+e) }                      
+                      case _ => sys.error("unmanaged document format")
+                    }
+                  }.toMap
+
+                  Document(refapi.ref.ref, Seq(), widgets) 
+                }                
+              }.recoverTotal{ e => sys.error("unable to parse Document: "+e) }
+        }
+      case _ => sys.error("only GET is managed right now")
     }
   }
 
 }
 
-sealed trait Render
-object Render {
-  case object HTML extends Render {
-    override def toString = "html"
-  }
-  case object JSON extends Render {
-    override def toString = "json"
-  }
-}
+case class FieldFilter(name: String, value: Any)
 
-case class Field(name: String, value: Any)
+case class WidgetFilter(name: String, render: Render = Render.HTML, props: Map[String, String] = Map()) {
+  def withProps(theProps: (String, String)*) = this.copy(props = props ++ theProps)
 
-case class Widget(name: String, render: Render = Render.HTML, props: Map[String, String] = Map()) {
   def toMap: Map[String, String] = Map("name" -> name, "render" -> render.toString) ++ props
   override def toString = toMap.map{ case(k,v) => s"$k:$v"}.mkString("(", ",", ")")
-
-  def withProps(theProps: (String, String)*) = this.copy(props = props ++ theProps)
 }
 

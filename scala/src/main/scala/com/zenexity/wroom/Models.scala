@@ -114,12 +114,29 @@ object ApiData {
 }
 
 
-case class Doc(
-  id: String, 
-  tags: Seq[String], 
-  data: JsValue
-)
-object Doc {
-  implicit val reader = Json.reads[Doc]
+sealed trait Render
+object Render {
+  case object HTML extends Render {
+    override def toString = "html"
+  }
+  case object JSON extends Render {
+    override def toString = "json"
+  }
 }
+
+sealed trait Widget {
+  def name: String
+  def render: Render
+}
+object Widget {
+  case class Html(name: String, content: String) extends Widget {
+    override val render = Render.HTML
+  }
+  case class Json(name: String, elements: Seq[JsObject]) extends Widget {
+    override val render = Render.JSON
+  }
+  
+}
+
+case class Document(ref: String, tags: Seq[String], widgets: Map[String, Widget])
 
