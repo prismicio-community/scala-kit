@@ -10,7 +10,7 @@ object BuildSettings {
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
     organization    := buildOrganization,
-    version         := buildScalaVersion,
+    version         := buildVersion,
     scalaVersion    := buildScalaVersion
   )
 }

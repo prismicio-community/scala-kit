@@ -7,9 +7,9 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
 case class Ref(
-  ref: String, 
-  label: String, 
-  isMasterRef: Boolean = false, 
+  ref: String,
+  label: String,
+  isMasterRef: Boolean = false,
   scheduled: Option[DateTime] = None
 )
 
@@ -69,7 +69,7 @@ object MultipleFieldDef {
 }
 
 object FieldDef {
-  implicit val reader = 
+  implicit val reader =
     (
       (__ \ 'multiple).read[Boolean] and
       __.json.pick
@@ -85,10 +85,10 @@ object FieldDef {
 }
 
 case class Form(
-  name: Option[String], 
-  method: String, 
-  rel: Option[String], 
-  enctype: String, 
+  name: Option[String],
+  method: String,
+  rel: Option[String],
+  enctype: String,
   action: String,
   fields: Map[String, FieldDef]
 )
@@ -124,19 +124,120 @@ object Render {
   }
 }
 
-sealed trait Widget {
+sealed trait Chunk {
   def name: String
   def render: Render
-}
-object Widget {
-  case class Html(name: String, content: String) extends Widget {
-    override val render = Render.HTML
+
+  def asHtml: String = this match {
+    case c: HtmlChunk => c.content
+    case _ => throw new RuntimeException("can't convert chunk to HtmlChunk")
   }
-  case class Json(name: String, elements: Seq[JsObject]) extends Widget {
-    override val render = Render.JSON
+
+  def asImage: JsonChunk.Image = this match {
+    case c: JsonChunk.Image => c
+    case _ => throw new RuntimeException("can't convert chunk to Image")
   }
-  
+
+  def asText: JsonChunk.StructuredText = this match {
+    case c: JsonChunk.StructuredText => c
+    case _ => throw new RuntimeException("can't convert chunk to StructuredText")
+  }
 }
 
-case class Document(ref: String, tags: Seq[String], widgets: Map[String, Widget])
+case class HtmlChunk(name: String, content: String) extends Chunk {
+  override val render = Render.HTML
 
+  override def toString = s"""HtmlChunk.$render($name, $content)"""
+}
+
+object HtmlChunk{
+  val writer = Writes[HtmlChunk]{ c => Json.obj(c.name -> c.content) }
+}
+
+sealed trait JsonChunk extends Chunk {
+  override val render = Render.JSON
+}
+
+object JsonChunk{
+  case class StructuredText(name: String, elements: Seq[JsObject]) extends JsonChunk{
+    override def toString = s"""JsonChunk.StructuredText($name,${JsArray(elements)})"""
+  }
+  case class Image(name: String, elements: JsObject) extends JsonChunk{
+    override def toString = s"""JsonChunk.Image($name,$elements)"""
+  }
+
+  object StructuredText{
+    implicit val reader = Json.reads[StructuredText]
+    val writer = Json.writes[StructuredText]
+  }
+
+  object Image{
+    implicit val reader = Json.reads[Image]
+    val writer = Json.writes[Image]
+  }
+
+  def reader(name: String): Reads[JsonChunk] = (
+    (__ \ "type").read[String] and
+    (__ \ "data").read[JsValue]
+  ).tupled.map{
+    case ("StructuredText", arr) => StructuredText(name, arr.as[Seq[JsObject]])
+    case ("Image", obj) => Image(name, obj.as[JsObject])
+    case _ => sys.error("unmanaged Json Chunk type")
+  }
+
+  // not implicit to prevent problems with contravariance
+  val writer = Writes[JsonChunk] {
+    case st:StructuredText => Json.toJson(st)(StructuredText.writer)
+    case st:Image => Json.toJson(st)(Image.writer)
+  }
+
+}
+
+object Chunk {
+  //implicit val reader: Reads[Chunk] = __.read[HtmlChunk].map(c=>c:Chunk) orElse __.read[JsonChunk].map(c=>c:Chunk)
+
+  implicit val writer = Writes[Chunk]{
+    case a:HtmlChunk => Json.toJson(a)(HtmlChunk.writer)
+    case a:JsonChunk => Json.toJson(a)(JsonChunk.writer)
+  }
+}
+
+case class Document(
+  id: String, typ: String, href: String, 
+  tags: Seq[String], chunks: Map[String, Chunk]
+) {
+  def apply(field: String): Chunk = chunks(field)
+  def get(field: String): Option[Chunk] = chunks.get(field)
+}
+
+object Document {
+  implicit val reader = (
+    (__ \ "id").read[String] and
+    (__ \ "type").read[String] and
+    (__ \ "href").read[String] and
+    (__ \ "tags").read[Seq[String]] and
+    (__ \ "data").read[JsObject].map{ obj =>
+      obj.fields.map{ case (k, v) =>
+        v match {
+          case JsString(s)  => (k -> (HtmlChunk(name=k, content=s): Chunk) )
+          case obj: JsObject => (k -> (obj.as[JsonChunk](JsonChunk.reader(k)): Chunk) )
+          /*(
+            (__ \ "type").read[String] and
+            (__ \ "data").read[JsValue]
+          ).tupled.map{
+            case (typ, JsString(s)) => (k -> Chunk.HtmlChunk(name=k, typ=typ, content=s))
+            case (typ, data: JsValue) => (k -> Chunk.Json)
+          }
+          case arr: JsArray =>
+            arr.validate[Seq[JsObject]]
+               .map{ elts =>
+                 (k -> Widget.JSON(name=k, elements=elts))
+               }.recoverTotal { e => sys.error("unable to parse Document: "+e) }*/
+          case _ => sys.error("unmanaged document format")
+        }
+      }.toMap
+    }
+  )( Document.apply _ )
+
+  implicit val writer = Json.writes[Document]
+}

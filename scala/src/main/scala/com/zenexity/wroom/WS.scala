@@ -45,7 +45,7 @@ object CaseInsensitiveOrdered extends Ordering[String] {
  * and you should use Play's asynchronous mechanisms to use this response.
  *
  */
-object WS {
+object CustomWS {
 
   import com.ning.http.client.Realm.{ AuthScheme, RealmBuilder }
   import javax.net.ssl.SSLContext
@@ -172,7 +172,7 @@ object WS {
       import com.ning.http.client.AsyncCompletionHandler
       var result = Promise[Response]()
       calculator.map(_.sign(this))
-      WS.client.executeRequest(this.build(), new AsyncCompletionHandler[AHCResponse]() {
+      CustomWS.client.executeRequest(this.build(), new AsyncCompletionHandler[AHCResponse]() {
         override def onCompleted(response: AHCResponse) = {
           result.success(Response(response))
           response
@@ -254,7 +254,7 @@ object WS {
       val iterateeP = Promise[Iteratee[Array[Byte], A]]()
       var iteratee: Iteratee[Array[Byte], A] = null
 
-      WS.client.executeRequest(this.build(), new AsyncHandler[Unit]() {
+      CustomWS.client.executeRequest(this.build(), new AsyncHandler[Unit]() {
         import com.ning.http.client.AsyncHandler.STATE
 
         override def onStatusReceived(status: HttpResponseStatus) = {
@@ -569,7 +569,7 @@ trait SignatureCalculator {
   /**
    * Sign it.
    */
-  def sign(request: WS.WSRequest)
+  def sign(request: CustomWS.WSRequest)
 
 }
 

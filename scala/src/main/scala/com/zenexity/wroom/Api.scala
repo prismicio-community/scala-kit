@@ -9,46 +9,62 @@ import play.api.libs.functional.syntax._
 trait Api {
   def data: ApiData
   def baseUrl: String
+  def queryString: Map[String, Seq[String]]
+  def headers: Map[String, Seq[String]]
 
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, Form] = data.forms
 
-  def master: RefApi = data.refs.collectFirst{ case ref if ref.isMasterRef => ref } match {
-    case Some(r) => RefApi(this, r)
+  def ref(refId: String): Ref = refs(refId)
+  def getRef(refId: String): Option[Ref] = refs.get(refId)
+  def master: Ref = data.refs.collectFirst{ case ref if ref.isMasterRef => ref } match {
+    case Some(r) => r
     case None    => sys.error("potential problem: no master reference found")
   }
 
-  def ref(refId: String): RefApi = RefApi(this, refs(refId))
-  def getRef(refId: String): Option[RefApi] = refs.get(refId) map { r => RefApi(this, r) }
-
   def bookmark(name: String): String = bookmarks(name)
+
+  def form(s: String): FormApi = FormApi(this, forms(s))
+  def getForm(s: String): Option[FormApi] = forms.get(s) map { f => FormApi(this, f) }
+
+  def documents = form("documents")
+  def document(id: String) = form("document").withFields("id" -> id)
 
   override def toString = s"""Api:
     -> data: ${Json.prettyPrint(Json.toJson(data))}
   """
 }
 
-case class RefApi(api: Api, ref: Ref) {
-  def form(s: String): FormApi = FormApi(this, api.forms(s))
-  def getForm(s: String): Option[FormApi] = api.forms.get(s) map { f => FormApi(this, f) }
+case class FormApi(
+  api: Api,
+  form: Form,
+  fieldFilters: Seq[FieldFilter] = Seq(),
+  chunkFilters: Seq[ChunkFilter] = Seq()
+){
+  def withRef(ref: Ref): RefFormApi = RefFormApi(this, ref)
 
-  def documents = form("documents")
-  def document(id: String) = form("document").withFields("id" -> id)
+  def withFields(theFieldFilters: FieldFilter*): FormApi = copy( fieldFilters = fieldFilters ++ theFieldFilters )
+  def withFields(theFieldFilter: (String, Any), theFieldFilters: (String, Any)*): FormApi = withFields((theFieldFilter +: theFieldFilters).map{ case(k,v) => FieldFilter(k,v) }:_*)
+
+  def withChunks(theChunkFilters: ChunkFilter*): FormApi = copy( chunkFilters = chunkFilters ++ theChunkFilters )
+  def withChunks(theChunkFilter: (String, Render), theChunkFilters: (String, Render)*): FormApi = withChunks((theChunkFilter +: theChunkFilters).map{ case (name, render) => ChunkFilter(name, render) }: _*)
+  def withChunks(theChunkFilter: String, theChunkFilters: String*): FormApi = withChunks((theChunkFilter +: theChunkFilters).map{ name => ChunkFilter(name) }: _*)
 }
 
-case class FormApi(
-  refapi: RefApi, 
-  form: Form, 
-  fields: Seq[FieldFilter] = Seq(), 
-  widgets: Seq[WidgetFilter] = Seq()
+case class RefFormApi(
+  formapi: FormApi,
+  ref: Ref
 ) {
-  def withFields(theFields: FieldFilter*): FormApi = this.copy( fields = fields ++ theFields )
-  def withFields(field: (String, Any), theFields: (String, Any)*): FormApi = withFields((field +: theFields).map{ case(k,v) => FieldFilter(k,v) }:_*)
 
-  def withWidgets(newWidgets: WidgetFilter*): FormApi = this.copy( widgets = widgets ++ newWidgets )
-  def withWidgets(widget: (String, Render), newWidgets: (String, Render)*): FormApi = withWidgets((widget +: newWidgets).map{ case (name, render) => WidgetFilter(name, render) }: _*)
-  def withWidgets(widget: String, newWidgets: String*): FormApi = withWidgets((widget +: newWidgets).map{ name => WidgetFilter(name) }: _*)
+  def withRef(ref: Ref): RefFormApi = copy(ref = ref)
+
+  def withFields(theFieldFilters: FieldFilter*): RefFormApi = copy( formapi = formapi.withFields(theFieldFilters:_*) )
+  def withFields(theFieldFilter: (String, Any), theFieldFilters: (String, Any)*): RefFormApi = copy( formapi = formapi.withFields(theFieldFilter, theFieldFilters:_*) )
+
+  def withChunks(theChunkFilters: ChunkFilter*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilters:_*) )
+  def withChunks(theChunkFilter: (String, Render), theChunkFilters: (String, Render)*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilter, theChunkFilters:_*) )
+  def withChunks(theChunkFilter: String, theChunkFilters: String*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilter, theChunkFilters:_*) )
 
   private def urlEncodeField(typ: String, multiple: Boolean, value: Any): Seq[String] = {
     typ match {
@@ -60,54 +76,47 @@ case class FormApi(
     }
   }
 
-  private def queryString: Map[String, Seq[String]] = {
-    (Map("ref" -> Seq(java.net.URLEncoder.encode(refapi.ref.ref))) ++ 
-    fields.map{ case FieldFilter(k,v) => 
+  lazy val queryString: Map[String, Seq[String]] = {
+    val m = Map("ref" -> Seq(java.net.URLEncoder.encode(ref.ref))) ++
+    formapi.fieldFilters.map{ case FieldFilter(k,v) =>
       // converting field according to form fields
-      form.fields.get(k) match {
+      formapi.form.fields.get(k) match {
         case Some(field) => k -> urlEncodeField(field.typ, field.multiple, v)
-        case None        => sys.error("Form doesn't accept this field")
+        case None        => sys.error(s"Form doesn't accept the field $k")
       }
-      
-    }) + ("widgets" -> widgets.map{ w => w.toString })
+    }
+
+    (if(!formapi.chunkFilters.isEmpty) m + ("widgets" -> formapi.chunkFilters.map{ w => w.toString })
+    else m) ++
+    formapi.api.queryString
 
     // TODO add default values
-    
+
   }
-  
+
+  lazy val headers = formapi.api.headers
+
   def submit()(implicit ctx: ExecutionContext): Future[Seq[Document]] = {
-    val method = form.method
-    val enctype = form.enctype
-    var holder = WS.url(form.action)
+    val method = formapi.form.method
+    val enctype = formapi.form.enctype
+    var holder = CustomWS.url(formapi.form.action)
     method match {
-      case "GET" => 
+      case "GET" =>
         enctype match {
-          case "application/x-www-form-urlencoded" => 
+          case "application/x-www-form-urlencoded" =>
             holder = holder.copy(queryString = queryString)
           case _ => sys.error("enctype not managed")
         }
         // JSON for now
-        holder = holder.withHeaders("Accept" -> "application/json")
+        holder = holder.copy(headers = headers)
         holder.get() map { resp =>
-          val js = resp.json
-          Json.fromJson[Seq[JsObject]](js)
-              .map{ objects => 
-                objects.map{ obj => 
-                  val widgets = obj.fields.map{ case (k, v) =>
-                    v match {
-                      case JsString(s)  => (k -> Widget.Html(name=k, content=s))
-                      case arr: JsArray => 
-                        arr.validate[Seq[JsObject]]
-                           .map{ elts =>
-                             (k -> Widget.Json(name=k, elements=elts))
-                           }.recoverTotal { e => sys.error("unable to parse Document: "+e) }                      
-                      case _ => sys.error("unmanaged document format")
-                    }
-                  }.toMap
-
-                  Document(refapi.ref.ref, Seq(), widgets) 
-                }                
-              }.recoverTotal{ e => sys.error("unable to parse Document: "+e) }
+          resp.status match {
+            case 200 =>
+              val js = resp.json
+              println("REC:"+js)
+              Json.fromJson[Seq[Document]](js).recoverTotal{ e => sys.error("unable to parse Document: "+e) }
+            case error => throw new java.lang.RuntimeException(s"Http error(status:$error msg:${resp.statusText}")
+          }
         }
       case _ => sys.error("only GET is managed right now")
     }
@@ -117,8 +126,8 @@ case class FormApi(
 
 case class FieldFilter(name: String, value: Any)
 
-case class WidgetFilter(name: String, render: Render = Render.HTML, props: Map[String, String] = Map()) {
-  def withProps(theProps: (String, String)*) = this.copy(props = props ++ theProps)
+case class ChunkFilter(name: String, render: Render = Render.HTML, props: Map[String, String] = Map()) {
+  def withProps(theProps: (String, String)*) = copy(props = props ++ theProps)
 
   def toMap: Map[String, String] = Map("name" -> name, "render" -> render.toString) ++ props
   override def toString = toMap.map{ case(k,v) => s"$k:$v"}.mkString("(", ",", ")")

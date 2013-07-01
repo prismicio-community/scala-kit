@@ -15,15 +15,14 @@ class WroomApiSpec extends Specification {
 
   "WroomApi" should {
 
-    "getApi" in {
-      val maybeApi = Wroom.getApi("http://twelvesouth.wroom.dev") 
+    "getApi Chunks HTML" in {
+      val maybeApi = Wroom.url("http://twelvesouth.wroom.dev").api
       val res = Await.result(
         maybeApi flatMap { api =>
-          val master = api.master
-
-          val docs = master.form("documents")
-                      .withFields("tagged" -> Seq("product"))
-                      .withWidgets("product.name" -> Render.HTML)
+          val docs = api.form("documents").withRef(api.master)
+                        .withFields("types" -> Seq("product"))
+                        //.withFields("tagged" -> Seq("product"))
+                        .withChunks("_" -> Render.HTML)
 
           docs.submit()
         },
@@ -34,23 +33,39 @@ class WroomApiSpec extends Specification {
       success
     }
 
+    "getApi Chunks JSON" in {
+      val maybeApi = Wroom.url("http://twelvesouth.wroom.dev").api
+      val res = Await.result(
+        maybeApi flatMap { api =>
+          val docs = api.form("documents")
+                        .withRef(api.master)
+                        .withFields("types" -> Seq("product"))
+          docs.submit()
+        },
+        duration.Duration("2 seconds")
+      )
+      println("res:"+res)
+
+      success
+    }
+/*
     "different syntaxes" in {
       Await.result(
         (for{
-          api   <- Wroom.getApi("http://twelvesouth.wroom.dev")
+          api   <- Wroom.url("http://twelvesouth.wroom.dev").api()
           master = api.master
           docs1 <- master.form("documents")
                          .withFields("tagged" -> Seq("product"))
-                         .withWidgets("product.name" -> Render.HTML)
+                         .withChunks("product.name" -> Render.HTML)
                          .submit
           docs2 <- master.form("documents")
                          .withFields("tagged" -> Seq("product"))
-                         .withWidgets("product.name")
+                         .withChunks("product.name")
                          .submit
           docs3 <- master.form("documents")
                          .withFields(FieldFilter("tagged", Seq("product")))
-                         .withWidgets(
-                           WidgetFilter("product.name", Render.HTML).withProps("field1" -> "value1", "field2" -> "value2")
+                         .withChunks(
+                           ChunkFilter("product.name", Render.HTML).withProps("field1" -> "value1", "field2" -> "value2")
                          )
                          .submit
         } yield(docs1, docs2, docs3)).map{ case (docs1, docs2, docs3) =>
@@ -65,14 +80,16 @@ class WroomApiSpec extends Specification {
     "calling document" in {
       Await.result(
         (for{
-          api   <- Wroom.getApi("http://twelvesouth.wroom.dev")
+          api   <- Wroom.url("http://twelvesouth.wroom.dev")
+                        .withQueryString("access_token" -> "d711cadd469d0767422bf4d314cc561a")
+                        .api()
           master = api.master
           docs1 <- master.form("document")
                          .withFields(
-                           "id" -> "AAAAAAdbzTgAAAAA",
-                           "ref" -> "AAAAAAdbzT8AAAAA"
+                           "id" -> "AAAAAAdbzTgAAAAA"/*,
+                           "ref" -> "AAAAAAdbzT8AAAAA"*/
                          )
-                         .withWidgets("article.body" -> Render.HTML)
+                         .withChunks("article.body" -> Render.HTML)
                          .submit
         } yield(docs1)).map{ docs1 =>
           println("docs1:"+docs1)
@@ -80,6 +97,7 @@ class WroomApiSpec extends Specification {
         },
         duration.Duration("2 seconds")
       )
-    }    
+    }
+*/
   }
 }
