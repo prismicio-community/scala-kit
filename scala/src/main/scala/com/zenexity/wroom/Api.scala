@@ -29,42 +29,26 @@ trait Api {
   def getForm(s: String): Option[FormApi] = forms.get(s) map { f => FormApi(this, f) }
 
   def documents = form("documents")
-  def document(id: String) = form("document").withFields("id" -> id)
+  def document = form("document")
 
   override def toString = s"""Api:
-    -> data: ${Json.prettyPrint(Json.toJson(data))}
+-> apidata: ${Json.prettyPrint(Json.toJson(data))}
   """
 }
 
 case class FormApi(
   api: Api,
   form: Form,
-  fieldFilters: Seq[FieldFilter] = Seq(),
-  chunkFilters: Seq[ChunkFilter] = Seq()
-){
-  def withRef(ref: Ref): RefFormApi = RefFormApi(this, ref)
-
-  def withFields(theFieldFilters: FieldFilter*): FormApi = copy( fieldFilters = fieldFilters ++ theFieldFilters )
-  def withFields(theFieldFilter: (String, Any), theFieldFilters: (String, Any)*): FormApi = withFields((theFieldFilter +: theFieldFilters).map{ case(k,v) => FieldFilter(k,v) }:_*)
-
-  def withChunks(theChunkFilters: ChunkFilter*): FormApi = copy( chunkFilters = chunkFilters ++ theChunkFilters )
-  def withChunks(theChunkFilter: (String, Render), theChunkFilters: (String, Render)*): FormApi = withChunks((theChunkFilter +: theChunkFilters).map{ case (name, render) => ChunkFilter(name, render) }: _*)
-  def withChunks(theChunkFilter: String, theChunkFilters: String*): FormApi = withChunks((theChunkFilter +: theChunkFilters).map{ name => ChunkFilter(name) }: _*)
+  q: Option[Query] = None
+) {
+  def ref(r: Ref): RefFormApi = RefFormApi(this, r)
+  def q(query: String) = copy(q = Some(StringQuery(query)))
 }
 
 case class RefFormApi(
   formapi: FormApi,
   ref: Ref
 ) {
-
-  def withRef(ref: Ref): RefFormApi = copy(ref = ref)
-
-  def withFields(theFieldFilters: FieldFilter*): RefFormApi = copy( formapi = formapi.withFields(theFieldFilters:_*) )
-  def withFields(theFieldFilter: (String, Any), theFieldFilters: (String, Any)*): RefFormApi = copy( formapi = formapi.withFields(theFieldFilter, theFieldFilters:_*) )
-
-  def withChunks(theChunkFilters: ChunkFilter*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilters:_*) )
-  def withChunks(theChunkFilter: (String, Render), theChunkFilters: (String, Render)*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilter, theChunkFilters:_*) )
-  def withChunks(theChunkFilter: String, theChunkFilters: String*): RefFormApi = copy( formapi = formapi.withChunks(theChunkFilter, theChunkFilters:_*) )
 
   private def urlEncodeField(typ: String, multiple: Boolean, value: Any): Seq[String] = {
     typ match {
@@ -77,21 +61,14 @@ case class RefFormApi(
   }
 
   lazy val queryString: Map[String, Seq[String]] = {
-    val m = Map("ref" -> Seq(java.net.URLEncoder.encode(ref.ref))) ++
-    formapi.fieldFilters.map{ case FieldFilter(k,v) =>
-      // converting field according to form fields
-      formapi.form.fields.get(k) match {
-        case Some(field) => k -> urlEncodeField(field.typ, field.multiple, v)
-        case None        => sys.error(s"Form doesn't accept the field $k")
-      }
-    }
-
-    (if(!formapi.chunkFilters.isEmpty) m + ("widgets" -> formapi.chunkFilters.map{ w => w.toString })
-    else m) ++
+    Map(
+      "ref" -> Seq(java.net.URLEncoder.encode(ref.ref))
+    ) ++ 
+    (
+      if(formapi.q.isDefined) Map("q" -> Seq(formapi.q.get.toQueryString))
+      else Map()
+    ) ++
     formapi.api.queryString
-
-    // TODO add default values
-
   }
 
   lazy val headers = formapi.api.headers
@@ -113,7 +90,6 @@ case class RefFormApi(
           resp.status match {
             case 200 =>
               val js = resp.json
-              println("REC:"+js)
               Json.fromJson[Seq[Document]](js).recoverTotal{ e => sys.error("unable to parse Document: "+e) }
             case error => throw new java.lang.RuntimeException(s"Http error(status:$error msg:${resp.statusText}")
           }
@@ -124,12 +100,12 @@ case class RefFormApi(
 
 }
 
-case class FieldFilter(name: String, value: Any)
 
-case class ChunkFilter(name: String, render: Render = Render.HTML, props: Map[String, String] = Map()) {
-  def withProps(theProps: (String, String)*) = copy(props = props ++ theProps)
-
-  def toMap: Map[String, String] = Map("name" -> name, "render" -> render.toString) ++ props
-  override def toString = toMap.map{ case(k,v) => s"$k:$v"}.mkString("(", ",", ")")
+sealed trait Query {
+  def toQueryString: String
 }
+case class StringQuery(q: String) extends Query {
+  def toQueryString = q
+}
+
 

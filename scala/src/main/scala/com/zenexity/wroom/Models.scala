@@ -100,6 +100,8 @@ object Form {
 case class ApiData(
   val refs: Seq[Ref],
   val bookmarks: Map[String, String],
+  val types: Map[String, String],
+  val tags: Seq[String],
   val forms: Map[String, Form]
 )
 object ApiData {
@@ -107,6 +109,8 @@ object ApiData {
   implicit val reader = (
     (__ \ 'refs).read[Seq[Ref]] and
     (__ \ 'bookmarks).read[Map[String, String]] and
+    (__ \ 'types).read[Map[String, String]] and
+    (__ \ 'tags).read[Seq[String]] and
     (__ \ 'forms).read[Map[String, Form]]
   )(ApiData.apply _)
 
@@ -114,100 +118,239 @@ object ApiData {
 }
 
 
-sealed trait Render
-object Render {
-  case object HTML extends Render {
-    override def toString = "html"
-  }
-  case object JSON extends Render {
-    override def toString = "json"
-  }
-}
-
-sealed trait Chunk {
+sealed trait Fragment {
   def name: String
-  def render: Render
 
-  def asHtml: String = this match {
-    case c: HtmlChunk => c.content
-    case _ => throw new RuntimeException("can't convert chunk to HtmlChunk")
-  }
+  def asHtml: String
 
-  def asImage: JsonChunk.Image = this match {
-    case c: JsonChunk.Image => c
-    case _ => throw new RuntimeException("can't convert chunk to Image")
-  }
-
-  def asText: JsonChunk.StructuredText = this match {
-    case c: JsonChunk.StructuredText => c
-    case _ => throw new RuntimeException("can't convert chunk to StructuredText")
+  def asStructuredText: Option[Fragment.StructuredText] = this match {
+    case a: Fragment.StructuredText => Some(a)
+    case _ => None
   }
 }
 
-case class HtmlChunk(name: String, content: String) extends Chunk {
-  override val render = Render.HTML
 
-  override def toString = s"""HtmlChunk.$render($name, $content)"""
-}
+object Fragment{
 
-object HtmlChunk{
-  val writer = Writes[HtmlChunk]{ c => Json.obj(c.name -> c.content) }
-}
+  /**
+    * StructuredText
+    */
+  case class StructuredText(name: String, blocks: Seq[StructuredText.Block]) extends Fragment {
+    import StructuredText._
+    def asHtml: String = blocks.map {
+      case Block.Text(label, content, meta) =>
+        val t = asMeaningText(meta, content)
+        val html = label match {
+          case "heading1" => s"""<h1>$t</h1>"""
+          case "heading2" => s"""<h2>$t</h2>"""
+          case "heading3" => s"""<h3>$t</h3>"""
+          case "paragraph" => s"""<p>$t</p>"""
+          case "preformatted" => s"""<pre>$t</pre>"""
+          case "list-item" => s"""<li>$t</li>"""
+          case _ => t
+        }
+        html
 
-sealed trait JsonChunk extends Chunk {
-  override val render = Render.JSON
-}
+      case Block.Image(url, width, height) =>
+        s"""<img src="${url}" width="${width}" height="${height}">"""
+    }.mkString
 
-object JsonChunk{
-  case class StructuredText(name: String, elements: Seq[JsObject]) extends JsonChunk{
-    override def toString = s"""JsonChunk.StructuredText($name,${JsArray(elements)})"""
-  }
-  case class Image(name: String, elements: JsObject) extends JsonChunk{
-    override def toString = s"""JsonChunk.Image($name,$elements)"""
+    import scala.collection.mutable.ListBuffer
+
+    private def escape(text: String, preserveWhitespace: Boolean): String = {
+      text.replace("<", "&lt;")
+          .replace("\n", "<br>")
+          .replace(" ", if(preserveWhitespace) "&nbsp;" else " ")
+    }
+
+    private def escape(char: Char, preserveWhitespace: Boolean): String =
+      escape(char.toString, preserveWhitespace)
+
+    def linkAsHtml(meta: StructuredText.Meta): Option[String] = {
+      /*import StructuredText.links._
+
+      meta.asMediaLink.map {
+        case ImageLink(id, url, date, height, width, length, name, kind, _) =>
+          s"""<a href="$url" data-link-to="media" data-media-id="$id" data-filename="$name" data-type="$kind" data-width="$width" data-height="$height" data-length="$length">"""
+        case FileLink(id, url, name, kind, date, length, _) =>
+          s"""<a href="$url" data-link-to="media" data-media-id="$id" data-filename="$name" data-type="$kind" data-length="$length">"""
+        case x => Wroom.oops("Can't handle this media link: " + x)
+      } orElse {
+        meta.asDocumentLink.map {
+          case DocumentLink(id, typ, _) =>
+            s"""<a data-link-to="document" data-document-id="$id" data-type="$typ">"""
+        }
+      } orElse {
+        meta.asExternalLink.map { url =>
+          s"""<a href="$url" data-link-to="web">"""
+        }
+      }*/
+
+      None
+    }
+    def asMeaningText(
+      meta: Seq[StructuredText.Meta],
+      text: String,
+      preserveWhitespace: Boolean = false
+    ): String = {
+
+      def asHtmlTag(typ: String, meta: Option[StructuredText.Meta], opening: Boolean): String = {
+        val data = meta.flatMap(_.data)
+        typ match {
+          case "em" => if(opening) "<em>" else "</em>"
+          case "strong" => if(opening) "<strong>" else "</strong>"
+          case "hyperlink" => if(opening) {
+            meta.flatMap(linkAsHtml).getOrElse { println(meta); "<a>" }
+          } else """</a>"""
+          case typ => if(opening) s"""<span class="$typ">""" else "</span>"
+        }
+      }
+
+      def asHtml(endingsToApply: Seq[(Int, String)], startingsToApply: Seq[StructuredText.Meta]): String = {
+        endingsToApply.map(e => asHtmlTag(e._2, None, opening = false)).mkString("") +
+        startingsToApply.map(s => asHtmlTag(s.`type`, Some(s), opening = true)).mkString("")
+      }
+
+      @scala.annotation.tailrec
+      def step(in: Seq[(Char, Int)], startings: Seq[StructuredText.Meta], endings: Seq[(Int, String)] = Nil, html: ListBuffer[String] = ListBuffer()): String = {
+        val nextOp = (startings.headOption.map(_.start).toList ++ endings.headOption.toList.map(_._1)).reduceOption(Math.min)
+        in match {
+          case ((_, pos) :: tail) if !nextOp.exists( _ == pos) => {
+            val (done,toDo) = in.toList.span(i => ! nextOp.exists(i._2 == _))
+            step(toDo, startings, endings, html += escape(done.map(_._1).mkString, preserveWhitespace))
+          }
+          case (current, pos) :: tail => {
+            val (endingsToApply, othersEnding) = endings.span { case (end, _) => end == pos }
+            val (startingsToApply, othersStarting) = startings.span(_.start == pos)
+            val caractere = asHtml(endingsToApply, startingsToApply) + escape(current, preserveWhitespace)
+            val moreEndings = startingsToApply.reverse.map(s => s.end -> s.`type`)
+            val newEndings = moreEndings ++ othersEnding
+            step(tail, othersStarting, newEndings, html += caractere)
+          }
+          case Nil => html.mkString("") + asHtml(endings, Seq.empty).mkString("")
+        }
+      }
+      step(text.toList.zipWithIndex, meta.sortBy(_.start))
+    }
   }
 
   object StructuredText{
+    case class Meta(start: Int, end: Int, `type`: String, data: Option[JsValue] = None)
+
+    object Meta {
+      implicit val reader = Json.reads[Meta]
+      implicit val writer = Json.writes[Meta]
+    }
+
+    /**
+      * StructuredText Blocks
+      */
+    sealed trait Block
+
+    object Block {
+      /**
+        * Text Block
+        */
+      case class Text(label: String, content: String, meta: Seq[Meta]) extends Block
+      object Text {
+        implicit val reader = Json.reads[Text]
+        val writer=  Json.writes[Text]
+      }
+
+      /**
+        * Image Block
+        */
+      case class Image(url: String, width: Int, height: Int) extends Block
+      object Image {
+        implicit val reader = (
+          (__ \ 'url).read[String] and
+          (__ \ 'dimensions).read((
+            (__ \ 'width).read[Int] and
+            (__ \ 'height).read[Int]
+          ).tupled)
+        ){ (url, dim) => Image(url, dim._1, dim._2) }
+
+        val writer = (
+          (__ \ 'url).write[String] and
+          (__ \ 'dimensions \ 'width).write[Int] and
+          (__ \ 'dimensions \ 'height).write[Int]
+        )(unlift(Image.unapply))
+      }
+
+      /**
+        * Block Reads/Writes
+        */
+      implicit val reader =
+        __.read[Text](Text.reader).map{a => a:Block} orElse
+        __.read[Image](Image.reader).map{a => a:Block}
+
+      implicit val writer = Writes[Block]{
+        case t: Text => Json.toJson(t)(Text.writer)
+        case i: Image => Json.toJson(i)(Image.writer)
+      }
+    }
+
+    /**
+      * StructuredText Reads/Writes
+      */
     implicit val reader = Json.reads[StructuredText]
     val writer = Json.writes[StructuredText]
+
   }
+/*
+  /**
+    * Image
+    */
+  case class Image(view: Image.View, thumbnails: Map[String, Image.View]) extends Fragment
 
   object Image{
-    implicit val reader = Json.reads[Image]
-    val writer = Json.writes[Image]
+    case class View(origin: (String, Int, Int), url: Option[String], width: Int, height: Int, zoom: Float, crop: (Int,Int), background: String)
   }
 
-  def reader(name: String): Reads[JsonChunk] = (
+  /**
+    * Maps
+    */
+  case class Maps(address:String, lat:Double, lng:Double) extends Fragment
+
+  /**
+    * Embed
+    */
+  case class Embed(
+    url: String, `type`: String, provider: Option[String], title: Option[String], preview: Option[(String, Int, Int)]
+  ) extends Fragment
+
+
+  /**
+    * Field
+    */
+  case class Field(value: String, typ: String) extends Fragment
+*/
+
+  def reader(name: String): Reads[Fragment] = (
     (__ \ "type").read[String] and
     (__ \ "data").read[JsValue]
   ).tupled.map{
-    case ("StructuredText", arr) => StructuredText(name, arr.as[Seq[JsObject]])
-    case ("Image", obj) => Image(name, obj.as[JsObject])
-    case _ => sys.error("unmanaged Json Chunk type")
+    case ("StructuredText", d) => StructuredText(name, d.as[Seq[StructuredText.Block]])
+    case (t, _) => sys.error(s"unmanaged Json Fragment type $t")
   }
 
   // not implicit to prevent problems with contravariance
-  val writer = Writes[JsonChunk] {
-    case st:StructuredText => Json.toJson(st)(StructuredText.writer)
-    case st:Image => Json.toJson(st)(Image.writer)
+  implicit val writer = Writes[Fragment] {
+    case st: StructuredText => Json.toJson(st)(StructuredText.writer)
   }
 
 }
 
-object Chunk {
-  //implicit val reader: Reads[Chunk] = __.read[HtmlChunk].map(c=>c:Chunk) orElse __.read[JsonChunk].map(c=>c:Chunk)
-
-  implicit val writer = Writes[Chunk]{
-    case a:HtmlChunk => Json.toJson(a)(HtmlChunk.writer)
-    case a:JsonChunk => Json.toJson(a)(JsonChunk.writer)
-  }
-}
 
 case class Document(
-  id: String, typ: String, href: String, 
-  tags: Seq[String], chunks: Map[String, Chunk]
+  id: String,
+  typ: String,
+  href: String,
+  tags: Seq[String],
+  fragments: Map[String, Fragment]
 ) {
-  def apply(field: String): Chunk = chunks(field)
-  def get(field: String): Option[Chunk] = chunks.get(field)
+  def apply(field: String): Fragment = fragments(field)
+  def get(field: String): Option[Fragment] = fragments.get(field)
 }
 
 object Document {
@@ -219,20 +362,7 @@ object Document {
     (__ \ "data").read[JsObject].map{ obj =>
       obj.fields.map{ case (k, v) =>
         v match {
-          case JsString(s)  => (k -> (HtmlChunk(name=k, content=s): Chunk) )
-          case obj: JsObject => (k -> (obj.as[JsonChunk](JsonChunk.reader(k)): Chunk) )
-          /*(
-            (__ \ "type").read[String] and
-            (__ \ "data").read[JsValue]
-          ).tupled.map{
-            case (typ, JsString(s)) => (k -> Chunk.HtmlChunk(name=k, typ=typ, content=s))
-            case (typ, data: JsValue) => (k -> Chunk.Json)
-          }
-          case arr: JsArray =>
-            arr.validate[Seq[JsObject]]
-               .map{ elts =>
-                 (k -> Widget.JSON(name=k, elements=elts))
-               }.recoverTotal { e => sys.error("unable to parse Document: "+e) }*/
+          case obj: JsObject => (k -> (obj.as[Fragment](Fragment.reader(k)): Fragment) )
           case _ => sys.error("unmanaged document format")
         }
       }.toMap
