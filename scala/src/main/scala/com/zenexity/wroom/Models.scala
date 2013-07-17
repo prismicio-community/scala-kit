@@ -195,7 +195,6 @@ object Fragment{
     ): String = {
 
       def asHtmlTag(typ: String, meta: Option[StructuredText.Meta], opening: Boolean): String = {
-        val data = meta.flatMap(_.data)
         typ match {
           case "em" => if(opening) "<em>" else "</em>"
           case "strong" => if(opening) "<strong>" else "</strong>"
@@ -235,11 +234,130 @@ object Fragment{
   }
 
   object StructuredText{
-    case class Meta(start: Int, end: Int, `type`: String, data: Option[JsValue] = None)
+    sealed trait Meta {
+      def start: Int
+      def end: Int
+      def `type`: String
+    }
 
-    object Meta {
-      implicit val reader = Json.reads[Meta]
-      implicit val writer = Json.writes[Meta]
+    object Meta{
+
+      case class Em(start: Int, end: Int) extends Meta{
+        override val `type` = "em"
+      }
+      object Em {
+        val writer = Json.writes[Em]
+      }
+
+      case class Strong(start: Int, end: Int) extends Meta{
+        override val `type` = "strong"
+      }
+      object Strong {
+        val writer = Json.writes[Strong]
+      }
+
+      trait HyperLink extends Meta{
+        override val `type` = "hyperlink"
+
+        def preview: Option[HyperLink.LinkPreview]
+        def asUrl: String
+      }
+      object HyperLink {
+        case class LinkPreview(title: Option[String], image: Option[String])
+        object LinkPreview {
+          implicit val format = Json.format[LinkPreview]
+        }
+
+        case class DocumentLink(start: Int, end: Int, id: String, mask: String, preview: Option[LinkPreview])
+        extends HyperLink {
+          def asUrl = s"wio://documents/$id"
+        }
+        object DocumentLink {
+          implicit val reader = Json.reads[DocumentLink]
+          val writer = Json.writes[DocumentLink]
+        }
+
+        sealed trait MediaLink extends HyperLink {
+          def id: String
+          def asUrl = s"wio://medias/$id"
+        }
+
+        case class FileLink(start: Int, end: Int, id: String, url: String, name: String, kind: String, date: String, size: String, preview: Option[LinkPreview])
+        extends MediaLink
+
+        object FileLink {
+          implicit val reader = Json.reads[FileLink]
+          val writer = Json.writes[FileLink]
+        }
+
+        case class ImageLink(start: Int, end: Int, id: String, url: String, date: String, height: String, width: String, size: String, name: String, kind: String, preview: Option[LinkPreview])
+        extends MediaLink
+
+        object ImageLink {
+          implicit val reader = Json.reads[ImageLink]
+          val writer = Json.writes[ImageLink]
+        }
+
+        case class ExternalLink(start: Int, end: Int, url: String, preview: Option[LinkPreview]) extends HyperLink {
+          def asUrl = url
+        }
+        object ExternalLink {
+          implicit val reader = Json.reads[ExternalLink]
+          val writer = Json.writes[ExternalLink]
+        }
+
+        case class EmptyLink(start: Int, end: Int) extends HyperLink{
+          def asUrl = ""
+          def preview = None
+        }
+        object EmptyLink{
+          implicit val reader = Json.reads[EmptyLink]
+          val writer = Json.writes[EmptyLink]
+        }
+
+        object MediaLink {
+          implicit val reader: Reads[MediaLink] = 
+            __.read[FileLink].map(e => e:MediaLink) or 
+            __.read[ImageLink].map(e => e:MediaLink)
+
+          val writer = Writes[MediaLink] { 
+            case a:FileLink => Json.toJson[FileLink](a)(FileLink.writer)
+            case a:ImageLink => Json.toJson[ImageLink](a)(ImageLink.writer)
+          }
+        }
+
+        implicit val reader: Reads[HyperLink] = 
+          __.read[DocumentLink].map(e => e:HyperLink) or 
+          __.read[MediaLink].map(e => e:HyperLink) or 
+          __.read[ExternalLink].map(e => e:HyperLink) or
+          __.read[EmptyLink].map(e => e:HyperLink)
+        
+        implicit val writer = Writes[HyperLink]{
+          case a:DocumentLink => Json.toJson(a)(DocumentLink.writer)
+          case a:MediaLink => Json.toJson(a)(MediaLink.writer)
+          case a:ExternalLink => Json.toJson(a)(ExternalLink.writer)
+          case a:EmptyLink => Json.toJson(a)(EmptyLink.writer)
+        }
+      }
+
+      implicit val reader: Reads[Meta] =
+      (
+        (__ \ 'type).read[String] and
+        (__ \ 'start).read[Int] and
+        (__ \ 'end).read[Int] and
+        __.read[JsObject]
+      ).tupled.map{
+        case (typ, start, end, obj) => typ match {
+          case "em" => Em(start, end)
+          case "strong" => Strong(start, end)
+          case "hyperlink" => obj.as[HyperLink]
+        }
+      }
+      implicit val writer = Writes[Meta]{
+        case a:Em => Json.toJson(a)(Em.writer)
+        case a:Strong => Json.toJson(a)(Strong.writer)
+        case a:HyperLink => Json.toJson(a)(HyperLink.writer)
+      }
     }
 
     /**
