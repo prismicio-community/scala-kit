@@ -121,11 +121,6 @@ object ApiData {
 sealed trait Fragment {
   
   def asHtml: String = ""
-
-  def asStructuredText: Option[Fragment.StructuredText] = this match {
-    case a: Fragment.StructuredText => Some(a)
-    case _ => None
-  }
 }
 
 
@@ -134,7 +129,14 @@ object Fragment{
   /**
    * Image
    */
-  case class Image(main: Image.View, thumbnails: Map[String, Image.View]) extends Fragment
+  case class Image(main: Image.View, views: Map[String, Image.View]) extends Fragment {
+
+    def getView(key: String): Option[Image.View] = key match {
+      case "main" => Some(main)
+      case _ => views.get(key)
+    }
+
+  }
 
   object Image {
 
@@ -163,7 +165,13 @@ object Fragment{
 
   }
 
-  case class StructuredText(blocks: Seq[StructuredText.Block]) extends Fragment
+  case class StructuredText(blocks: Seq[StructuredText.Block]) extends Fragment {
+
+    def getTitle: Option[StructuredText.Block.Heading] = blocks.collectFirst {
+      case h: StructuredText.Block.Heading => h
+    }
+
+  }
 
   object StructuredText {
 
@@ -297,11 +305,27 @@ object Fragment{
     sealed trait Block
 
     object Block {
+
+      sealed trait TextBlock extends Block {
+        def text: String
+        def spans: Seq[Span]
+      }
+
+      case class Heading(level: Int, text: String, spans: Seq[Span]) extends TextBlock
+
+      object Heading {
+        implicit def reader(level: Int): Reads[Heading] = (
+          (__ \ "content").read[String] and
+          (__ \ "meta").read[Seq[Span]] tupled
+        ).map {
+          case (content, spans) => Heading(level, content, spans)
+        }
+      }
       
-      case class Paragraph(content: String, spans: Seq[Span]) extends Block
+      case class Paragraph(text: String, spans: Seq[Span]) extends TextBlock
 
       object Paragraph {
-        implicit def reader: Reads[Paragraph] = (
+        implicit val reader: Reads[Paragraph] = (
           (__ \ "content").read[String] and
           (__ \ "meta").read[Seq[Span]] tupled
         ).map {
@@ -312,6 +336,10 @@ object Fragment{
       implicit val reader: Reads[Block] = (
         (__ \ "label").read[String].flatMap[Block] { 
 
+          case "heading1"  => __.read(Heading.reader(1)).map(identity[Block])
+          case "heading2"  => __.read(Heading.reader(2)).map(identity[Block])
+          case "heading3"  => __.read(Heading.reader(3)).map(identity[Block])
+          case "heading4"  => __.read(Heading.reader(4)).map(identity[Block])
           case "paragraph" => __.read[Paragraph].map(identity[Block])
 
           case t => Reads(json => JsError(s"Unsupported block type $t"))
@@ -339,7 +367,24 @@ case class Document(
   fragments: Map[String, Fragment]
 ) {
   def apply(field: String): Fragment = fragments(field)
+
   def get(field: String): Option[Fragment] = fragments.get(field)
+
+  def getImage(field: String): Option[Fragment.Image] = get(field).flatMap {
+    case a: Fragment.Image => Some(a)
+    case _ => None
+  }
+
+  def getStructuredText(field: String): Option[Fragment.StructuredText] = get(field).flatMap {
+    case a: Fragment.StructuredText => Some(a)
+    case _ => None
+  }
+
+  def getText(field: String): Option[String] = get(field).flatMap {
+    case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.TextBlock => b.text }.mkString("\n")).filterNot(_.isEmpty)
+    case _ => None
+  }
+
 }
 
 object Document {
