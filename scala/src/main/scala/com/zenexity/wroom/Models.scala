@@ -121,7 +121,7 @@ object ApiData {
 sealed trait Fragment {
   def name: String
 
-  def asHtml: String
+  def asHtml: String = ""
 
   def asStructuredText: Option[Fragment.StructuredText] = this match {
     case a: Fragment.StructuredText => Some(a)
@@ -132,12 +132,14 @@ sealed trait Fragment {
 
 object Fragment{
 
+  case class Unknown(name: String) extends Fragment
+
   /**
     * StructuredText
     */
   case class StructuredText(name: String, blocks: Seq[StructuredText.Block]) extends Fragment {
     import StructuredText._
-    def asHtml: String = blocks.map {
+    override def asHtml: String = blocks.map {
       case Block.Text(label, content, meta) =>
         val t = asMeaningText(meta, content)
         val html = label match {
@@ -447,14 +449,15 @@ object Fragment{
   def reader(name: String): Reads[Fragment] = (
     (__ \ "type").read[String] and
     (__ \ "data").read[JsValue]
-  ).tupled.map{
+  ).tupled.map {
     case ("StructuredText", d) => StructuredText(name, d.as[Seq[StructuredText.Block]])
-    case (t, _) => sys.error(s"unmanaged Json Fragment type $t")
+    case (t, _) => Unknown(name)
   }
 
   // not implicit to prevent problems with contravariance
   implicit val writer = Writes[Fragment] {
     case st: StructuredText => Json.toJson(st)(StructuredText.writer)
+    case unknown: Unknown => JsNull
   }
 
 }
@@ -478,11 +481,8 @@ object Document {
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "data").read[JsObject].map{ obj =>
-      obj.fields.map{ case (k, v) =>
-        v match {
-          case obj: JsObject => (k -> (obj.as[Fragment](Fragment.reader(k)): Fragment) )
-          case _ => sys.error("unmanaged document format")
-        }
+      obj.fields.collect { 
+        case (k, obj: JsObject) => (k -> (obj.as[Fragment](Fragment.reader(k)): Fragment) )
       }.toMap
     }
   )( Document.apply _ )

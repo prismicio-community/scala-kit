@@ -27,7 +27,7 @@ case class Wroom(
     })
 
   def api()(implicit ctx: ExecutionContext): Future[Api] = {
-    CustomWS.url(s"$url/api")
+    CustomWS.url(s"$url")
       .copy(queryString = queryString)
       .copy(headers = headers)
       .get()
