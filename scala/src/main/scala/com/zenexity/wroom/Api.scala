@@ -6,86 +6,59 @@ import org.joda.time._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
-trait Api {
-  def data: ApiData
-  def baseUrl: String
-  def queryString: Map[String, Seq[String]]
-  def headers: Map[String, Seq[String]]
+import scala.concurrent.ExecutionContext.Implicits.global
+
+case class Api(data: ApiData) {
 
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
-  def forms: Map[String, Form] = data.forms
+  def forms: Map[String, SearchForm] = data.forms.mapValues(f => SearchForm(f, f.defaultData))
 
-  def ref(refId: String): Ref = refs(refId)
-  def getRef(refId: String): Option[Ref] = refs.get(refId)
-  def master: Ref = data.refs.collectFirst{ case ref if ref.isMasterRef => ref } match {
-    case Some(r) => r
-    case None    => sys.error("potential problem: no master reference found")
-  }
+  def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
 
-  def bookmark(name: String): String = bookmarks(name)
-
-  def form(s: String): FormApi = FormApi(this, forms(s))
-  def getForm(s: String): Option[FormApi] = forms.get(s) map { f => FormApi(this, f) }
-
-  def documents = form("documents")
-  def document = form("document")
-
-  override def toString = s"""Api:
--> apidata: ${Json.prettyPrint(Json.toJson(data))}
-  """
 }
 
-case class FormApi(
-  api: Api,
-  form: Form,
-  q: Option[Query] = None
-) {
-  def ref(r: Ref): RefFormApi = RefFormApi(this, r)
-  def q(query: String) = copy(q = Some(StringQuery(query)))
-}
+object Api {
 
-case class RefFormApi(
-  formapi: FormApi,
-  ref: Ref
-) {
+  val AcceptJson = Map("Accept" -> Seq("application/json"))
 
-  private def urlEncodeField(typ: String, multiple: Boolean, value: Any): Seq[String] = {
-    typ match {
-      case "String" => multiple match {
-        case false  => Seq(java.net.URLEncoder.encode(value.toString))
-        case true => value.asInstanceOf[Seq[Any]].map(e => java.net.URLEncoder.encode(e.toString))
+  def get(url: String): Future[Api] = {
+    CustomWS.url(url)
+      .copy(headers = AcceptJson)
+      .get()
+      .map { resp =>
+        resp.status match {
+          case 200    => Api(resp.json.as[ApiData])
+          case error  => sys.error(s"Http error $error (${resp.statusText}")
+        }
       }
-      case _ => sys.error("unknown type")
-    }
   }
 
-  lazy val queryString: Map[String, Seq[String]] = {
-    Map(
-      "ref" -> Seq(java.net.URLEncoder.encode(ref.ref))
-    ) ++ 
-    (
-      if(formapi.q.isDefined) Map("q" -> Seq(formapi.q.get.toQueryString))
-      else Map()
-    ) ++
-    formapi.api.queryString
+}
+
+
+case class SearchForm(form: Form, data: Map[String,String]) {
+
+  def ref(r: Ref): SearchForm = ref(r.ref)
+  def ref(r: String): SearchForm = copy(data = data ++ Map("ref" -> r))
+  def query(query: String) = {
+    def strip(q: String) = q.trim.drop(1).dropRight(1)
+    copy(data = data ++ Map("q" -> (s"[${form.fields("q").default.map(strip).getOrElse("")}${strip(query)}]")))
   }
 
-  lazy val headers = formapi.api.headers
-
-  def submit()(implicit ctx: ExecutionContext): Future[Seq[Document]] = {
-    val method = formapi.form.method
-    val enctype = formapi.form.enctype
-    var holder = CustomWS.url(formapi.form.action)
+  def submit(): Future[Seq[Document]] = {
+    val method = form.method
+    val enctype = form.enctype
+    var holder = CustomWS.url(form.action)
     method match {
       case "GET" =>
         enctype match {
           case "application/x-www-form-urlencoded" =>
-            holder = holder.copy(queryString = queryString)
+            holder = holder.copy(queryString = data.mapValues(v => Seq(v)))
           case _ => sys.error("enctype not managed")
         }
         // JSON for now
-        holder = holder.copy(headers = headers)
+        holder = holder.copy(headers = Api.AcceptJson)
         holder.get() map { resp =>
           resp.status match {
             case 200 =>
@@ -100,12 +73,5 @@ case class RefFormApi(
 
 }
 
-
-sealed trait Query {
-  def toQueryString: String
-}
-case class StringQuery(q: String) extends Query {
-  def toQueryString = q
-}
 
 

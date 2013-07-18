@@ -1,6 +1,8 @@
 package com.zenexity.wroom.client
 
+import scala.util._
 import scala.concurrent._
+
 import org.joda.time._
 
 import play.api.libs.json._
@@ -10,78 +12,24 @@ case class Ref(
   ref: String,
   label: String,
   isMasterRef: Boolean = false,
-  scheduled: Option[DateTime] = None
+  scheduledAt: Option[DateTime] = None
 )
 
 object Ref {
+
   implicit val reader = (
     (__ \ "ref").read[String] and
     (__ \ "label").read[String] and
-    ((__ \ "master-ref").read[Boolean] orElse Reads.pure(false)) and
-    (__ \ "scheduled").readNullable[DateTime]
+    ((__ \ "isMasterRef").read[Boolean] orElse Reads.pure(false)) and
+    (__ \ "scheduledAt").readNullable[DateTime]
   )(Ref.apply _)
 
-  implicit val writer = (
-    (__ \ "ref").write[String] and
-    (__ \ "label").write[String] and
-    (__ \ "master-ref").write[Boolean] and
-    (__ \ "scheduled").writeNullable[DateTime]
-  )(unlift(Ref.unapply))
 }
 
-sealed trait FieldDef {
-  def typ: String
-  def multiple: Boolean = false
-}
+case class Field(`type`: String, default: Option[String])
 
-case class SingleFieldDef(override val typ: String, default: Option[String]) extends FieldDef {
-  override val multiple: Boolean = false
-}
-object SingleFieldDef {
-  implicit val reader = (
-    (__ \ "type").read[String] and
-    //((__ \ "multiple").read[Boolean] orElse Reads.pure(false)) and
-    (__ \ "default").readNullable[String]
-  )(SingleFieldDef.apply _)
-
-  val writer = (
-    (__ \ "type").write[String] and
-    (__ \ "multiple").write[Boolean] and
-    (__ \ "default").writeNullable[String]
-  )((field: SingleFieldDef) => (field.typ, field.multiple, field.default))
-
-}
-case class MultipleFieldDef(override val typ: String, default: Seq[String]) extends FieldDef {
-  override val multiple: Boolean = true
-}
-object MultipleFieldDef {
-  implicit val reader = (
-    (__ \ "type").read[String] and
-    //((__ \ "multiple").read[Boolean] orElse Reads.pure(false)) and
-    ((__ \ "default").read[Seq[String]] orElse Reads.pure(Seq()))
-  )(MultipleFieldDef.apply _)
-
-  val writer = (
-    (__ \ "type").write[String] and
-    (__ \ "multiple").write[Boolean] and
-    (__ \ "default").write[Seq[String]]
-  )((field: MultipleFieldDef) => (field.typ, field.multiple, field.default))
-}
-
-object FieldDef {
-  implicit val reader =
-    (
-      (__ \ 'multiple).read[Boolean] and
-      __.json.pick
-    ).tupled flatMap { case (multiple, js) => multiple match {
-      case true   => Reads{ _ => Json.fromJson[MultipleFieldDef](js) } map { c => c:FieldDef }
-      case false  => Reads{ _ => Json.fromJson[SingleFieldDef](js) } map { c => c:FieldDef }
-    } }
-
-  implicit val writer = Writes[FieldDef]{ field => field match {
-    case s: SingleFieldDef   => Json.toJson[SingleFieldDef](s)(SingleFieldDef.writer)
-    case s: MultipleFieldDef => Json.toJson[MultipleFieldDef](s)(MultipleFieldDef.writer)
-  }}
+object Field {
+  implicit val reader = Json.reads[Field]
 }
 
 case class Form(
@@ -90,11 +38,19 @@ case class Form(
   rel: Option[String],
   enctype: String,
   action: String,
-  fields: Map[String, FieldDef]
-)
+  fields: Map[String, Field]
+) {
+
+  def defaultData: Map[String,String] = {
+    fields.mapValues(_.default).collect {
+      case (key, Some(value)) => (key, value)
+    }
+  } 
+
+}
+
 object Form {
   implicit val reader = Json.reads[Form]
-  implicit val writer = Json.writes[Form]
 }
 
 case class ApiData(
@@ -104,8 +60,9 @@ case class ApiData(
   val tags: Seq[String],
   val forms: Map[String, Form]
 )
+
 object ApiData {
-  //implicit val reader = Json.reads[ApiData]
+  
   implicit val reader = (
     (__ \ 'refs).read[Seq[Ref]] and
     (__ \ 'bookmarks).read[Map[String, String]] and
@@ -114,22 +71,57 @@ object ApiData {
     (__ \ 'forms).read[Map[String, Form]]
   )(ApiData.apply _)
 
-  implicit val writer = Json.writes[ApiData]
 }
 
-
 sealed trait Fragment {
-  
   def asHtml: String = ""
 }
 
 
-object Fragment{
+object Fragment {
 
-  /**
-   * Image
-   */
-  case class Image(main: Image.View, views: Map[String, Image.View]) extends Fragment {
+  case class Number(value: Double) extends Fragment {
+    def asInt = value.toInt
+    def asText(pattern: String) = new java.text.DecimalFormat(pattern).format(value)
+  }
+
+  object Number {
+
+    implicit val reader: Reads[Number] = {
+      Reads(v => v.asOpt[Double].map(d => JsSuccess(Number(d))).getOrElse(JsError(s"Invalid number value $v")))
+    }
+
+  }
+
+  // ------------------
+
+  case class Color(hex: String) extends Fragment {
+    def asRGB = Color.asRGB(hex)
+  }
+
+  object Color {
+
+    private val HexColor = """#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})""".r
+
+    def isValidColorValue(hex: String): Boolean = hex match {
+      case HexColor(r, g, b) => true
+      case _ => false
+    } 
+
+    def asRGB(hex: String): (Int, Int, Int) = hex match {
+      case HexColor(r, g, b) => (Integer.parseInt(r, 16), Integer.parseInt(g, 16), Integer.parseInt(b, 16))
+      case _ => (0,0,0)
+    }
+
+    implicit val reader: Reads[Color] = {
+      Reads(v => v.asOpt[String].filter(isValidColorValue).map(hex => JsSuccess(Color(hex))).getOrElse(JsError(s"Invalid color value $v")))
+    }
+
+  }
+
+  // ------------------
+
+  case class Image(main: Image.View, views: Map[String, Image.View] = Map.empty) extends Fragment {
 
     def getView(key: String): Option[Image.View] = key match {
       case "main" => Some(main)
@@ -158,9 +150,9 @@ object Fragment{
     implicit val reader: Reads[Image] =
       (
         (__ \ 'main).read[View] and
-        (__ \ 'thumbnails).read[Map[String,View]]
+        (__ \ 'views).read[Map[String,View]]
       ).tupled.map {
-        case (main, thumbnails) => Image(main, thumbnails)
+        case (main, views) => Image(main, views)
       }
 
   }
@@ -173,32 +165,34 @@ object Fragment{
 
   }
 
+  // ------------------
+
   object StructuredText {
 
     sealed trait Span {
       def start: Int
       def end: Int
-      def `type`: String
+      def typ: String
     }
 
     object Span {
 
       case class Em(start: Int, end: Int) extends Span {
-        override val `type` = "em"
+        override val typ = "em"
       }
       object Em {
         val writer = Json.writes[Em]
       }
 
       case class Strong(start: Int, end: Int) extends Span {
-        override val `type` = "strong"
+        override val typ = "strong"
       }
       object Strong {
         val writer = Json.writes[Strong]
       }
 
       trait HyperLink extends Span {
-        override val `type` = "hyperlink"
+        override val typ = "hyperlink"
 
         def preview: Option[HyperLink.LinkPreview]
         def asUrl: String
@@ -306,41 +300,48 @@ object Fragment{
 
     object Block {
 
-      sealed trait TextBlock extends Block {
+      sealed trait Text extends Block {
         def text: String
         def spans: Seq[Span]
       }
 
-      case class Heading(level: Int, text: String, spans: Seq[Span]) extends TextBlock
+      case class Heading(level: Int, text: String, spans: Seq[Span]) extends Text
 
       object Heading {
         implicit def reader(level: Int): Reads[Heading] = (
-          (__ \ "content").read[String] and
-          (__ \ "meta").read[Seq[Span]] tupled
+          (__ \ "text").read[String] and
+          (__ \ "spans").read[Seq[Span]] tupled
         ).map {
           case (content, spans) => Heading(level, content, spans)
         }
       }
       
-      case class Paragraph(text: String, spans: Seq[Span]) extends TextBlock
+      case class Paragraph(text: String, spans: Seq[Span]) extends Text
 
       object Paragraph {
         implicit val reader: Reads[Paragraph] = (
-          (__ \ "content").read[String] and
-          (__ \ "meta").read[Seq[Span]] tupled
+          (__ \ "text").read[String] and
+          (__ \ "spans").read[Seq[Span]] tupled
         ).map {
           case (content, spans) => Paragraph(content, spans)
         }
       }
 
+      case class Image(view: Fragment.Image.View) extends Block {
+        def url = view.url
+        def width = view.width
+        def height = view.height
+      }
+
       implicit val reader: Reads[Block] = (
-        (__ \ "label").read[String].flatMap[Block] { 
+        (__ \ "type").read[String].flatMap[Block] { 
 
           case "heading1"  => __.read(Heading.reader(1)).map(identity[Block])
           case "heading2"  => __.read(Heading.reader(2)).map(identity[Block])
           case "heading3"  => __.read(Heading.reader(3)).map(identity[Block])
           case "heading4"  => __.read(Heading.reader(4)).map(identity[Block])
           case "paragraph" => __.read[Paragraph].map(identity[Block])
+          case "image"     => __.read[Fragment.Image.View].map(view => Image(view):Block)
 
           case t => Reads(json => JsError(s"Unsupported block type $t"))
         }
@@ -364,14 +365,25 @@ case class Document(
   typ: String,
   href: String,
   tags: Seq[String],
+  slugs: Seq[String],
   fragments: Map[String, Fragment]
 ) {
+
+  def slug: String = slugs.headOption.getOrElse("-")
+
   def apply(field: String): Fragment = fragments(field)
 
   def get(field: String): Option[Fragment] = fragments.get(field)
 
   def getImage(field: String): Option[Fragment.Image] = get(field).flatMap {
     case a: Fragment.Image => Some(a)
+    case a: Fragment.StructuredText => a.blocks.collectFirst { case b: Fragment.StructuredText.Block.Image => b.view }.map(v => Fragment.Image(v))
+    case _ => None
+  }
+
+  def getImage(field: String, view: String): Option[Fragment.Image.View] = get(field).flatMap {
+    case a: Fragment.Image => a.getView(view)
+    case a: Fragment.StructuredText if view == "main" => getImage(field).map(_.main)
     case _ => None
   }
 
@@ -381,30 +393,46 @@ case class Document(
   }
 
   def getText(field: String): Option[String] = get(field).flatMap {
-    case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.TextBlock => b.text }.mkString("\n")).filterNot(_.isEmpty)
+    case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
     case _ => None
   }
+
+  def getColor(field: String): Option[Fragment.Color] = get(field).flatMap {
+    case a: Fragment.Color => Some(a)
+    case _ => None
+  }
+
+  def getNumber(field: String): Option[Fragment.Number] = get(field).flatMap {
+    case a: Fragment.Number => Some(a)
+    case _ => None
+  }
+
+  def getNumber(field: String, pattern: String): Option[String] = getNumber(field).map(_.asText(pattern))
 
 }
 
 object Document {
   implicit val reader = (
     (__ \ "id").read[String] and
-    (__ \ "type").read[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
-    (__ \ "data").read[JsObject].map { data =>
-      data.fields.map { 
-        case (key, jsvalue) => 
-          (jsvalue \ "type").asOpt[String].flatMap {
+    (__ \ "slugs").read[Seq[String]] and
+    (__ \ "type").read[String].flatMap[(String,Map[String,Fragment])] { typ =>
+      (__ \ "data" \ typ).read[JsObject].map { data =>
+        data.fields.map { 
+          case (key, jsvalue) => 
+            (jsvalue \ "type").asOpt[String].flatMap {
 
-            case "Image" => Some(Fragment.Image.reader.map(identity[Fragment]))
-            case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
+              case "Image" => Some(Fragment.Image.reader.map(identity[Fragment]))
+              case "Color" => Some(Fragment.Color.reader.map(identity[Fragment]))
+              case "Number" => Some(Fragment.Number.reader.map(identity[Fragment]))
+              case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
 
-            case t => None
-          }.flatMap(_.reads(jsvalue \ "data").asOpt).toList.map(fragment => (key, fragment))
-      }.flatten.toMap
+              case t => None
+            }.flatMap(_.reads(jsvalue \ "value").asOpt).toList.map(fragment => (s"$typ.$key", fragment))
+        }.flatten.toMap
+      }.map(data => (typ,data))
     }
-  )( Document.apply _ )
+  )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
 
 }
