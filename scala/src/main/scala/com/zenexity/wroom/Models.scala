@@ -394,6 +394,8 @@ case class Document(
 
   def getText(field: String): Option[String] = get(field).flatMap {
     case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
+    case a: Fragment.Number => Some(a.value.toString)
+    case a: Fragment.Color => Some(a.hex)
     case _ => None
   }
 
