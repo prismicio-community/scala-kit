@@ -242,11 +242,49 @@ object Fragment {
         case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
         case StructuredText.Block.Image(view) => s"""<p>${view.asHtml()}</p>"""
       }
-      
     }
 
     def asHtml(text: String, spans: Seq[Span], linkResolver: LinkResolver): String = {
-      text
+
+      def escape(character: String): String = {
+        character.replace("<", "&lt;").replace("\n", "<br>")
+      }
+
+      def writeTag(span: Span, opening: Boolean): String = {
+        span match {
+          case em: Span.Em => if(opening) "<em>" else "</em>"
+          case strong: Span.Strong => if(opening) "<strong>" else "</strong>"
+          case _ => if(opening) "<span>" else "</span>"
+        }
+      }
+
+      def writeHtml(endingsToApply: Seq[Span], startingsToApply: Seq[Span]): String = {
+        endingsToApply.map(e => writeTag(e, opening = false)).mkString + startingsToApply.map(s => writeTag(s, opening = true)).mkString
+      }
+
+      import scala.collection.mutable.ListBuffer
+
+      @scala.annotation.tailrec
+      def step(in: Seq[(Char, Int)], startings: Seq[Span], endings: Seq[Span] = Nil, html: ListBuffer[String] = ListBuffer()): String = {
+        val nextOp = (startings.headOption.map(_.start).toList ++ endings.headOption.toList.map(_.end)).reduceOption(Math.min)
+        in match {
+          case ((_, pos) :: tail) if !nextOp.exists(_ == pos) => {
+            val (done,toDo) = in.toList.span(i => ! nextOp.exists(i._2 == _))
+            step(toDo, startings, endings, html += escape(done.map(_._1).mkString))
+          }
+          case (current, pos) :: tail => {
+            val (endingsToApply, othersEnding) = endings.span(_.end == pos)
+            val (startingsToApply, othersStarting) = startings.span(_.start == pos)
+            val applied = writeHtml(endingsToApply, startingsToApply) + escape(current.toString)
+            val moreEndings = startingsToApply.reverse
+            val newEndings = moreEndings ++ othersEnding
+            step(tail, othersStarting, newEndings, html += applied)
+          }
+          case Nil => html.mkString + writeHtml(endings, Seq.empty).mkString
+        }
+      }
+
+      step(text.toList.zipWithIndex, spans.sortBy(_.start))
     }
 
     sealed trait Span {
