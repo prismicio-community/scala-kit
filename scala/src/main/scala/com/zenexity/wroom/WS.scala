@@ -20,6 +20,7 @@ import collection.immutable.TreeMap
 //import play.core.utils.CaseInsensitiveOrdered
 import com.ning.http.util.AsyncHttpProviderUtils
 
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * COPIED FROM PLAY

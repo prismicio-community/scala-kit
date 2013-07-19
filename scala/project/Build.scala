@@ -39,12 +39,13 @@ object ApplicationBuild extends Build {
       ),
       resolvers := typesafeRepo ++ mandubianRepo,
       libraryDependencies ++= Seq(
-        "play"       %% "play-iteratees"     % BuildSettings.playVersion         ,
-        "play"       %% "play-json"          % "2.2-SNAPSHOT"                    ,
-        "com.ning"   % "async-http-client"  % "1.7.6" /*notTransitive ()*/       ,
-        //.exclude("org.jboss.netty", "netty"),
-        "org.specs2" %% "specs2"             % "1.13"                    % "test",
-        "junit"       % "junit"              % "4.8"                     % "test"
+        "com.typesafe.play"       %% "play-iteratees"      % "2.2.0-M1",
+        "com.typesafe.play"       %% "play-json"           % "2.2.0-M1",
+        "com.ning"                %  "async-http-client"   % "1.7.6",
+        "commons-collections"     %  "commons-collections" % "3.2.1",
+        
+        "org.specs2"              %% "specs2"              % "1.13"                    % "test",
+        "junit"                   %  "junit"               % "4.8"                     % "test"
       )
     )
   )
