@@ -8,6 +8,20 @@ import org.joda.time._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
+object `package` {
+
+  type LinkResolver = (Fragment.Link => LinkDestination)
+
+  val DefaultLinkResolver: LinkResolver = { link =>
+    link match {
+      case Fragment.WebLink(url, _) => LinkDestination(url)
+      case Fragment.MediaLink(url, _, _, _) => LinkDestination(url)
+      case Fragment.DocumentLink(id, typ, tags, slug) => LinkDestination(s"""#$id:$typ:${tags.mkString(",")}:$slug""")
+    }
+  }
+
+}
+
 case class Ref(
   ref: String,
   label: String,
@@ -74,29 +88,64 @@ object ApiData {
 }
 
 sealed trait Fragment {
-  def asHtml: String = ""
+  def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = ""
 }
 
+case class LinkDestination(url: String, target: Option[String] = None)
 
 object Fragment {
 
-  case class Number(value: Double) extends Fragment {
+  sealed trait Link extends Fragment
+
+  case class WebLink(url: String, contentType: Option[String] = None) extends Link {
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      val destination = linkResolver(this)
+      val target = destination.target.map(t => s"""target="$t" """)
+      s"""<a ${target}href="${destination.url}}">$url</a>"""
+    }
+  }
+
+  case class MediaLink(url: String, contentType: String, size: Long, filename: String) extends Link {
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      val destination = linkResolver(this)
+      val target = destination.target.map(t => s"""target="$t" """)
+      s"""<a ${target}href="${destination.url}}">$filename</a>"""
+    }
+  }
+
+  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String) extends Link {
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      val destination = linkResolver(this)
+      val target = destination.target.map(t => s"""target="$t" """)
+      s"""<a ${target}href="${destination.url}}">$id/$slug</a>"""
+    }
+  }
+
+  // ------------------
+
+  case class Number(value: Double) extends Fragment {  
     def asInt = value.toInt
     def asText(pattern: String) = new java.text.DecimalFormat(pattern).format(value)
+
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      s"""<span class="number">$value</span>"""
+    }
   }
 
   object Number {
-
     implicit val reader: Reads[Number] = {
       Reads(v => v.asOpt[Double].map(d => JsSuccess(Number(d))).getOrElse(JsError(s"Invalid number value $v")))
     }
-
   }
 
   // ------------------
 
   case class Color(hex: String) extends Fragment {
     def asRGB = Color.asRGB(hex)
+
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      s"""<span class="color">$hex</span>"""
+    }
   }
 
   object Color {
@@ -128,12 +177,18 @@ object Fragment {
       case _ => views.get(key)
     }
 
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = main.asHtml()
+
   }
 
   object Image {
 
     case class View(url: String, width: Int, height: Int) {
       def ratio = width / height
+
+      def asHtml(): String = {
+        s"""<img src="${url}" width="${width}" height="${height}">"""
+      }
     }
 
     implicit val viewReader: Reads[View] = 
@@ -163,118 +218,46 @@ object Fragment {
       case h: StructuredText.Block.Heading => h
     }
 
+    def getFirstParagraph: Option[StructuredText.Block.Paragraph] = blocks.collectFirst {
+      case p: StructuredText.Block.Paragraph => p
+    }
+
+    def getFirstImage: Option[StructuredText.Block.Image] = blocks.collectFirst {
+      case i: StructuredText.Block.Image => i
+    }
+
+    override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
+      blocks.map(block => StructuredText.asHtml(block, linkResolver)).mkString("\n\n")
+    }
+
   }
 
   // ------------------
 
   object StructuredText {
 
+    def asHtml(block: Block, linkResolver: LinkResolver): String = {
+      block match {
+        case StructuredText.Block.Heading(x, text, spans) => s"""<h$x>${asHtml(text, spans, linkResolver)}</h$x>"""
+        case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
+        case StructuredText.Block.Image(view) => s"""<p>${view.asHtml()}</p>"""
+      }
+      
+    }
+
+    def asHtml(text: String, spans: Seq[Span], linkResolver: LinkResolver): String = {
+      text
+    }
+
     sealed trait Span {
       def start: Int
       def end: Int
-      def typ: String
     }
 
     object Span {
 
-      case class Em(start: Int, end: Int) extends Span {
-        override val typ = "em"
-      }
-      object Em {
-        val writer = Json.writes[Em]
-      }
-
-      case class Strong(start: Int, end: Int) extends Span {
-        override val typ = "strong"
-      }
-      object Strong {
-        val writer = Json.writes[Strong]
-      }
-
-      trait HyperLink extends Span {
-        override val typ = "hyperlink"
-
-        def preview: Option[HyperLink.LinkPreview]
-        def asUrl: String
-      }
-
-      object HyperLink {
-        case class LinkPreview(title: Option[String], image: Option[String])
-        object LinkPreview {
-          implicit val format = Json.format[LinkPreview]
-        }
-
-        case class DocumentLink(start: Int, end: Int, id: String, mask: String, preview: Option[LinkPreview])
-        extends HyperLink {
-          def asUrl = s"wio://documents/$id"
-        }
-        object DocumentLink {
-          implicit val reader = Json.reads[DocumentLink]
-          val writer = Json.writes[DocumentLink]
-        }
-
-        sealed trait MediaLink extends HyperLink {
-          def id: String
-          def asUrl = s"wio://medias/$id"
-        }
-
-        case class FileLink(start: Int, end: Int, id: String, url: String, name: String, kind: String, date: String, size: String, preview: Option[LinkPreview])
-        extends MediaLink
-
-        object FileLink {
-          implicit val reader = Json.reads[FileLink]
-          val writer = Json.writes[FileLink]
-        }
-
-        case class ImageLink(start: Int, end: Int, id: String, url: String, date: String, height: String, width: String, size: String, name: String, kind: String, preview: Option[LinkPreview])
-        extends MediaLink
-
-        object ImageLink {
-          implicit val reader = Json.reads[ImageLink]
-          val writer = Json.writes[ImageLink]
-        }
-
-        case class ExternalLink(start: Int, end: Int, url: String, preview: Option[LinkPreview]) extends HyperLink {
-          def asUrl = url
-        }
-        object ExternalLink {
-          implicit val reader = Json.reads[ExternalLink]
-          val writer = Json.writes[ExternalLink]
-        }
-
-        case class EmptyLink(start: Int, end: Int) extends HyperLink {
-          def asUrl = ""
-          def preview = None
-        }
-        object EmptyLink{
-          implicit val reader = Json.reads[EmptyLink]
-          val writer = Json.writes[EmptyLink]
-        }
-
-        object MediaLink {
-          implicit val reader: Reads[MediaLink] = 
-            __.read[FileLink].map(e => e:MediaLink) or 
-            __.read[ImageLink].map(e => e:MediaLink)
-
-          val writer = Writes[MediaLink] { 
-            case a:FileLink => Json.toJson[FileLink](a)(FileLink.writer)
-            case a:ImageLink => Json.toJson[ImageLink](a)(ImageLink.writer)
-          }
-        }
-
-        implicit val reader: Reads[HyperLink] = 
-          __.read[DocumentLink].map(e => e:HyperLink) or 
-          __.read[MediaLink].map(e => e:HyperLink) or 
-          __.read[ExternalLink].map(e => e:HyperLink) or
-          __.read[EmptyLink].map(e => e:HyperLink)
-        
-        implicit val writer = Writes[HyperLink]{
-          case a:DocumentLink => Json.toJson(a)(DocumentLink.writer)
-          case a:MediaLink => Json.toJson(a)(MediaLink.writer)
-          case a:ExternalLink => Json.toJson(a)(ExternalLink.writer)
-          case a:EmptyLink => Json.toJson(a)(EmptyLink.writer)
-        }
-      }
+      case class Em(start: Int, end: Int) extends Span
+      case class Strong(start: Int, end: Int) extends Span
 
       implicit val reader: Reads[Span] =
         (
@@ -282,17 +265,11 @@ object Fragment {
           (__ \ 'start).read[Int] and
           (__ \ 'end).read[Int] and
           __.read[JsObject]
-        ).tupled.map{
+        ).tupled.map {
           case (typ, start, end, obj) => typ match {
-            case "em" => Em(start, end)
             case "strong" => Strong(start, end)
-            case "hyperlink" => obj.as[HyperLink]
+            case "em" => Em(start, end)
           }
-        }
-        implicit val writer = Writes[Span]{
-          case a:Em => Json.toJson(a)(Em.writer)
-          case a:Strong => Json.toJson(a)(Strong.writer)
-          case a:HyperLink => Json.toJson(a)(HyperLink.writer)
         }
     }
 
@@ -390,6 +367,10 @@ case class Document(
   def getStructuredText(field: String): Option[Fragment.StructuredText] = get(field).flatMap {
     case a: Fragment.StructuredText => Some(a)
     case _ => None
+  }
+
+  def getHtml(field: String, linkResolver: LinkResolver = DefaultLinkResolver): Option[String] = {
+    get(field).map(_.asHtml(linkResolver))
   }
 
   def getText(field: String): Option[String] = get(field).flatMap {
