@@ -258,12 +258,13 @@ object Fragment {
           (__ \ 'start).read[Int] and
           (__ \ 'end).read[Int] and
           (__ \ 'data).readNullable[JsObject].map(_.getOrElse(Json.obj()))
-        ).tupled.map {
+        ).tupled.flatMap {
           case (typ, start, end, data) => typ match {
-            case "strong" => Strong(start, end)
-            case "em" => Em(start, end)
-            case "hyperlink" if (data \ "type").as[String] == "Link.web" => Hyperlink(start, end, WebLink.reader.reads(data \ "value").get) 
-            case "hyperlink" if (data \ "type").as[String] == "Link.document" => Hyperlink(start, end, DocumentLink.reader(apiData).reads(data \ "value").get) 
+            case "strong" => Reads.pure(Strong(start, end))
+            case "em" => Reads.pure(Em(start, end))
+            case "hyperlink" if (data \ "type").as[String] == "Link.web" => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
+            case "hyperlink" if (data \ "type").as[String] == "Link.document" => (__ \ "data" \ "value").read(DocumentLink.reader(apiData)).map(link => Hyperlink(start, end, link)) 
+            case t => Reads(json => JsError(s"Unsupported span type $t"))
           }
         }
     }
@@ -282,7 +283,7 @@ object Fragment {
       object Heading {
         implicit def reader(apiData: ApiData, level: Int): Reads[Heading] = (
           (__ \ "text").read[String] and
-          (__ \ "spans").read(Reads.seq(Span.reader(apiData))) tupled
+          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
           case (content, spans) => Heading(level, content, spans)
         }
