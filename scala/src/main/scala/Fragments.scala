@@ -294,7 +294,7 @@ object Fragment {
       object Paragraph {
         implicit def reader(apiData: ApiData): Reads[Paragraph] = (
           (__ \ "text").read[String] and
-          (__ \ "spans").read(Reads.seq(Span.reader(apiData))) tupled
+          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
           case (content, spans) => Paragraph(content, spans)
         }
