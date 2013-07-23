@@ -1,12 +1,12 @@
-package com.zenexity.wroom.client
-
-import scala.util._
-import scala.concurrent._
+package io.prismic
 
 import org.joda.time._
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+
+import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object `package` {
 
@@ -16,74 +16,9 @@ object `package` {
     link match {
       case Fragment.WebLink(url, _) => LinkDestination(url)
       case Fragment.MediaLink(url, _, _, _) => LinkDestination(url)
-      case Fragment.DocumentLink(id, typ, tags, slug) => LinkDestination(s"""#$id:$typ:${tags.mkString(",")}:$slug""")
+      case Fragment.DocumentLink(id, typ, tags, slug, isBroken) => LinkDestination(s"""#$id:$typ:${tags.mkString(",")}:$slug""")
     }
   }
-
-}
-
-case class Ref(
-  ref: String,
-  label: String,
-  isMasterRef: Boolean = false,
-  scheduledAt: Option[DateTime] = None
-)
-
-object Ref {
-
-  implicit val reader = (
-    (__ \ "ref").read[String] and
-    (__ \ "label").read[String] and
-    ((__ \ "isMasterRef").read[Boolean] orElse Reads.pure(false)) and
-    (__ \ "scheduledAt").readNullable[DateTime]
-  )(Ref.apply _)
-
-}
-
-case class Field(`type`: String, default: Option[String])
-
-object Field {
-  implicit val reader = Json.reads[Field]
-}
-
-case class Form(
-  name: Option[String],
-  method: String,
-  rel: Option[String],
-  enctype: String,
-  action: String,
-  fields: Map[String, Field]
-) {
-
-  def defaultData: Map[String,String] = {
-    fields.mapValues(_.default).collect {
-      case (key, Some(value)) => (key, value)
-    }
-  } 
-
-}
-
-object Form {
-  implicit val reader = Json.reads[Form]
-}
-
-case class ApiData(
-  val refs: Seq[Ref],
-  val bookmarks: Map[String, String],
-  val types: Map[String, String],
-  val tags: Seq[String],
-  val forms: Map[String, Form]
-)
-
-object ApiData {
-  
-  implicit val reader = (
-    (__ \ 'refs).read[Seq[Ref]] and
-    (__ \ 'bookmarks).read[Map[String, String]] and
-    (__ \ 'types).read[Map[String, String]] and
-    (__ \ 'tags).read[Seq[String]] and
-    (__ \ 'forms).read[Map[String, Form]]
-  )(ApiData.apply _)
 
 }
 
@@ -105,6 +40,16 @@ object Fragment {
     }
   }
 
+  object WebLink {
+
+    implicit val reader: Reads[WebLink] = {
+      (__ \ "url").read[String].map {
+        case url => WebLink(url)
+      }
+    }
+
+  }
+
   case class MediaLink(url: String, contentType: String, size: Long, filename: String) extends Link {
     override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
       val destination = linkResolver(this)
@@ -113,12 +58,28 @@ object Fragment {
     }
   }
 
-  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String) extends Link {
+  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, isBroken: Boolean) extends Link {
     override def asHtml(linkResolver: LinkResolver = DefaultLinkResolver): String = {
       val destination = linkResolver(this)
       val target = destination.target.map(t => s"""target="$t" """)
       s"""<a ${target}href="${destination.url}}">$id/$slug</a>"""
     }
+  }
+
+  object DocumentLink {
+
+    implicit val reader: Reads[DocumentLink] = {
+      (
+        (__ \ "document").read(
+          (__ \ "id").read[String] and
+          (__ \ "type").read[String] and
+          (__ \ "tags").readNullable[Seq[String]].map(_.getOrElse(Nil)) and
+          (__ \ "slug").read[String] tupled
+        ) and
+        (__ \ "isBroken").readNullable[Boolean].map(_.getOrElse(false))
+      ).tupled.map(link => DocumentLink(link._1._1, link._1._2, link._1._3, link._1._4, link._2))
+    }
+
   }
 
   // ------------------
@@ -172,7 +133,7 @@ object Fragment {
 
   case class Image(main: Image.View, views: Map[String, Image.View] = Map.empty) extends Fragment {
 
-    def getView(key: String): Option[Image.View] = key match {
+    def getView(key: String): Option[Image.View] = key.toLowerCase match {
       case "main" => Some(main)
       case _ => views.get(key)
     }
@@ -254,6 +215,7 @@ object Fragment {
         span match {
           case em: Span.Em => if(opening) "<em>" else "</em>"
           case strong: Span.Strong => if(opening) "<strong>" else "</strong>"
+          case link: Span.Hyperlink => if(opening) s"""<a href="${linkResolver(link.link).url}">""" else "</a>"
           case _ => if(opening) "<span>" else "</span>"
         }
       }
@@ -296,17 +258,20 @@ object Fragment {
 
       case class Em(start: Int, end: Int) extends Span
       case class Strong(start: Int, end: Int) extends Span
+      case class Hyperlink(start: Int, end: Int, link: Link) extends Span
 
       implicit val reader: Reads[Span] =
         (
           (__ \ 'type).read[String] and
           (__ \ 'start).read[Int] and
           (__ \ 'end).read[Int] and
-          __.read[JsObject]
+          (__ \ 'data).readNullable[JsObject].map(_.getOrElse(Json.obj()))
         ).tupled.map {
-          case (typ, start, end, obj) => typ match {
+          case (typ, start, end, data) => typ match {
             case "strong" => Strong(start, end)
             case "em" => Em(start, end)
+            case "hyperlink" if (data \ "type").as[String] == "Link.web" => Hyperlink(start, end, WebLink.reader.reads(data \ "value").get) 
+            case "hyperlink" if (data \ "type").as[String] == "Link.document" => Hyperlink(start, end, DocumentLink.reader.reads(data \ "value").get) 
           }
         }
     }
@@ -371,89 +336,5 @@ object Fragment {
     )
 
   }
-
-}
-
-
-case class Document(
-  id: String,
-  typ: String,
-  href: String,
-  tags: Seq[String],
-  slugs: Seq[String],
-  fragments: Map[String, Fragment]
-) {
-
-  def slug: String = slugs.headOption.getOrElse("-")
-
-  def apply(field: String): Fragment = fragments(field)
-
-  def get(field: String): Option[Fragment] = fragments.get(field)
-
-  def getImage(field: String): Option[Fragment.Image] = get(field).flatMap {
-    case a: Fragment.Image => Some(a)
-    case a: Fragment.StructuredText => a.blocks.collectFirst { case b: Fragment.StructuredText.Block.Image => b.view }.map(v => Fragment.Image(v))
-    case _ => None
-  }
-
-  def getImage(field: String, view: String): Option[Fragment.Image.View] = get(field).flatMap {
-    case a: Fragment.Image => a.getView(view)
-    case a: Fragment.StructuredText if view == "main" => getImage(field).map(_.main)
-    case _ => None
-  }
-
-  def getStructuredText(field: String): Option[Fragment.StructuredText] = get(field).flatMap {
-    case a: Fragment.StructuredText => Some(a)
-    case _ => None
-  }
-
-  def getHtml(field: String, linkResolver: LinkResolver = DefaultLinkResolver): Option[String] = {
-    get(field).map(_.asHtml(linkResolver))
-  }
-
-  def getText(field: String): Option[String] = get(field).flatMap {
-    case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
-    case a: Fragment.Number => Some(a.value.toString)
-    case a: Fragment.Color => Some(a.hex)
-    case _ => None
-  }
-
-  def getColor(field: String): Option[Fragment.Color] = get(field).flatMap {
-    case a: Fragment.Color => Some(a)
-    case _ => None
-  }
-
-  def getNumber(field: String): Option[Fragment.Number] = get(field).flatMap {
-    case a: Fragment.Number => Some(a)
-    case _ => None
-  }
-
-  def getNumber(field: String, pattern: String): Option[String] = getNumber(field).map(_.asText(pattern))
-
-}
-
-object Document {
-  implicit val reader = (
-    (__ \ "id").read[String] and
-    (__ \ "href").read[String] and
-    (__ \ "tags").read[Seq[String]] and
-    (__ \ "slugs").read[Seq[String]] and
-    (__ \ "type").read[String].flatMap[(String,Map[String,Fragment])] { typ =>
-      (__ \ "data" \ typ).read[JsObject].map { data =>
-        data.fields.map { 
-          case (key, jsvalue) => 
-            (jsvalue \ "type").asOpt[String].flatMap {
-
-              case "Image" => Some(Fragment.Image.reader.map(identity[Fragment]))
-              case "Color" => Some(Fragment.Color.reader.map(identity[Fragment]))
-              case "Number" => Some(Fragment.Number.reader.map(identity[Fragment]))
-              case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
-
-              case t => None
-            }.flatMap(_.reads(jsvalue \ "value").asOpt).toList.map(fragment => (s"$typ.$key", fragment))
-        }.flatten.toMap
-      }.map(data => (typ,data))
-    }
-  )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
 
 }

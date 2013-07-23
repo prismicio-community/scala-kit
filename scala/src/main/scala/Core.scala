@@ -1,4 +1,4 @@
-package com.zenexity.wroom.client
+package io.prismic.core
 
 import java.io.File
 import scala.concurrent.{Future, Promise}
@@ -169,7 +169,7 @@ object CustomWS {
       //todo: wrap the case insensitive ning map instead of creating a new one (unless perhaps immutabilty is important)
       TreeMap(res.toSeq: _*)(CaseInsensitiveOrdered)
     }
-    private[client] def execute: Future[Response] = {
+    private[core] def execute: Future[Response] = {
       import com.ning.http.client.AsyncCompletionHandler
       var result = Promise[Response]()
       calculator.map(_.sign(this))
@@ -246,7 +246,7 @@ object CustomWS {
       super.setUrl(url)
     }
 
-    private[client] def executeStream[A](consumer: ResponseHeaders => Iteratee[Array[Byte], A]): Future[Iteratee[Array[Byte], A]] = {
+    private[core] def executeStream[A](consumer: ResponseHeaders => Iteratee[Array[Byte], A]): Future[Iteratee[Array[Byte], A]] = {
       import com.ning.http.client.AsyncHandler
       var doneOrError = false
       calculator.map(_.sign(this))
@@ -442,7 +442,7 @@ object CustomWS {
      */
     def execute(method: String): Future[Response] = prepare(method).execute
 
-    private[client] def prepare(method: String) = {
+    private[core] def prepare(method: String) = {
       val request = new WSRequest(method, auth, calc).setUrl(url)
         .setHeaders(headers)
         .setQueryString(queryString)
@@ -458,7 +458,7 @@ object CustomWS {
       request
     }
 
-    private[client] def prepare(method: String, body: File) = {
+    private[core] def prepare(method: String, body: File) = {
       import com.ning.http.client.generators.FileBodyGenerator
       import java.nio.ByteBuffer
 
