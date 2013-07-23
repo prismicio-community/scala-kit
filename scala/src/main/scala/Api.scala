@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import core._
 
-case class Api(data: ApiData, cache: Cache) {
+case class Api(data: ApiData, cache: Cache, logger: (String) => Unit) {
 
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
@@ -25,13 +25,13 @@ object Api {
   val AcceptJson = Map("Accept" -> Seq("application/json"))
   val MaxAge = """max-age\s*=\s*(\d+)""".r
 
-  def get(url: String, cache: Cache = NoCache): Future[Api] = {
+  def get(url: String, cache: Cache = NoCache, logger: (String) => Unit = identity): Future[Api] = {
     CustomWS.url(url)
       .copy(headers = AcceptJson)
       .get()
       .map { resp =>
         resp.status match {
-          case 200    => Api(ApiData.reader.reads(resp.json).get, cache)
+          case 200    => Api(ApiData.reader.reads(resp.json).get, cache, logger)
           case error  => sys.error(s"Http error $error (${resp.statusText}")
         }
       }
@@ -115,7 +115,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String,String]) {
   }
 
   def submit(): Future[Seq[Document]] = {
-    implicit val documentReader = Document.reader
+    implicit val documentReader: Reads[Document] = Document.reader(api.data)
 
     def parseResult(json: JsValue) = Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse Document: $e") }
 
@@ -190,7 +190,7 @@ case class Document(
     case _ => None
   }
 
-  def getHtml(field: String, linkResolver: LinkResolver = DefaultLinkResolver): Option[String] = {
+  def getHtml(field: String, linkResolver: LinkResolver): Option[String] = {
     get(field).map(_.asHtml(linkResolver))
   }
 
@@ -217,7 +217,7 @@ case class Document(
 
 object Document {
 
-  implicit val reader = (
+  implicit def reader(apiData: ApiData) = (
     (__ \ "id").read[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
@@ -231,7 +231,7 @@ object Document {
               case "Image" => Some(Fragment.Image.reader.map(identity[Fragment]))
               case "Color" => Some(Fragment.Color.reader.map(identity[Fragment]))
               case "Number" => Some(Fragment.Number.reader.map(identity[Fragment]))
-              case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
+              case "StructuredText" => Some(Fragment.StructuredText.reader(apiData).map(identity[Fragment]))
 
               case t => None
             }.flatMap(_.reads(jsvalue \ "value").asOpt).toList.map(fragment => (s"$typ.$key", fragment))
