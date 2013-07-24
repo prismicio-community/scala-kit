@@ -76,6 +76,20 @@ object Fragment {
 
   // ------------------
 
+  case class Text(value: String) extends Fragment {  
+    override def asHtml(linkResolver: LinkResolver): String = {
+      s"""<span class="text">$value</span>"""
+    }
+  }
+
+  object Text {
+    implicit val reader: Reads[Text] = {
+      Reads(v => v.asOpt[String].map(d => JsSuccess(Text(d))).getOrElse(JsError(s"Invalid text value $v")))
+    }
+  }
+
+  // ------------------
+
   case class Number(value: Double) extends Fragment {  
     def asInt = value.toInt
     def asText(pattern: String) = new java.text.DecimalFormat(pattern).format(value)

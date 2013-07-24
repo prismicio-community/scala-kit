@@ -165,13 +165,21 @@ case class Document(
   fragments: Map[String, Fragment]
 ) {
 
+  private val IndexedKey = """^([^\[]+)(\[\d+\])?$""".r
+
   def slug: String = slugs.headOption.getOrElse("-")
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
 
   def apply(field: String): Fragment = fragments(field)
 
-  def get(field: String): Option[Fragment] = fragments.get(field)
+  def get(field: String): Option[Fragment] = fragments.get(field).orElse(getAll(field).headOption)
+
+  def getAll(field: String): Seq[Fragment] = {
+    fragments.collect {
+      case (IndexedKey(key, _), fragment) if key == field => fragment
+    }.toSeq
+  }
 
   def getImage(field: String): Option[Fragment.Image] = get(field).flatMap {
     case a: Fragment.Image => Some(a)
@@ -179,10 +187,22 @@ case class Document(
     case _ => None
   }
 
+  def getAllImages(field: String): Seq[Fragment.Image] = getAll(field).flatMap {
+    case a: Fragment.Image => Seq(a)
+    case a: Fragment.StructuredText => a.blocks.collect { case b: Fragment.StructuredText.Block.Image => b.view }.map(v => Fragment.Image(v))
+    case _ => Nil
+  }
+
   def getImage(field: String, view: String): Option[Fragment.Image.View] = get(field).flatMap {
     case a: Fragment.Image => a.getView(view)
     case a: Fragment.StructuredText if view == "main" => getImage(field).map(_.main)
     case _ => None
+  }
+
+  def getAllImages(field: String, view: String): Seq[Fragment.Image.View] = getAll(field).flatMap {
+    case a: Fragment.Image => a.getView(view).toSeq
+    case a: Fragment.StructuredText if view == "main" => getAllImages(field).map(_.main)
+    case _ => Nil
   }
 
   def getStructuredText(field: String): Option[Fragment.StructuredText] = get(field).flatMap {
@@ -198,6 +218,7 @@ case class Document(
     case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
     case a: Fragment.Number => Some(a.value.toString)
     case a: Fragment.Color => Some(a.hex)
+    case a: Fragment.Text => Some(a.value)
     case _ => None
   }
 
@@ -217,6 +238,22 @@ case class Document(
 
 object Document {
 
+  private def parse(jsvalue: JsObject, apiData: ApiData): Option[Fragment] = {
+    (jsvalue \ "type").asOpt[String].flatMap {
+
+      case "Image"            => Some(Fragment.Image.reader.map(identity[Fragment]))
+      case "Color"            => Some(Fragment.Color.reader.map(identity[Fragment]))
+      case "Number"           => Some(Fragment.Number.reader.map(identity[Fragment]))
+      case "Text"             => Some(Fragment.Text.reader.map(identity[Fragment]))
+      case "Select"           => Some(Fragment.Text.reader.map(identity[Fragment]))
+      case "Link.web"         => Some(Fragment.WebLink.reader.map(identity[Fragment]))
+      case "Link.document"    => Some(Fragment.DocumentLink.reader(apiData).map(identity[Fragment]))
+      case "StructuredText"   => Some(Fragment.StructuredText.reader(apiData).map(identity[Fragment]))
+
+      case t => None
+    }.flatMap(_.reads(jsvalue \ "value").asOpt)
+  }
+
   implicit def reader(apiData: ApiData) = (
     (__ \ "id").read[String] and
     (__ \ "href").read[String] and
@@ -224,18 +261,16 @@ object Document {
     (__ \ "slugs").read[Seq[String]] and
     (__ \ "type").read[String].flatMap[(String,Map[String,Fragment])] { typ =>
       (__ \ "data" \ typ).read[JsObject].map { data =>
-        data.fields.map { 
-          case (key, jsvalue) => 
-            (jsvalue \ "type").asOpt[String].flatMap {
-
-              case "Image" => Some(Fragment.Image.reader.map(identity[Fragment]))
-              case "Color" => Some(Fragment.Color.reader.map(identity[Fragment]))
-              case "Number" => Some(Fragment.Number.reader.map(identity[Fragment]))
-              case "StructuredText" => Some(Fragment.StructuredText.reader(apiData).map(identity[Fragment]))
-
-              case t => None
-            }.flatMap(_.reads(jsvalue \ "value").asOpt).toList.map(fragment => (s"$typ.$key", fragment))
-        }.flatten.toMap
+        collection.immutable.ListMap(
+          data.fields.map { 
+            case (key, json: JsObject) => parse(json, apiData).toList.map(fragment => (s"$typ.$key", fragment))
+            case (key, jsons: JsArray) => jsons.value.zipWithIndex.collect {
+              case (json: JsObject, i) => parse(json, apiData).toList.map(fragment => (s"$typ.$key[$i]", fragment))
+              case _ => Nil
+            }.flatten
+            case _ => Nil
+          }.flatten:_*
+        )
       }.map(data => (typ,data))
     }
   )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
