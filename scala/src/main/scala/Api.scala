@@ -219,6 +219,7 @@ case class Document(
     case a: Fragment.Number => Some(a.value.toString)
     case a: Fragment.Color => Some(a.hex)
     case a: Fragment.Text => Some(a.value)
+    case a: Fragment.Date => Some(a.value.toString)
     case _ => None
   }
 
@@ -229,6 +230,16 @@ case class Document(
 
   def getNumber(field: String): Option[Fragment.Number] = get(field).flatMap {
     case a: Fragment.Number => Some(a)
+    case _ => None
+  }
+
+  def getDate(field: String): Option[Fragment.Date] = get(field).flatMap {
+    case a: Fragment.Date => Some(a)
+    case _ => None
+  }
+
+  def getDate(field: String, pattern: String): Option[String] = get(field).flatMap {
+    case a: Fragment.Date => Some(a.asText(pattern))
     case _ => None
   }
 
@@ -244,6 +255,7 @@ object Document {
       case "Image"            => Some(Fragment.Image.reader.map(identity[Fragment]))
       case "Color"            => Some(Fragment.Color.reader.map(identity[Fragment]))
       case "Number"           => Some(Fragment.Number.reader.map(identity[Fragment]))
+      case "Date"             => Some(Fragment.Date.reader.map(identity[Fragment]))
       case "Text"             => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Select"           => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Link.web"         => Some(Fragment.WebLink.reader.map(identity[Fragment]))

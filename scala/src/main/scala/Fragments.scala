@@ -5,6 +5,7 @@ import org.joda.time._
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
+import scala.util._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -85,6 +86,22 @@ object Fragment {
   object Text {
     implicit val reader: Reads[Text] = {
       Reads(v => v.asOpt[String].map(d => JsSuccess(Text(d))).getOrElse(JsError(s"Invalid text value $v")))
+    }
+  }
+
+  // ------------------
+
+  case class Date(value: DateTime) extends Fragment {  
+    def asText(pattern: String) = value.toString(pattern)
+
+    override def asHtml(linkResolver: LinkResolver): String = {
+      s"""<time>$value</time>"""
+    }
+  }
+
+  object Date {
+    implicit val reader: Reads[Date] = {
+      Reads(v => v.asOpt[String].flatMap(d => Try(JsSuccess(Date(DateTime.parse(d, format.DateTimeFormat.forPattern("yyyy-MM-dd"))))).toOption).getOrElse(JsError(s"Invalid date value $v")))
     }
   }
 
