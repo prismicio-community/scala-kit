@@ -154,6 +154,34 @@ object Fragment {
 
   // ------------------
 
+  case class Embed(typ: String, provider: String, url: String, width: Option[Int], height: Option[Int], html: Option[String], oembedJson: JsValue) extends Fragment {
+
+    override def asHtml(linkResolver: LinkResolver): String = {
+      html.map(html => s"""<div data-oembed="$url" data-oembed-type="${typ.toLowerCase}" data-oembed-provider="${provider.toLowerCase}">$html</div>""").getOrElse("")
+    }
+
+  }
+
+  object Embed {
+
+    implicit val reader: Reads[Embed] = {
+      (__ \ "oembed").read(
+        (
+          (__ \ "type").read[String] and
+          (__ \ "provider_name").read[String] and
+          (__ \ "embed_url").read[String] and
+          (__ \ "width").readNullable[Int] and
+          (__ \ "height").readNullable[Int] and
+          (__ \ "html").readNullable[String] and
+          __.read[JsObject]
+        )(Embed.apply _)
+      )
+    }
+
+  }
+
+  // ------------------
+
   case class Image(main: Image.View, views: Map[String, Image.View] = Map.empty) extends Fragment {
 
     def getView(key: String): Option[Image.View] = key.toLowerCase match {
@@ -211,7 +239,7 @@ object Fragment {
     }
 
     override def asHtml(linkResolver: LinkResolver): String = {
-      blocks.map(block => StructuredText.asHtml(block, linkResolver)).mkString("\n\n")
+      StructuredText.asHtml(blocks, linkResolver)
     }
 
   }
@@ -220,11 +248,30 @@ object Fragment {
 
   object StructuredText {
 
+    def asHtml(blocks: Seq[Block], linkResolver: LinkResolver): String = {
+      case class Group(htmlTag: Option[String], blocks: Seq[Block])
+
+      val grouped = blocks.foldLeft(List.empty[Group]) {
+        case ((group @ Group(Some("ul"), _)) :: rest, block @ StructuredText.Block.ListItem(text, false, spans)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case ((group @ Group(Some("ol"), _)) :: rest, block @ StructuredText.Block.ListItem(text, true, spans)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case (groups, block @ StructuredText.Block.ListItem(text, false, spans)) => Group(Some("ul"), Seq(block)) +: groups
+        case (groups, block @ StructuredText.Block.ListItem(text, true, spans)) => groups :+ Group(Some("ol"), Seq(block))
+        case (groups, block) => Group(None, Seq(block)) +: groups
+      }.reverse
+
+      grouped.flatMap {
+        case Group(Some(tag), blocks) => (s"<$tag>") +: blocks.map(block => asHtml(block, linkResolver)) :+ (s"</$tag>")
+        case Group(None, blocks) => blocks.map(block => asHtml(block, linkResolver))
+      }.mkString("\n\n")
+    }
+
     def asHtml(block: Block, linkResolver: LinkResolver): String = {
       block match {
-        case StructuredText.Block.Heading(x, text, spans) => s"""<h$x>${asHtml(text, spans, linkResolver)}</h$x>"""
+        case StructuredText.Block.Heading(level, text, spans) => s"""<h$level>${asHtml(text, spans, linkResolver)}</h$level>"""
         case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
+        case StructuredText.Block.ListItem(text, _, spans) => s"""<li>${asHtml(text, spans, linkResolver)}</li>""" 
         case StructuredText.Block.Image(view) => s"""<p>${view.asHtml()}</p>"""
+        case StructuredText.Block.Embed(obj) => obj.asHtml(linkResolver)
       }
     }
 
@@ -331,11 +378,24 @@ object Fragment {
         }
       }
 
+      case class ListItem(text: String, ordered: Boolean, spans: Seq[Span]) extends Text
+
+      object ListItem {
+        implicit def reader(apiData: ApiData, ordered: Boolean): Reads[ListItem] = (
+          (__ \ "text").read[String] and
+          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
+        ).map {
+          case (content, spans) => ListItem(content, ordered, spans)
+        }
+      }
+
       case class Image(view: Fragment.Image.View) extends Block {
         def url = view.url
         def width = view.width
         def height = view.height
       }
+
+      case class Embed(obj: Fragment.Embed) extends Block
 
       implicit def reader(apiData: ApiData): Reads[Block] = (
         (__ \ "type").read[String].flatMap[Block] { 
@@ -345,7 +405,9 @@ object Fragment {
           case "heading3"  => __.read(Heading.reader(apiData, 3)).map(identity[Block])
           case "heading4"  => __.read(Heading.reader(apiData, 4)).map(identity[Block])
           case "paragraph" => __.read(Paragraph.reader(apiData)).map(identity[Block])
+          case "list-item" => __.read(ListItem.reader(apiData, ordered = false)).map(identity[Block])
           case "image"     => __.read[Fragment.Image.View].map(view => Image(view):Block)
+          case "embed"     => __.read[Fragment.Embed].map(obj => Embed(obj):Block)
 
           case t => Reads(json => JsError(s"Unsupported block type $t"))
         }

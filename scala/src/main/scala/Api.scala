@@ -258,6 +258,7 @@ object Document {
       case "Date"             => Some(Fragment.Date.reader.map(identity[Fragment]))
       case "Text"             => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Select"           => Some(Fragment.Text.reader.map(identity[Fragment]))
+      case "Embed"            => Some(Fragment.Embed.reader.map(identity[Fragment]))
       case "Link.web"         => Some(Fragment.WebLink.reader.map(identity[Fragment]))
       case "Link.document"    => Some(Fragment.DocumentLink.reader(apiData).map(identity[Fragment]))
       case "StructuredText"   => Some(Fragment.StructuredText.reader(apiData).map(identity[Fragment]))
