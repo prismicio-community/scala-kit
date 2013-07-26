@@ -1,0 +1,94 @@
+{% extends 'LesBonnesChosesBundle::layout.html.twig' %}
+
+{% block title %}Index{% endblock %}
+
+{% block id %}home{% endblock %}
+
+{% block content_header '' %}
+
+{% block content %}
+  <section id="caroussel">
+
+    <nav>
+      <ul>
+        {%  for key,label in categories %}
+           <li><a>{{ label }}</a></li>
+        {%  endfor %}
+      </ul>
+    </nav>
+
+    <div class="products">
+
+      {%  for category,label in categories %}
+        <ul>
+          {%  for product in products %}
+          <!-- @products.filter(_.tags.contains(category)).take(5).map { product => -->
+            <li data-category="{{ category }}">
+              <a href="{{ path('_product', {"id": product.id, "slug": product.slug}) }}">
+                <img src="@(product.getImage("product.image", "icon").map(_.url).getOrElse(routes.Assets.at("images/missing-image.png")))">
+                <span>@product.getText("product.name").getOrElse("Product")</span>
+                <em>@product.getNumber("product.price", "$0.00").getOrElse("–")</em>
+              </a>
+            </li>
+          {%  endfor %}
+        </ul>
+      {%  endfor %}
+
+    </div>
+
+    <p>
+      <a href="@routes.Application.products()">Browse all our products</a>
+    </p>
+
+  </section>
+
+  <section id="featured">
+
+    <div class="selection" style="background-image: url({{ asset('bundles/lesbonneschoses/bouh/collection-tarte.png') }})
+      <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
+        <h3><span>Spring fever</span></h3>
+        <p>
+          <span>Catch spring delights fever with hot colors, specialty flavors samples, and liquor chocolates.</span>
+        </p>
+      </a>
+    </div>
+
+    <div class="special-offer" style="background-image: url(/assets/bouh/collection-macaron.png)">
+      <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
+        <h3><span>Coconut macaron</span></h3>
+        <p>
+          <em>$2.50</em>
+        </p>
+      </a>
+    </div>
+
+    <div class="selection" style="background-image: url(/assets/bouh/selection-chou.png); color: #000">
+      <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
+        <h3><span>Wedding gift box</span></h3>
+        <p>
+          <span>Bring a little bit of Paris to your wedding with these irresistible desserts.</span>
+        </p>
+      </a>
+    </div>
+
+  </section>
+
+  <section id="blog">
+
+    <h2>Fresh news from <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">our blog</a></h2>
+
+    <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
+
+      <h1>Strawberry Cheesecake Profiteroles</h1>
+
+      <p>
+        I know profiteroles are suppose to be stuffed with pastry cream, ice cream or some sort of cream. Okay, well cheesecake is made with cream cheese. That counts, right? And if doesn’t, what’s another broken rule? Let’s just agree that pate a choux whether in the form of profiteroles or eclairs is a vehichle for any type of stuffing.
+      </p>
+
+    </a>
+
+    <a class="more" href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">Read more</a>
+
+  </section>
+
+{% endblock %}

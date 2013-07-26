@@ -1,5 +1,7 @@
 <?php
 
+namespace prismic;
+
 if (!function_exists('curl_init')) {
     throw new Exception('Wroom needs the CURL PHP extension.');
 }
@@ -7,7 +9,7 @@ if (!function_exists('json_decode')) {
     throw new Exception('Wroom needs the JSON PHP extension.');
 }
 
-class WroomAPI {
+class API {
 
     protected $url;
     protected $apidata = null;
@@ -58,7 +60,11 @@ class WroomAPI {
     }
 
     public function forms() {
-        return $this->getApiData()->forms;
+        $forms = $this->getApiData()->forms;
+        foreach($forms as $key => $form) {
+            $forms->$key = new SearchForm($this, $form);
+        }
+        return $forms;
     }
 
     /**
@@ -71,7 +77,7 @@ class WroomAPI {
         return $this->apidata;
     }
 
-    private static function get($url) {
+    public static function get($url) {
         $ch = curl_init();
 
         $opts = self::$CURL_OPTS;
@@ -101,3 +107,55 @@ class WroomAPI {
 
 }
 
+class SearchForm {
+
+    private $api;
+    private $form;
+
+    function __construct($api, $form) {
+        $this->api = $api;
+        $this->form = $form;
+    }
+
+    function query($ref, $q = null) {
+        if (property_exists($ref, "ref")) {
+            $ref = $ref->ref;
+        }
+        $queryParameters = array();
+        foreach($this->form->fields as $key=>$field) {
+            if (property_exists($field, "default")) {
+                $queryParameters->$key = $field->default;
+            }
+        }
+        $queryParameters["ref"] = $ref;
+        if ($q) {
+            $queryParameters["q"] = $q;
+        }
+        print "URL = " . $this->form->action . "?" . http_build_query($queryParameters) . "\n";
+        $jsonDocList = json_decode(API::get($this->form->action . "?" . http_build_query($queryParameters)));
+        $documents = array();
+        foreach($jsonDocList as $jsonDoc) {
+            array_push($documents, new Document($jsonDoc));
+        }
+        return $documents;
+    }
+
+}
+
+class Document {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function id() {
+        return $this->data->id;
+    }
+
+    public function slug() {
+        return $this->data->slugs[0];
+    }
+
+}

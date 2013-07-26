@@ -1,0 +1,29 @@
+@(products: Seq[com.zenexity.wroom.client.Document])
+
+@main(title = "Our produts", id = "products") {
+
+  <section id="catalog">
+  
+    <div class="products">
+    
+      <ul>
+        @products.sortBy(_.getText("product.name")).map { product =>
+          <li data-category="@product.tags.filter(Application.CATEGORIES.contains).headOption">
+            <a href="@routes.Application.product(product.id, product.slug)">
+              <img src="@(product.getImage("product.image", "icon").map(_.url).getOrElse(routes.Assets.at("images/missing-image.png")))">
+              <span>@product.getText("product.name").getOrElse("Product")</span>
+              <em>@product.getNumber("product.price", "$0.00").getOrElse("–")</em>
+            </a>
+          </li>
+        }
+      </ul>
+
+    </div>
+
+    <p>
+      <a href="@routes.Application.index()">Close the products list</a>
+    </p>
+
+  </section>
+
+}

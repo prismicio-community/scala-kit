@@ -1,0 +1,8 @@
+_welcome:
+    pattern:  /
+    defaults: { _controller: LesBonnesChosesBundle:Main:index }
+
+_product:
+    pattern: /products/{id}/{slug}
+    defaults: { _controller: LesBonnesChosesBundle:Main:product }
+

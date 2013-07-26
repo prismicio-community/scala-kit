@@ -1,0 +1,33 @@
+@(product: com.zenexity.wroom.client.Document)
+
+@main(title = "Coffee Macaron", id = "product") {
+
+  <section id="detail">
+
+    <div>
+
+      <img src="@(product.getImage("product.image", "main").map(_.url).getOrElse(routes.Assets.at("images/missing-image.png")))">
+
+      <h4>@product.getNumber("product.price", "$0.00")</h4>
+      <h3>@product.getText("product.name").getOrElse("Product")</h3>
+
+      <p>
+        @product.getText("product.description")
+      </p>
+
+      <p>
+        <a href="#"><strong style="background: @product.getText("product.color")">@product.getText("product.color")</strong></a>
+      </p>
+
+    </div>
+
+    <p>
+      <a href="@routes.Application.products()">Browse all our products</a>
+    </p>
+
+  </section>
+
+  <section id="gallery" style="background-image: url(/assets/bouh/lesbonneschoses-1373036380068_fotolia_42108161_subscription_monthly_xxl.jpg)">
+  </section>
+
+}
