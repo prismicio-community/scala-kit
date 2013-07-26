@@ -9,28 +9,14 @@ import scala.util._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object `package` {
-
-  type LinkResolver = (Fragment.Link => LinkDestination)
-
-}
-
-sealed trait Fragment {
-  def asHtml(linkResolver: LinkResolver): String = ""
-}
-
-case class LinkDestination(url: String, target: Option[String] = None)
+sealed trait Fragment
 
 object Fragment {
 
   sealed trait Link extends Fragment
 
   case class WebLink(url: String, contentType: Option[String] = None) extends Link {
-    override def asHtml(linkResolver: LinkResolver): String = {
-      val destination = linkResolver(this)
-      val target = destination.target.map(t => s"""target="$t" """)
-      s"""<a ${target}href="${destination.url}}">$url</a>"""
-    }
+    def asHtml(): String = s"""<a href="$url">$url</a>"""
   }
 
   object WebLink {
@@ -44,24 +30,16 @@ object Fragment {
   }
 
   case class MediaLink(url: String, contentType: String, size: Long, filename: String) extends Link {
-    override def asHtml(linkResolver: LinkResolver): String = {
-      val destination = linkResolver(this)
-      val target = destination.target.map(t => s"""target="$t" """)
-      s"""<a ${target}href="${destination.url}}">$filename</a>"""
-    }
+    def asHtml: String = s"""<a href="$url">$filename</a>"""
   }
 
-  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, bookmark: Option[String], isBroken: Boolean) extends Link {
-    override def asHtml(linkResolver: LinkResolver): String = {
-      val destination = linkResolver(this)
-      val target = destination.target.map(t => s"""target="$t" """)
-      s"""<a ${target}href="${destination.url}}">$id/$slug</a>"""
-    }
+  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, isBroken: Boolean) extends Link {
+    def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
   }
 
   object DocumentLink {
 
-    implicit def reader(apiData: ApiData): Reads[DocumentLink] = {
+    implicit val reader: Reads[DocumentLink] = {
       (
         (__ \ "document").read(
           (__ \ "id").read[String] and
@@ -70,7 +48,7 @@ object Fragment {
           (__ \ "slug").read[String] tupled
         ) and
         (__ \ "isBroken").readNullable[Boolean].map(_.getOrElse(false))
-      ).tupled.map(link => DocumentLink(link._1._1, link._1._2, link._1._3, link._1._4, apiData.bookmarks.find(_._2 == link._1._1).map(_._1), link._2))
+      ).tupled.map(link => DocumentLink(link._1._1, link._1._2, link._1._3, link._1._4, link._2))
     }
 
   }
@@ -78,9 +56,7 @@ object Fragment {
   // ------------------
 
   case class Text(value: String) extends Fragment {  
-    override def asHtml(linkResolver: LinkResolver): String = {
-      s"""<span class="text">$value</span>"""
-    }
+    def asHtml: String = s"""<span class="text">$value</span>"""
   }
 
   object Text {
@@ -93,10 +69,7 @@ object Fragment {
 
   case class Date(value: DateTime) extends Fragment {  
     def asText(pattern: String) = value.toString(pattern)
-
-    override def asHtml(linkResolver: LinkResolver): String = {
-      s"""<time>$value</time>"""
-    }
+    def asHtml: String = s"""<time>$value</time>"""
   }
 
   object Date {
@@ -110,10 +83,7 @@ object Fragment {
   case class Number(value: Double) extends Fragment {  
     def asInt = value.toInt
     def asText(pattern: String) = new java.text.DecimalFormat(pattern).format(value)
-
-    override def asHtml(linkResolver: LinkResolver): String = {
-      s"""<span class="number">$value</span>"""
-    }
+    def asHtml: String = s"""<span class="number">$value</span>"""
   }
 
   object Number {
@@ -126,10 +96,7 @@ object Fragment {
 
   case class Color(hex: String) extends Fragment {
     def asRGB = Color.asRGB(hex)
-
-    override def asHtml(linkResolver: LinkResolver): String = {
-      s"""<span class="color">$hex</span>"""
-    }
+    def asHtml: String = s"""<span class="color">$hex</span>"""
   }
 
   object Color {
@@ -155,11 +122,9 @@ object Fragment {
   // ------------------
 
   case class Embed(typ: String, provider: String, url: String, width: Option[Int], height: Option[Int], html: Option[String], oembedJson: JsValue) extends Fragment {
-
-    override def asHtml(linkResolver: LinkResolver): String = {
+    def asHtml: String = {
       html.map(html => s"""<div data-oembed="$url" data-oembed-type="${typ.toLowerCase}" data-oembed-provider="${provider.toLowerCase}">$html</div>""").getOrElse("")
     }
-
   }
 
   object Embed {
@@ -189,7 +154,7 @@ object Fragment {
       case _ => views.get(key)
     }
 
-    override def asHtml(linkResolver: LinkResolver): String = main.asHtml()
+    def asHtml: String = main.asHtml
 
   }
 
@@ -197,10 +162,7 @@ object Fragment {
 
     case class View(url: String, width: Int, height: Int) {
       def ratio = width / height
-
-      def asHtml(): String = {
-        s"""<img src="${url}" width="${width}" height="${height}">"""
-      }
+      def asHtml: String = s"""<img src="${url}" width="${width}" height="${height}">"""
     }
 
     implicit val viewReader: Reads[View] = 
@@ -238,7 +200,7 @@ object Fragment {
       case i: StructuredText.Block.Image => i
     }
 
-    override def asHtml(linkResolver: LinkResolver): String = {
+    def asHtml(linkResolver: DocumentLinkResolver): String = {
       StructuredText.asHtml(blocks, linkResolver)
     }
 
@@ -248,7 +210,7 @@ object Fragment {
 
   object StructuredText {
 
-    def asHtml(blocks: Seq[Block], linkResolver: LinkResolver): String = {
+    def asHtml(blocks: Seq[Block], linkResolver: DocumentLinkResolver): String = {
       case class Group(htmlTag: Option[String], blocks: Seq[Block])
 
       val grouped = blocks.foldLeft(List.empty[Group]) {
@@ -265,17 +227,17 @@ object Fragment {
       }.mkString("\n\n")
     }
 
-    def asHtml(block: Block, linkResolver: LinkResolver): String = {
+    def asHtml(block: Block, linkResolver: DocumentLinkResolver): String = {
       block match {
         case StructuredText.Block.Heading(level, text, spans) => s"""<h$level>${asHtml(text, spans, linkResolver)}</h$level>"""
         case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
         case StructuredText.Block.ListItem(text, _, spans) => s"""<li>${asHtml(text, spans, linkResolver)}</li>""" 
-        case StructuredText.Block.Image(view) => s"""<p>${view.asHtml()}</p>"""
-        case StructuredText.Block.Embed(obj) => obj.asHtml(linkResolver)
+        case StructuredText.Block.Image(view) => s"""<p>${view.asHtml}</p>"""
+        case StructuredText.Block.Embed(obj) => obj.asHtml
       }
     }
 
-    def asHtml(text: String, spans: Seq[Span], linkResolver: LinkResolver): String = {
+    def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver): String = {
 
       def escape(character: String): String = {
         character.replace("<", "&lt;").replace("\n", "<br>")
@@ -283,9 +245,11 @@ object Fragment {
 
       def writeTag(span: Span, opening: Boolean): String = {
         span match {
-          case em: Span.Em => if(opening) "<em>" else "</em>"
-          case strong: Span.Strong => if(opening) "<strong>" else "</strong>"
-          case link: Span.Hyperlink => if(opening) s"""<a href="${linkResolver(link.link).url}">""" else "</a>"
+          case Span.Em(_, _) => if(opening) "<em>" else "</em>"
+          case Span.Strong(_, _) => if(opening) "<strong>" else "</strong>"
+          case Span.Hyperlink(_, _, link:DocumentLink) => if(opening) s"""<a href="${linkResolver(link)}">""" else "</a>"
+          case Span.Hyperlink(_, _, link:MediaLink) => if(opening) s"""<a href="${link.url}">""" else "</a>"
+          case Span.Hyperlink(_, _, link:WebLink) => if(opening) s"""<a href="${link.url}">""" else "</a>"
           case _ => if(opening) "<span>" else "</span>"
         }
       }
@@ -330,7 +294,7 @@ object Fragment {
       case class Strong(start: Int, end: Int) extends Span
       case class Hyperlink(start: Int, end: Int, link: Link) extends Span
 
-      implicit def reader(apiData: ApiData): Reads[Span] =
+      implicit val reader: Reads[Span] =
         (
           (__ \ 'type).read[String] and
           (__ \ 'start).read[Int] and
@@ -341,7 +305,7 @@ object Fragment {
             case "strong" => Reads.pure(Strong(start, end))
             case "em" => Reads.pure(Em(start, end))
             case "hyperlink" if (data \ "type").as[String] == "Link.web" => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
-            case "hyperlink" if (data \ "type").as[String] == "Link.document" => (__ \ "data" \ "value").read(DocumentLink.reader(apiData)).map(link => Hyperlink(start, end, link)) 
+            case "hyperlink" if (data \ "type").as[String] == "Link.document" => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link)) 
             case t => Reads(json => JsError(s"Unsupported span type $t"))
           }
         }
@@ -359,9 +323,9 @@ object Fragment {
       case class Heading(level: Int, text: String, spans: Seq[Span]) extends Text
 
       object Heading {
-        implicit def reader(apiData: ApiData, level: Int): Reads[Heading] = (
+        implicit def reader(level: Int): Reads[Heading] = (
           (__ \ "text").read[String] and
-          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
+          (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
           case (content, spans) => Heading(level, content, spans)
         }
@@ -370,9 +334,9 @@ object Fragment {
       case class Paragraph(text: String, spans: Seq[Span]) extends Text
 
       object Paragraph {
-        implicit def reader(apiData: ApiData): Reads[Paragraph] = (
+        implicit val reader: Reads[Paragraph] = (
           (__ \ "text").read[String] and
-          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
+          (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
           case (content, spans) => Paragraph(content, spans)
         }
@@ -381,9 +345,9 @@ object Fragment {
       case class ListItem(text: String, ordered: Boolean, spans: Seq[Span]) extends Text
 
       object ListItem {
-        implicit def reader(apiData: ApiData, ordered: Boolean): Reads[ListItem] = (
+        implicit def reader(ordered: Boolean): Reads[ListItem] = (
           (__ \ "text").read[String] and
-          (__ \ "spans").read(Reads.seq(Span.reader(apiData).map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
+          (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
           case (content, spans) => ListItem(content, ordered, spans)
         }
@@ -397,15 +361,15 @@ object Fragment {
 
       case class Embed(obj: Fragment.Embed) extends Block
 
-      implicit def reader(apiData: ApiData): Reads[Block] = (
+      implicit val reader: Reads[Block] = (
         (__ \ "type").read[String].flatMap[Block] { 
 
-          case "heading1"  => __.read(Heading.reader(apiData, 1)).map(identity[Block])
-          case "heading2"  => __.read(Heading.reader(apiData, 2)).map(identity[Block])
-          case "heading3"  => __.read(Heading.reader(apiData, 3)).map(identity[Block])
-          case "heading4"  => __.read(Heading.reader(apiData, 4)).map(identity[Block])
-          case "paragraph" => __.read(Paragraph.reader(apiData)).map(identity[Block])
-          case "list-item" => __.read(ListItem.reader(apiData, ordered = false)).map(identity[Block])
+          case "heading1"  => __.read(Heading.reader(1)).map(identity[Block])
+          case "heading2"  => __.read(Heading.reader(2)).map(identity[Block])
+          case "heading3"  => __.read(Heading.reader(3)).map(identity[Block])
+          case "heading4"  => __.read(Heading.reader(4)).map(identity[Block])
+          case "paragraph" => __.read(Paragraph.reader).map(identity[Block])
+          case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
           case "image"     => __.read[Fragment.Image.View].map(view => Image(view):Block)
           case "embed"     => __.read[Fragment.Embed].map(obj => Embed(obj):Block)
 
@@ -415,8 +379,8 @@ object Fragment {
 
     }
 
-    implicit def reader(apiData: ApiData): Reads[StructuredText] = (
-      __.read(Reads.seq(Block.reader(apiData).map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
+    implicit val reader: Reads[StructuredText] = (
+      __.read(Reads.seq(Block.reader.map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
         case blocks => StructuredText(blocks)
       }
     )

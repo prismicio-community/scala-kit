@@ -11,13 +11,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import core._
 
 case class Api(data: ApiData, cache: Cache, logger: (String) => Unit) {
-
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
-
   def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
+}
 
+case class DocumentLinkResolver(api: Api)(f: (((Fragment.DocumentLink,Option[String])) => String)) {
+  def apply(link: Fragment.DocumentLink): String = f((link, api.bookmarks.find(_._2 == link.id).map(_._1)))
+  def apply(document: Document): String = f(
+    (Fragment.DocumentLink(document.id, document.typ, document.tags, document.slug, false), api.bookmarks.find(_._2 == document.id).map(_._1))
+  )
 }
 
 object Api {
@@ -115,7 +119,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String,String]) {
   }
 
   def submit(): Future[Seq[Document]] = {
-    implicit val documentReader: Reads[Document] = Document.reader(api.data)
+    implicit val documentReader: Reads[Document] = Document.reader
 
     def parseResult(json: JsValue) = Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse Document: $e") }
 
@@ -210,15 +214,24 @@ case class Document(
     case _ => None
   }
 
-  def getHtml(field: String, linkResolver: LinkResolver): Option[String] = {
-    get(field).map(_.asHtml(linkResolver))
+  def getHtml(field: String, linkResolver: DocumentLinkResolver): Option[String] = get(field).flatMap {
+    case a: Fragment.StructuredText => Some(a.asHtml(linkResolver))
+    case a: Fragment.Number => Some(a.asHtml)
+    case a: Fragment.Color => Some(a.asHtml)
+    case a: Fragment.Text => Some(a.asHtml)
+    case a: Fragment.Date => Some(a.asHtml)
+    case a: Fragment.Embed => Some(a.asHtml)
+    case a: Fragment.Image => Some(a.asHtml)
+    case a: Fragment.WebLink => Some(a.asHtml)
+    case a: Fragment.MediaLink => Some(a.asHtml)
+    case a: Fragment.DocumentLink => Some(a.asHtml(linkResolver))
   }
 
   def getText(field: String): Option[String] = get(field).flatMap {
     case a: Fragment.StructuredText => Some(a.blocks.collect { case b: Fragment.StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
     case a: Fragment.Number => Some(a.value.toString)
     case a: Fragment.Color => Some(a.hex)
-    case a: Fragment.Text => Some(a.value)
+    case a: Fragment.Text => Some(a.value).filterNot(_.isEmpty)
     case a: Fragment.Date => Some(a.value.toString)
     case _ => None
   }
@@ -245,11 +258,19 @@ case class Document(
 
   def getNumber(field: String, pattern: String): Option[String] = getNumber(field).map(_.asText(pattern))
 
+  def getBoolean(field: String): Boolean = get(field).flatMap {
+    case a: Fragment.Text => Option(a.value.toLowerCase).collect {
+      case "yes" => true
+      case "true" => true
+    }
+    case _ => None
+  }.getOrElse(false)
+
 }
 
 object Document {
 
-  private def parse(jsvalue: JsObject, apiData: ApiData): Option[Fragment] = {
+  private def parse(jsvalue: JsObject): Option[Fragment] = {
     (jsvalue \ "type").asOpt[String].flatMap {
 
       case "Image"            => Some(Fragment.Image.reader.map(identity[Fragment]))
@@ -260,14 +281,14 @@ object Document {
       case "Select"           => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Embed"            => Some(Fragment.Embed.reader.map(identity[Fragment]))
       case "Link.web"         => Some(Fragment.WebLink.reader.map(identity[Fragment]))
-      case "Link.document"    => Some(Fragment.DocumentLink.reader(apiData).map(identity[Fragment]))
-      case "StructuredText"   => Some(Fragment.StructuredText.reader(apiData).map(identity[Fragment]))
+      case "Link.document"    => Some(Fragment.DocumentLink.reader.map(identity[Fragment]))
+      case "StructuredText"   => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
 
       case t => None
     }.flatMap(_.reads(jsvalue \ "value").asOpt)
   }
 
-  implicit def reader(apiData: ApiData) = (
+  implicit def reader = (
     (__ \ "id").read[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
@@ -276,9 +297,9 @@ object Document {
       (__ \ "data" \ typ).read[JsObject].map { data =>
         collection.immutable.ListMap(
           data.fields.map { 
-            case (key, json: JsObject) => parse(json, apiData).toList.map(fragment => (s"$typ.$key", fragment))
+            case (key, json: JsObject) => parse(json).toList.map(fragment => (s"$typ.$key", fragment))
             case (key, jsons: JsArray) => jsons.value.zipWithIndex.collect {
-              case (json: JsObject, i) => parse(json, apiData).toList.map(fragment => (s"$typ.$key[$i]", fragment))
+              case (json: JsObject, i) => parse(json).toList.map(fragment => (s"$typ.$key[$i]", fragment))
               case _ => Nil
             }.flatten
             case _ => Nil
