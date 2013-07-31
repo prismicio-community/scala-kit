@@ -41,4 +41,12 @@ class MainController extends Controller {
         ));
     }
 
+    public function aboutAction() {
+        $aboutId = $this->getApi()->bookmarks()->about;
+        $about = $this->getApi()->document($this->master(), $aboutId);
+        return $this->render('LesBonnesChosesBundle:Main:about.html.twig', array(
+            'about' => $about
+        ));
+    }
+
 }

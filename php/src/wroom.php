@@ -68,6 +68,15 @@ class API {
     }
 
     /**
+     * @param $ref
+     * @param $id
+     * @return mixed A prismatic\Document if found, null otherwise
+     */
+    public function document($ref, $id) {
+        return $this->forms()->everything->query($ref, "[[at(document.id, \"" . $id . "\")]]")[0];
+    }
+
+    /**
      * Return apidata, but fetch lazily (to avoid fetching the apidata if no call is done)
      */
     public function getApiData() {
@@ -202,7 +211,7 @@ class Document {
         return $this->fragments[$field]->asText();
     }
 
-    public function getHtml($field, $linkResolver) {
+    public function getHtml($field, $linkResolver = null) {
         if (!array_key_exists($field, $this->fragments)) {
             return "";
         }
@@ -294,7 +303,10 @@ class Image extends Fragment {
     }
 
     public function getImage($view) {
-        return $this->data->views->$view;
+        if (property_exists($this->data->views, $view)) {
+            return $this->data->views->$view;
+        }
+        return null;
     }
 
 }

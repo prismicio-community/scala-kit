@@ -2,7 +2,40 @@ _welcome:
     pattern:  /
     defaults: { _controller: LesBonnesChosesBundle:Main:index }
 
+_blog:
+    pattern:  /blog
+    defaults: { _controller: LesBonnesChosesBundle:Main:blog }
+
+_about:
+    pattern:  /about
+    defaults: { _controller: LesBonnesChosesBundle:Main:about }
+
+_stores:
+    pattern:  /stores
+    defaults: { _controller: LesBonnesChosesBundle:Main:stores }
+
+_storeDetail:
+    pattern:  /stores/{id}/{slug}
+    defaults: { _controller: LesBonnesChosesBundle:Main:storesDetail }
+
+_jobs:
+    pattern:  /jobs
+    defaults: { _controller: LesBonnesChosesBundle:Main:jobs }
+
+_jobDetail:
+    pattern:  /jobs/{id}/{slug}
+    defaults: { _controller: LesBonnesChosesBundle:Main:jobDetail }
+
+_products:
+    pattern: /products
+    defaults: { _controller: LesBonnesChosesBundle:Main:products }
+
 _product:
     pattern: /products/{id}/{slug}
     defaults: { _controller: LesBonnesChosesBundle:Main:product }
+
+_productByFlavour:
+    pattern: /products/by-flavour
+    defaults: { _controller: LesBonnesChosesBundle:Main:productByFlavour }
+
 
