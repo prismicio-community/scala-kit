@@ -30,10 +30,8 @@
                 {%  else %}
                   <img src="{{ asset('bundles/lesbonneschoses/images/missing-image.png') }}"/>
                 {% endif %}
-                <span>product.get("product.name")</span>
-                {% if (product.get("product.price")) %}
-                <em>€{{ product.get("product.price").asHtml() }}</em>
-                {% endif %}
+                <span>{{ product.getText("product.name") }}</span>
+                <em>€{{ product.getText("product.price") }}</em>
               </a>
             </li>
           {%  endfor %}

@@ -165,7 +165,7 @@ class Document {
                     if ($value->type === "Image") {
                         $fragment = new Image($value->value);
                     }
-                    if ($value->type === "StructureText") {
+                    if ($value->type === "StructuredText") {
                         $fragment = new StructuredText($value->value);
                     }
                 }
@@ -185,8 +185,24 @@ class Document {
     }
 
     public function get($field) {
-        if (!array_key_exists($field, $this->fragments)) return null;
+        if (!array_key_exists($field, $this->fragments)) {
+            return null;
+        }
         return $this->fragments[$field];
+    }
+
+    public function getText($field) {
+        if (!array_key_exists($field, $this->fragments)) {
+            return "";
+        }
+        return $this->fragments[$field]->asText();
+    }
+
+    public function getHtml($field, $linkResolver) {
+        if (!array_key_exists($field, $this->fragments)) {
+            return "";
+        }
+        return $this->fragments[$field]->asHtml($linkResolver);
     }
 
     public function getImage($field, $view) {
@@ -203,6 +219,10 @@ class Fragment {
 
     public function getImage($view) {
         return null;
+    }
+
+    public function asText() {
+        return "";
     }
 
     public function asHtml($linkResolver = null) {
@@ -233,8 +253,12 @@ class Number extends Fragment {
         $this->data = $data;
     }
 
+    public function asText() {
+        return $this->data;
+    }
+
     public function asHtml($linkResolver = null) {
-        return "";
+        return $this->data;
     }
 
 }
@@ -273,17 +297,43 @@ class Image extends Fragment {
 
 class StructuredText extends Fragment {
 
-    private $data;
+    private $blocks;
 
-    function __construct($data) {
-        $this->data = $data;
+    function __construct($blocks) {
+        $this->blocks = $blocks;
     }
 
+    public function asText() {
+        $result = array_map(function ($block) {
+            return $block->text;
+        }, $this->blocks);
+        return join("\n\n", $result);
+    }
+
+    // TODO: Resolve spans within blocks
     public function asHtml($linkResolver = null) {
-        return "";
+        $result = array_map(function ($block) {
+            if ($block->type === "paragraph") {
+                return "<p>" . $block->text . "</p>";
+            }
+            if ($block->type === "heading1") {
+                return "<h1>" . $block->text . "</h1>";
+            }
+            if ($block->type === "heading2") {
+                return "<h2>" . $block->text . "</h2>";
+            }
+            if ($block->type === "heading3") {
+                return "<h3>" . $block->text . "</h3>";
+            }
+            if ($block->type === "heading4") {
+                return "<h4>" . $block->text . "</h4>";
+            }
+        }, $this->blocks);
+        return join("\n\n", $result);
     }
 
     public function getImage($view) {
+        // TODO: Find the first image
         return null;
     }
 
