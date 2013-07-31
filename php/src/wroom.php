@@ -131,7 +131,6 @@ class SearchForm {
         if ($q) {
             $queryParameters["q"] = $q;
         }
-        print "URL = " . $this->form->action . "?" . http_build_query($queryParameters) . "\n";
         $jsonDocList = json_decode(API::get($this->form->action . "?" . http_build_query($queryParameters)));
         $documents = array();
         foreach($jsonDocList as $jsonDoc) {
@@ -145,9 +144,36 @@ class SearchForm {
 class Document {
 
     private $data;
+    private $fragments;
 
     function __construct($data) {
         $this->data = $data;
+        $this->fragments = array();
+        foreach($this->data->data as $type=>$fields) {
+            foreach($fields as $key=>$value) {
+                $fragment = null;
+                if (is_object($value) && property_exists($value, "type")) {
+                    if ($value->type === "Link") {
+                        $fragment = new Link($value->value);
+                    }
+                    if ($value->type === "Number") {
+                        $fragment = new Number($value->value);
+                    }
+                    if ($value->type === "Color") {
+                        $fragment = new Color($value->value);
+                    }
+                    if ($value->type === "Image") {
+                        $fragment = new Image($value->value);
+                    }
+                    if ($value->type === "StructureText") {
+                        $fragment = new StructuredText($value->value);
+                    }
+                }
+                if ($fragment) {
+                    $this->fragments[$type . "." . $key] = $fragment;
+                }
+            }
+        }
     }
 
     public function id() {
@@ -158,4 +184,108 @@ class Document {
         return $this->data->slugs[0];
     }
 
+    public function get($field) {
+        if (!array_key_exists($field, $this->fragments)) return null;
+        return $this->fragments[$field];
+    }
+
+    public function getImage($field, $view) {
+        if (!array_key_exists($field, $this->fragments)) return null;
+        $fragment = $this->fragments[$field];
+        return $fragment->getImage($view);
+    }
+
 }
+
+// Fragment types
+
+class Fragment {
+
+    public function getImage($view) {
+        return null;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+}
+
+class Link extends Fragment {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+}
+
+class Number extends Fragment {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+}
+
+class Color extends Fragment {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+}
+
+class Image extends Fragment {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+    public function getImage($view) {
+        return $this->data->views->$view;
+    }
+
+}
+
+class StructuredText extends Fragment {
+
+    private $data;
+
+    function __construct($data) {
+        $this->data = $data;
+    }
+
+    public function asHtml($linkResolver = null) {
+        return "";
+    }
+
+    public function getImage($view) {
+        return null;
+    }
+
+}
+

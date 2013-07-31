@@ -25,9 +25,15 @@
           <!-- @products.filter(_.tags.contains(category)).take(5).map { product => -->
             <li data-category="{{ category }}">
               <a href="{{ path('_product', {"id": product.id, "slug": product.slug}) }}">
-                <img src="@(product.getImage("product.image", "icon").map(_.url).getOrElse(routes.Assets.at("images/missing-image.png")))">
-                <span>@product.getText("product.name").getOrElse("Product")</span>
-                <em>@product.getNumber("product.price", "$0.00").getOrElse("–")</em>
+                {% if (product.getImage("product.image", "icon")) %}
+                  <img src="{{ product.getImage("product.image", "icon").url }}"/>
+                {%  else %}
+                  <img src="{{ asset('bundles/lesbonneschoses/images/missing-image.png') }}"/>
+                {% endif %}
+                <span>product.get("product.name")</span>
+                {% if (product.get("product.price")) %}
+                <em>€{{ product.get("product.price").asHtml() }}</em>
+                {% endif %}
               </a>
             </li>
           {%  endfor %}
@@ -44,7 +50,7 @@
 
   <section id="featured">
 
-    <div class="selection" style="background-image: url({{ asset('bundles/lesbonneschoses/bouh/collection-tarte.png') }})
+    <div class="selection" style="background-image: url({{ asset('bundles/lesbonneschoses/bouh/collection-tarte.png') }})">
       <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
         <h3><span>Spring fever</span></h3>
         <p>
@@ -53,7 +59,7 @@
       </a>
     </div>
 
-    <div class="special-offer" style="background-image: url(/assets/bouh/collection-macaron.png)">
+    <div class="special-offer" style="background-image: url({{ asset('bundles/lesbonneschoses/bouh/collection-macaron.png') }})">
       <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
         <h3><span>Coconut macaron</span></h3>
         <p>
@@ -62,7 +68,7 @@
       </a>
     </div>
 
-    <div class="selection" style="background-image: url(/assets/bouh/selection-chou.png); color: #000">
+    <div class="selection" style="background-image: url({{ asset('bundles/lesbonneschoses/bouh/collection-chou.png') }}); color: #000">
       <a href="@routes.Application.product("UdUjsN_mqT1ObPeM", "coffee-macaron")">
         <h3><span>Wedding gift box</span></h3>
         <p>
