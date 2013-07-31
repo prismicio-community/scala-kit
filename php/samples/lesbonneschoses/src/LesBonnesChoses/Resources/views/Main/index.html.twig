@@ -21,7 +21,7 @@
 
       {%  for category,label in categories %}
         <ul>
-          {%  for product in products %}
+          {% for product in products[category] %}
           <!-- @products.filter(_.tags.contains(category)).take(5).map { product => -->
             <li data-category="{{ category }}">
               <a href="{{ path('_product', {"id": product.id, "slug": product.slug}) }}">

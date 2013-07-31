@@ -8,11 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class MainController extends Controller {
 
-    private $api = null;
-
     private function getApi() {
-        if (!$this->api) $this->api = new \prismic\API("http://lesbonneschoses.wroom.io/api");
-        return $this->api;
+        return new \prismic\API("http://lesbonneschoses.wroom.io/api");
     }
 
     private function master() {
@@ -25,11 +22,22 @@ class MainController extends Controller {
         "Pie" => "Little Pies"
     );
 
+    private static function filterTag($products, $tag) {
+        return array_filter($products, function($product) use(&$tag) {
+            return in_array($tag, $product->tags());
+        });
+    }
+
     public function indexAction() {
-        $products = $this->getApi()->forms()->everything->query($this->master());
+        $products = $this->getApi()->forms()->products->query($this->master());
+        $byCategory = array(
+            "Macaron" => self::filterTag($products, "Macaron"),
+            "Cupcake" => self::filterTag($products, "Cupcake"),
+            "Pie" => self::filterTag($products, "Pie")
+        );
         return $this->render('LesBonnesChosesBundle:Main:index.html.twig', array(
             'categories' => self::$CATEGORIES,
-            'products' => $products
+            'products' => $byCategory
         ));
     }
 

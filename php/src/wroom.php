@@ -124,7 +124,7 @@ class SearchForm {
         $queryParameters = array();
         foreach($this->form->fields as $key=>$field) {
             if (property_exists($field, "default")) {
-                $queryParameters->$key = $field->default;
+                $queryParameters[$key] = $field->default;
             }
         }
         $queryParameters["ref"] = $ref;
@@ -182,6 +182,10 @@ class Document {
 
     public function slug() {
         return $this->data->slugs[0];
+    }
+
+    public function tags() {
+        return $this->data->tags;
     }
 
     public function get($field) {
