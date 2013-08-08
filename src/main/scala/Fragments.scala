@@ -214,10 +214,10 @@ object Fragment {
       case class Group(htmlTag: Option[String], blocks: Seq[Block])
 
       val grouped = blocks.foldLeft(List.empty[Group]) {
-        case ((group @ Group(Some("ul"), _)) :: rest, block @ StructuredText.Block.ListItem(text, false, spans)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case ((group @ Group(Some("ol"), _)) :: rest, block @ StructuredText.Block.ListItem(text, true, spans)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case (groups, block @ StructuredText.Block.ListItem(text, false, spans)) => Group(Some("ul"), Seq(block)) +: groups
-        case (groups, block @ StructuredText.Block.ListItem(text, true, spans)) => groups :+ Group(Some("ol"), Seq(block))
+        case ((group @ Group(Some("ul"), _)) :: rest, block @ StructuredText.Block.ListItem(text, spans, false)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case ((group @ Group(Some("ol"), _)) :: rest, block @ StructuredText.Block.ListItem(text, spans, true)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case (groups, block @ StructuredText.Block.ListItem(text, spans, false)) => Group(Some("ul"), Seq(block)) +: groups
+        case (groups, block @ StructuredText.Block.ListItem(text, spans, true)) => groups :+ Group(Some("ol"), Seq(block))
         case (groups, block) => Group(None, Seq(block)) +: groups
       }.reverse
 
@@ -229,9 +229,9 @@ object Fragment {
 
     def asHtml(block: Block, linkResolver: DocumentLinkResolver): String = {
       block match {
-        case StructuredText.Block.Heading(level, text, spans) => s"""<h$level>${asHtml(text, spans, linkResolver)}</h$level>"""
+        case StructuredText.Block.Heading(text, spans, level) => s"""<h$level>${asHtml(text, spans, linkResolver)}</h$level>"""
         case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
-        case StructuredText.Block.ListItem(text, _, spans) => s"""<li>${asHtml(text, spans, linkResolver)}</li>""" 
+        case StructuredText.Block.ListItem(text, spans, _) => s"""<li>${asHtml(text, spans, linkResolver)}</li>"""
         case StructuredText.Block.Image(view) => s"""<p>${view.asHtml}</p>"""
         case StructuredText.Block.Embed(obj) => obj.asHtml
       }
@@ -320,14 +320,14 @@ object Fragment {
         def spans: Seq[Span]
       }
 
-      case class Heading(level: Int, text: String, spans: Seq[Span]) extends Text
+      case class Heading(text: String, spans: Seq[Span], level: Int) extends Text
 
       object Heading {
         implicit def reader(level: Int): Reads[Heading] = (
           (__ \ "text").read[String] and
           (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
-          case (content, spans) => Heading(level, content, spans)
+          case (content, spans) => Heading(content, spans, level)
         }
       }
       
@@ -342,14 +342,14 @@ object Fragment {
         }
       }
 
-      case class ListItem(text: String, ordered: Boolean, spans: Seq[Span]) extends Text
+      case class ListItem(text: String, spans: Seq[Span], ordered: Boolean) extends Text
 
       object ListItem {
         implicit def reader(ordered: Boolean): Reads[ListItem] = (
           (__ \ "text").read[String] and
           (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
         ).map {
-          case (content, spans) => ListItem(content, ordered, spans)
+          case (content, spans) => ListItem(content, spans, ordered)
         }
       }
 
