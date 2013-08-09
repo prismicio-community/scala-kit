@@ -98,12 +98,12 @@ object CustomWS {
    *
    * @param url the URL to request
    */
-  def url(url: String): WSRequestHolder = WSRequestHolder(url, Map(), Map(), None, None, None, None, None)
+  def url(logger: (String,String) => Unit, url: String): WSRequestHolder = WSRequestHolder(logger, url, Map(), Map(), None, None, None, None, None)
 
   /**
    * A WS Request.
    */
-  class WSRequest(_method: String, _auth: Option[Tuple3[String, String, AuthScheme]], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
+  class WSRequest(_logger: (String,String) => Unit, _method: String, _auth: Option[Tuple3[String, String, AuthScheme]], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
 
     import scala.collection.JavaConverters._
 
@@ -173,6 +173,9 @@ object CustomWS {
       import com.ning.http.client.AsyncCompletionHandler
       var result = Promise[Response]()
       calculator.map(_.sign(this))
+
+      _logger("DEBUG", s"Making request: $url")
+
       CustomWS.client.executeRequest(this.build(), new AsyncCompletionHandler[AHCResponse]() {
         override def onCompleted(response: AHCResponse) = {
           result.success(Response(response))
@@ -315,7 +318,7 @@ object CustomWS {
   /**
    * A WS Request builder.
    */
-  case class WSRequestHolder(url: String,
+  case class WSRequestHolder(logger: (String,String) => Unit, url: String,
       headers: Map[String, Seq[String]],
       queryString: Map[String, Seq[String]],
       calc: Option[SignatureCalculator],
@@ -443,7 +446,7 @@ object CustomWS {
     def execute(method: String): Future[Response] = prepare(method).execute
 
     private[core] def prepare(method: String) = {
-      val request = new WSRequest(method, auth, calc).setUrl(url)
+      val request = new WSRequest(logger, method, auth, calc).setUrl(url)
         .setHeaders(headers)
         .setQueryString(queryString)
       followRedirects.map(request.setFollowRedirects(_))
@@ -464,7 +467,7 @@ object CustomWS {
 
       val bodyGenerator = new FileBodyGenerator(body);
 
-      val request = new WSRequest(method, auth, calc).setUrl(url)
+      val request = new WSRequest(logger,method, auth, calc).setUrl(url)
         .setHeaders(headers)
         .setQueryString(queryString)
         .setBody(bodyGenerator)
@@ -481,22 +484,6 @@ object CustomWS {
       request
     }
 
-    /*private[play] def prepare[T](method: String, body: T)(implicit wrt: Writeable[T], ct: ContentTypeOf[T]) = {
-      val request = new WSRequest(method, auth, calc).setUrl(url)
-        .setHeaders(Map("Content-Type" -> Seq(ct.mimeType.getOrElse("text/plain"))) ++ headers)
-        .setQueryString(queryString)
-        .setBody(wrt.transform(body))
-      followRedirects.map(request.setFollowRedirects(_))
-      timeout.map { t: Int =>
-        val config = new PerRequestConfig()
-        config.setRequestTimeoutInMs(t)
-        request.setPerRequestConfig(config)
-      }
-      virtualHost.map { v =>
-        request.setVirtualHost(v)
-      }
-      request
-    }*/
   }
 }
 

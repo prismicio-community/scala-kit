@@ -10,18 +10,42 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import core._
 
-case class Api(data: ApiData, cache: Cache, logger: (String) => Unit) {
-  def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
-  def bookmarks: Map[String, String] = data.bookmarks
-  def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
-  def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
+object Error extends Enumeration {
+  type Code = Value
+  val AUTHORIZATION_NEEDED, INVALID_TOKEN, UNEXPECTED = Value
 }
 
-case class DocumentLinkResolver(api: Api)(f: (((Fragment.DocumentLink,Option[String])) => String)) {
-  def apply(link: Fragment.DocumentLink): String = f((link, api.bookmarks.find(_._2 == link.id).map(_._1)))
-  def apply(document: Document): String = f(
-    (Fragment.DocumentLink(document.id, document.typ, document.tags, document.slug, false), api.bookmarks.find(_._2 == document.id).map(_._1))
+case class ApiError(code: Error.Code, message: String) extends RuntimeException {
+  override def getMessage = s"$code $message".trim
+}
+
+case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (String,String) => Unit) {
+  def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
+  def bookmarks: Map[String, String] = data.bookmarks
+  def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData ++ accessToken.toList.map(token => ("access_token" -> token)).toMap))
+  def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
+
+  def oauthInitiateEndpoint = data.oauthEndpoints._1
+  def oauthTokenEndpoint = data.oauthEndpoints._2
+}
+
+trait DocumentLinkResolver {
+  def apply(link: Fragment.DocumentLink): String
+  def apply(document: Document): String = apply(
+    Fragment.DocumentLink(document.id, document.typ, document.tags, document.slug, false)
   )
+}
+
+object DocumentLinkResolver {
+
+  def apply(api: Api)(f: (((Fragment.DocumentLink,Option[String])) => String)) = new DocumentLinkResolver {
+    def apply(link: Fragment.DocumentLink): String = f((link, api.bookmarks.find(_._2 == link.id).map(_._1)))
+  }
+
+  def apply(f: Fragment.DocumentLink => String) = new DocumentLinkResolver {
+    def apply(link: Fragment.DocumentLink): String = f(link)
+  }
+
 }
 
 object Api {
@@ -29,14 +53,16 @@ object Api {
   val AcceptJson = Map("Accept" -> Seq("application/json"))
   val MaxAge = """max-age\s*=\s*(\d+)""".r
 
-  def get(url: String, cache: Cache = NoCache, logger: (String) => Unit = identity): Future[Api] = {
-    CustomWS.url(url)
+  def get(url: String, accessToken: Option[String] = None, cache: Cache = NoCache, logger: (String,String) => Unit = { (_,_) => () }): Future[Api] = {
+    CustomWS.url(logger, accessToken.map(token => s"$url?access_token=$token").getOrElse(url))
       .copy(headers = AcceptJson)
       .get()
       .map { resp =>
         resp.status match {
-          case 200    => Api(ApiData.reader.reads(resp.json).get, cache, logger)
-          case error  => sys.error(s"Http error $error (${resp.statusText}")
+          case 200 => Api(ApiData.reader.reads(resp.json).get, accessToken, cache, logger)
+          case 401 if accessToken.isDefined => throw ApiError(code = Error.INVALID_TOKEN, message = "The provided access token is either invalid or expired")
+          case 401 => throw ApiError(code = Error.AUTHORIZATION_NEEDED, message = "You need to provide an access token to access this repository")
+          case err => throw ApiError(code = Error.UNEXPECTED, message = "Got an HTTP error $err (${resp.statusText})")
         }
       }
   }
@@ -93,7 +119,8 @@ case class ApiData(
   val bookmarks: Map[String, String],
   val types: Map[String, String],
   val tags: Seq[String],
-  val forms: Map[String, Form]
+  val forms: Map[String, Form],
+  val oauthEndpoints: (String,String)
 )
 
 object ApiData {
@@ -103,7 +130,11 @@ object ApiData {
     (__ \ 'bookmarks).read[Map[String, String]] and
     (__ \ 'types).read[Map[String, String]] and
     (__ \ 'tags).read[Seq[String]] and
-    (__ \ 'forms).read[Map[String, Form]]
+    (__ \ 'forms).read[Map[String, Form]] and
+    (
+      (__ \ 'oauth_initiate).read[String] and
+      (__ \ 'oauth_token).read[String] tupled
+    )
   )(ApiData.apply _)
 
 }
@@ -137,7 +168,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String,String]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResult(json))
         }.getOrElse {
-          CustomWS.url(url).copy(headers = Api.AcceptJson).get() map { resp =>
+          CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson).get() map { resp =>
             resp.status match {
               case 200 => 
                 val json = resp.json
