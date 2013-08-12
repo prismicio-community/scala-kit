@@ -304,8 +304,8 @@ object Fragment {
           case (typ, start, end, data) => typ match {
             case "strong" => Reads.pure(Strong(start, end))
             case "em" => Reads.pure(Em(start, end))
-            case "hyperlink" if (data \ "type").as[String] == "Link.web" => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
-            case "hyperlink" if (data \ "type").as[String] == "Link.document" => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link)) 
+            case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
+            case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link)) 
             case t => Reads(json => JsError(s"Unsupported span type $t"))
           }
         }
