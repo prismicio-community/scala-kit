@@ -4,4 +4,5 @@
 
 # Scala / sbt
 target
+*.sbt
 
