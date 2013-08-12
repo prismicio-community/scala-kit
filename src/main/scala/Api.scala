@@ -19,7 +19,7 @@ case class ApiError(code: Error.Code, message: String) extends RuntimeException 
   override def getMessage = s"$code $message".trim
 }
 
-case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (String,String) => Unit) {
+case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (Symbol,String) => Unit) {
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData ++ accessToken.toList.map(token => ("access_token" -> token)).toMap))
@@ -53,7 +53,7 @@ object Api {
   val AcceptJson = Map("Accept" -> Seq("application/json"))
   val MaxAge = """max-age\s*=\s*(\d+)""".r
 
-  def get(url: String, accessToken: Option[String] = None, cache: Cache = NoCache, logger: (String,String) => Unit = { (_,_) => () }): Future[Api] = {
+  def get(url: String, accessToken: Option[String] = None, cache: Cache = NoCache, logger: (Symbol,String) => Unit = { (_,_) => () }): Future[Api] = {
     CustomWS.url(logger, accessToken.map(token => s"$url?access_token=$token").getOrElse(url))
       .copy(headers = AcceptJson)
       .get()
