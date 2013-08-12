@@ -98,12 +98,12 @@ object CustomWS {
    *
    * @param url the URL to request
    */
-  def url(logger: (String,String) => Unit, url: String): WSRequestHolder = WSRequestHolder(logger, url, Map(), Map(), None, None, None, None, None)
+  def url(logger: (Symbol,String) => Unit, url: String): WSRequestHolder = WSRequestHolder(logger, url, Map(), Map(), None, None, None, None, None)
 
   /**
    * A WS Request.
    */
-  class WSRequest(_logger: (String,String) => Unit, _method: String, _auth: Option[Tuple3[String, String, AuthScheme]], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
+  class WSRequest(_logger: (Symbol,String) => Unit, _method: String, _auth: Option[Tuple3[String, String, AuthScheme]], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
 
     import scala.collection.JavaConverters._
 
@@ -174,7 +174,7 @@ object CustomWS {
       var result = Promise[Response]()
       calculator.map(_.sign(this))
 
-      _logger("DEBUG", s"Making request: $url")
+      _logger('DEBUG, s"Making request: $url")
 
       CustomWS.client.executeRequest(this.build(), new AsyncCompletionHandler[AHCResponse]() {
         override def onCompleted(response: AHCResponse) = {
@@ -318,7 +318,7 @@ object CustomWS {
   /**
    * A WS Request builder.
    */
-  case class WSRequestHolder(logger: (String,String) => Unit, url: String,
+  case class WSRequestHolder(logger: (Symbol,String) => Unit, url: String,
       headers: Map[String, Seq[String]],
       queryString: Map[String, Seq[String]],
       calc: Option[SignatureCalculator],
