@@ -62,7 +62,7 @@ object Api {
           case 200 => Api(ApiData.reader.reads(resp.json).get, accessToken, cache, logger)
           case 401 if accessToken.isDefined => throw ApiError(code = Error.INVALID_TOKEN, message = "The provided access token is either invalid or expired")
           case 401 => throw ApiError(code = Error.AUTHORIZATION_NEEDED, message = "You need to provide an access token to access this repository")
-          case err => throw ApiError(code = Error.UNEXPECTED, message = "Got an HTTP error $err (${resp.statusText})")
+          case err => throw ApiError(code = Error.UNEXPECTED, message = s"Got an HTTP error $err (${resp.statusText})")
         }
       }
   }
