@@ -297,6 +297,10 @@ case class Document(
     case _ => None
   }.getOrElse(false)
 
+  def asHtml(linkResolver: DocumentLinkResolver): String = fragments.map {
+    case (field, _) => s"""<section data-field="$field">${getHtml(field, linkResolver).getOrElse("")}</section>"""
+  }.mkString("\n")
+
 }
 
 object Document {
