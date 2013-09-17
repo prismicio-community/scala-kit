@@ -231,6 +231,7 @@ object Fragment {
       block match {
         case StructuredText.Block.Heading(text, spans, level) => s"""<h$level>${asHtml(text, spans, linkResolver)}</h$level>"""
         case StructuredText.Block.Paragraph(text, spans) => s"""<p>${asHtml(text, spans, linkResolver)}</p>""" 
+        case StructuredText.Block.Preformatted(text, spans) => s"""<pre>${asHtml(text, spans, linkResolver)}</pre>""" 
         case StructuredText.Block.ListItem(text, spans, _) => s"""<li>${asHtml(text, spans, linkResolver)}</li>"""
         case StructuredText.Block.Image(view) => s"""<p>${view.asHtml}</p>"""
         case StructuredText.Block.Embed(obj) => obj.asHtml
@@ -342,6 +343,17 @@ object Fragment {
         }
       }
 
+      case class Preformatted(text: String, spans: Seq[Span]) extends Text
+
+      object Preformatted {
+        implicit val reader: Reads[Preformatted] = (
+          (__ \ "text").read[String] and
+          (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply _).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) tupled
+        ).map {
+          case (content, spans) => Preformatted(content, spans)
+        }
+      }
+
       case class ListItem(text: String, spans: Seq[Span], ordered: Boolean) extends Text
 
       object ListItem {
@@ -364,14 +376,15 @@ object Fragment {
       implicit val reader: Reads[Block] = (
         (__ \ "type").read[String].flatMap[Block] { 
 
-          case "heading1"  => __.read(Heading.reader(1)).map(identity[Block])
-          case "heading2"  => __.read(Heading.reader(2)).map(identity[Block])
-          case "heading3"  => __.read(Heading.reader(3)).map(identity[Block])
-          case "heading4"  => __.read(Heading.reader(4)).map(identity[Block])
-          case "paragraph" => __.read(Paragraph.reader).map(identity[Block])
-          case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
-          case "image"     => __.read[Fragment.Image.View].map(view => Image(view):Block)
-          case "embed"     => __.read[Fragment.Embed].map(obj => Embed(obj):Block)
+          case "heading1"     => __.read(Heading.reader(1)).map(identity[Block])
+          case "heading2"     => __.read(Heading.reader(2)).map(identity[Block])
+          case "heading3"     => __.read(Heading.reader(3)).map(identity[Block])
+          case "heading4"     => __.read(Heading.reader(4)).map(identity[Block])
+          case "paragraph"    => __.read(Paragraph.reader).map(identity[Block])
+          case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
+          case "list-item"    => __.read(ListItem.reader(ordered = false)).map(identity[Block])
+          case "image"        => __.read[Fragment.Image.View].map(view => Image(view):Block)
+          case "embed"        => __.read[Fragment.Embed].map(obj => Embed(obj):Block)
 
           case t => Reads(json => JsError(s"Unsupported block type $t"))
         }
