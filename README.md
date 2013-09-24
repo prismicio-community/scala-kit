@@ -16,7 +16,7 @@ Then add, the library dependency:
 "io.prismic" %% "scala-kit" % "1.0"
 ```
 
-_(you may need to adapt the version number) _
+*(you may need to adapt the version number)*
 
 ## API documentation
 
