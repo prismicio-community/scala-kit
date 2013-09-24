@@ -1,0 +1,394 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>prismic - io.prismic</title>
+          <meta name="description" content="prismic - io.prismic" />
+          <meta name="keywords" content="prismic io.prismic" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'io.prismic.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="io">io</a></p>
+        <h1>prismic</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">prismic</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ApiextendsProductwithSerializable"></a>
+      <a id="Api:Api"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Api.html"><span class="name">Api</span></a><span class="params">(<span name="data">data: <a href="ApiData.html" class="extype" name="io.prismic.ApiData">ApiData</a></span>, <span name="accessToken">accessToken: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="cache">cache: <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a></span>, <span name="logger">logger: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.ApiData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ApiDataextendsProductwithSerializable"></a>
+      <a id="ApiData:ApiData"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ApiData.html"><span class="name">ApiData</span></a><span class="params">(<span name="refs">refs: <span class="extype" name="scala.Seq">Seq</span>[<a href="Ref.html" class="extype" name="io.prismic.Ref">Ref</a>]</span>, <span name="bookmarks">bookmarks: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="types">types: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="forms">forms: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Form.html" class="extype" name="io.prismic.Form">Form</a>]</span>, <span name="oauthEndpoints">oauthEndpoints: (<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>)</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.ApiError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ApiErrorextendsRuntimeExceptionwithProductwithSerializable"></a>
+      <a id="ApiError:ApiError"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ApiError.html"><span class="name">ApiError</span></a><span class="params">(<span name="code">code: <a href="Error$.html#Code=io.prismic.Error.Value" class="extmbr" name="io.prismic.Error.Code">Code</a></span>, <span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.BuiltInCache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="BuiltInCacheextendsCachewithProductwithSerializable"></a>
+      <a id="BuiltInCache:BuiltInCache"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="BuiltInCache.html"><span class="name">BuiltInCache</span></a><span class="params">(<span name="maxDocuments">maxDocuments: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">100</span></span>)</span><span class="result"> extends <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Cache" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="CacheextendsAnyRef"></a>
+      <a id="Cache:Cache"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Cache.html"><span class="name">Cache</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentextendsProductwithSerializable"></a>
+      <a id="Document:Document"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Document.html"><span class="name">Document</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="href">href: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slugs">slugs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.DocumentLinkResolver" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DocumentLinkResolverextendsAnyRef"></a>
+      <a id="DocumentLinkResolver:DocumentLinkResolver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DocumentLinkResolver.html"><span class="name">DocumentLinkResolver</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Field" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FieldextendsProductwithSerializable"></a>
+      <a id="Field:Field"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Field.html"><span class="name">Field</span></a><span class="params">(<span name="type">type: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="default">default: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Form" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FormextendsProductwithSerializable"></a>
+      <a id="Form:Form"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Form.html"><span class="name">Form</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="method">method: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="rel">rel: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="enctype">enctype: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="action">action: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fields">fields: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Field.html" class="extype" name="io.prismic.Field">Field</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Fragment" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="FragmentextendsAnyRef"></a>
+      <a id="Fragment:Fragment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Fragment.html"><span class="name">Fragment</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Ref" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RefextendsProductwithSerializable"></a>
+      <a id="Ref:Ref"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Ref.html"><span class="name">Ref</span></a><span class="params">(<span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="isMasterRef">isMasterRef: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="scheduledAt">scheduledAt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.joda.time.DateTime">DateTime</span>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.SearchForm" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SearchFormextendsProductwithSerializable"></a>
+      <a id="SearchForm:SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SearchForm.html"><span class="name">SearchForm</span></a><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Api"></a>
+      <a id="Api:Api"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Api$.html"><span class="name">Api</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.ApiData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ApiData"></a>
+      <a id="ApiData:ApiData"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ApiData$.html"><span class="name">ApiData</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Document"></a>
+      <a id="Document:Document"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Document$.html"><span class="name">Document</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.DocumentLinkResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentLinkResolver"></a>
+      <a id="DocumentLinkResolver:DocumentLinkResolver"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="DocumentLinkResolver$.html"><span class="name">DocumentLinkResolver</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Error" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Error"></a>
+      <a id="Error:Error"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Error$.html"><span class="name">Error</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Field" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Field"></a>
+      <a id="Field:Field"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Field$.html"><span class="name">Field</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Form" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Form"></a>
+      <a id="Form:Form"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Form$.html"><span class="name">Form</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Fragment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Fragment"></a>
+      <a id="Fragment:Fragment"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Fragment$.html"><span class="name">Fragment</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.NoCache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NoCache"></a>
+      <a id="NoCache:NoCache"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="NoCache$.html"><span class="name">NoCache</span></a><span class="result"> extends <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Ref" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Ref"></a>
+      <a id="Ref:Ref"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Ref$.html"><span class="name">Ref</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.core" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="core"></a>
+      <a id="core:core"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="core/package.html"><span class="name">core</span></a>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
+    </body>
+      </html>
