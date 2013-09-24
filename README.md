@@ -1,6 +1,6 @@
-# Scala development kit for prismic.io
+## Scala development kit for prismic.io
 
-## Maven repository
+### Maven repository
 
 You can find this library in our own Maven repository (hosted on Github).
 
@@ -18,9 +18,9 @@ Then add, the library dependency:
 
 *(you may need to adapt the version number)*
 
-## API documentation
+### API documentation
 
-You can browse the [API documentation](http://prismicio.github.io/scala-kit)
+You can browse the [API documentation](http://prismicio.github.io/scala-kit).
 
 ### Licence
 
