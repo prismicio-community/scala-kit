@@ -24,8 +24,8 @@ object KitBuild extends Build {
       resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
 
       libraryDependencies ++= Seq(
-        "com.typesafe.play"       %% "play-iteratees"      % "2.2.0-M1",
-        "com.typesafe.play"       %% "play-json"           % "2.2.0-M1",
+        "com.typesafe.play"       %% "play-iteratees"      % "2.2.0",
+        "com.typesafe.play"       %% "play-json"           % "2.2.0",
         "com.ning"                %  "async-http-client"   % "1.7.6",
         "commons-collections"     %  "commons-collections" % "3.2.1"
       )
