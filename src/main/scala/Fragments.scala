@@ -29,8 +29,20 @@ object Fragment {
 
   }
 
-  case class MediaLink(url: String, contentType: String, size: Long, filename: String) extends Link {
+  case class MediaLink(url: String, kind: String, size: Long, filename: String) extends Link {
     def asHtml: String = s"""<a href="$url">$filename</a>"""
+  }
+
+  object MediaLink {
+
+    implicit val reader: Reads[MediaLink] = {
+      (
+        (__ \ "file" \ "url").read[String] and
+        (__ \ "file" \ "kind").read[String] and
+        (__ \ "file" \ "size").read[String].map(_.toLong) and
+        (__ \ "file" \ "name").read[String]
+      )(MediaLink.apply _)
+    }
   }
 
   case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, isBroken: Boolean) extends Link {
@@ -217,7 +229,7 @@ object Fragment {
         case ((group @ Group(Some("ul"), _)) :: rest, block @ StructuredText.Block.ListItem(text, spans, false)) => group.copy(blocks = group.blocks :+ block) +: rest
         case ((group @ Group(Some("ol"), _)) :: rest, block @ StructuredText.Block.ListItem(text, spans, true)) => group.copy(blocks = group.blocks :+ block) +: rest
         case (groups, block @ StructuredText.Block.ListItem(text, spans, false)) => Group(Some("ul"), Seq(block)) +: groups
-        case (groups, block @ StructuredText.Block.ListItem(text, spans, true)) => groups :+ Group(Some("ol"), Seq(block))
+        case (groups, block @ StructuredText.Block.ListItem(text, spans, true)) => Group(Some("ol"), Seq(block)) +: groups
         case (groups, block) => Group(None, Seq(block)) +: groups
       }.reverse
 
@@ -306,7 +318,8 @@ object Fragment {
             case "strong" => Reads.pure(Strong(start, end))
             case "em" => Reads.pure(Em(start, end))
             case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
-            case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link)) 
+            case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link))
+            case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link))
             case t => Reads(json => JsError(s"Unsupported span type $t"))
           }
         }
@@ -383,6 +396,7 @@ object Fragment {
           case "paragraph"    => __.read(Paragraph.reader).map(identity[Block])
           case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
           case "list-item"    => __.read(ListItem.reader(ordered = false)).map(identity[Block])
+          case "o-list-item"  => __.read(ListItem.reader(ordered = true)).map(identity[Block])
           case "image"        => __.read[Fragment.Image.View].map(view => Image(view):Block)
           case "embed"        => __.read[Fragment.Embed].map(obj => Embed(obj):Block)
 
