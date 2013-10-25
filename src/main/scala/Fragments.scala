@@ -208,6 +208,10 @@ object Fragment {
       case p: StructuredText.Block.Paragraph => p
     }
 
+    def getAllParagraphs: Seq[StructuredText.Block.Paragraph] = blocks.collect {
+      case p: StructuredText.Block.Paragraph => p
+    }
+
     def getFirstImage: Option[StructuredText.Block.Image] = blocks.collectFirst {
       case i: StructuredText.Block.Image => i
     }
