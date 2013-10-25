@@ -216,6 +216,13 @@ case class Document(
     }.toSeq
   }
 
+  def getLink(field: String): Option[Fragment.Link] = get(field).flatMap {
+    case a: Fragment.WebLink => Some(a)
+    case a: Fragment.MediaLink => Some(a)
+    case a: Fragment.DocumentLink => Some(a)
+    case _ => None
+  }
+
   def getImage(field: String): Option[Fragment.Image] = get(field).flatMap {
     case a: Fragment.Image => Some(a)
     case a: Fragment.StructuredText => a.blocks.collectFirst { case b: Fragment.StructuredText.Block.Image => b.view }.map(v => Fragment.Image(v))
