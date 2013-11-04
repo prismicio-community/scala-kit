@@ -22,7 +22,7 @@ case class ApiError(code: Error.Code, message: String) extends RuntimeException 
 case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (Symbol,String) => Unit) {
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
-  def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData ++ accessToken.toList.map(token => ("access_token" -> token)).toMap))
+  def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
   def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1
@@ -59,7 +59,7 @@ object Api {
       .get()
       .map { resp =>
         resp.status match {
-          case 200 => Api(ApiData.reader.reads(resp.json).get, accessToken, cache, logger)
+          case 200 => Api(ApiData.reader.reads(resp.json).getOrElse(sys.error(s"Error while parsing API document: ${resp.json}")), accessToken, cache, logger)
           case 401 if accessToken.isDefined => throw ApiError(code = Error.INVALID_TOKEN, message = "The provided access token is either invalid or expired")
           case 401 => throw ApiError(code = Error.AUTHORIZATION_NEEDED, message = "You need to provide an access token to access this repository")
           case err => throw ApiError(code = Error.UNEXPECTED, message = s"Got an HTTP error $err (${resp.statusText})")
@@ -87,10 +87,14 @@ object Ref {
 
 }
 
-case class Field(`type`: String, default: Option[String])
+case class Field(`type`: String, multiple: Boolean, default: Option[String])
 
 object Field {
-  implicit val reader = Json.reads[Field]
+  implicit val reader = (
+    (__ \ "type").read[String] and
+    (__ \ "multiple").readNullable[Boolean].map(_.getOrElse(false)) and
+    (__ \ "default").readNullable[String]
+  )(Field.apply _)
 }
 
 case class Form(
@@ -102,9 +106,9 @@ case class Form(
   fields: Map[String, Field]
 ) {
 
-  def defaultData: Map[String,String] = {
+  def defaultData: Map[String,Seq[String]] = {
     fields.mapValues(_.default).collect {
-      case (key, Some(value)) => (key, value)
+      case (key, Some(value)) => (key, Seq(value))
     }
   } 
 
@@ -139,20 +143,37 @@ object ApiData {
 
 }
 
-case class SearchForm(api: Api, form: Form, data: Map[String,String]) {
+case class SearchForm(api: Api, form: Form, data: Map[String,Seq[String]]) {
+
+  def set(field: String, value: String): SearchForm = form.fields.get(field).map { fieldDesc =>
+    copy(data = data ++ Map(field -> (if(fieldDesc.multiple) data.get(field).getOrElse(Nil) ++ Seq(value) else Seq(value))))
+  }.getOrElse(sys.error(s"Unknown field $field"))
+
+  def set(field: String, value: Int): SearchForm = form.fields.get(field).map(_.`type`).map { 
+    case "Integer" => set(field, value.toString)
+    case t => sys.error(s"Cannot use a Int as value for the field $field of type $t")
+  }.getOrElse(sys.error(s"Unknown field $field"))
 
   def ref(r: Ref): SearchForm = ref(r.ref)
-  def ref(r: String): SearchForm = copy(data = data ++ Map("ref" -> r))
+  def ref(r: String): SearchForm = set("ref", r)
 
   def query(query: String) = {
-    def strip(q: String) = q.trim.drop(1).dropRight(1)
-    copy(data = data ++ Map("q" -> (s"[${form.fields("q").default.map(strip).getOrElse("")}${strip(query)}]")))
+    if(form.fields.get("q").map(_.multiple).getOrElse(false)) {
+      set("q", query)
+    } else {
+      // Temporary Hack for backward compatibility
+      def strip(q: String) = q.trim.drop(1).dropRight(1)
+      copy(data = data ++ Map("q" -> Seq((s"""[${form.fields("q").default.map(strip).getOrElse("")}${strip(query)}]"""))))
+    }
   }
 
   def submit(): Future[Seq[Document]] = {
     implicit val documentReader: Reads[Document] = Document.reader
 
-    def parseResult(json: JsValue) = Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse Document: $e") }
+    def parseResult(json: JsValue) = json match {
+      case JsArray(_) => Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse result: $e") }
+      case JsObject(_) => Json.fromJson[Seq[Document]](json \ "results").recoverTotal { e => sys.error(s"unable to parse result: $e") }
+    }
 
     (form.method, form.enctype, form.action) match {
       case ("GET", "application/x-www-form-urlencoded", action) =>
@@ -160,7 +181,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String,String]) {
         val url = {
           val encoder = new org.jboss.netty.handler.codec.http.QueryStringEncoder(form.action)
           data.foreach {
-            case (key, value) => encoder.addParam(key, value)
+            case (key, values) => values.foreach(value => encoder.addParam(key, value))
           }
           encoder.toString()
         }
