@@ -13,7 +13,7 @@ resolvers += "Prismic.io kits" at "https://github.com/prismicio/repository/raw/m
 Then add, the library dependency:
 
 ```
-"io.prismic" %% "scala-kit" % "1.0-M2"
+"io.prismic" %% "scala-kit" % "1.0-M5"
 ```
 
 *(you may need to adapt the version number)*
