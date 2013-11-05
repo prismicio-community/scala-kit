@@ -8,6 +8,7 @@ import play.api.libs.functional.syntax._
 import scala.util._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.{ postfixOps, implicitConversions }
 
 sealed trait Fragment
 

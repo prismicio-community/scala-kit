@@ -7,6 +7,7 @@ import play.api.libs.functional.syntax._
 
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 import core._
 
