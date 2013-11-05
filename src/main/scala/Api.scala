@@ -170,9 +170,10 @@ case class SearchForm(api: Api, form: Form, data: Map[String,Seq[String]]) {
   def submit(): Future[Seq[Document]] = {
     implicit val documentReader: Reads[Document] = Document.reader
 
-    def parseResult(json: JsValue) = json match {
+    def parseResult(json: JsValue): Seq[Document] = json match {
       case JsArray(_) => Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse result: $e") }
       case JsObject(_) => Json.fromJson[Seq[Document]](json \ "results").recoverTotal { e => sys.error(s"unable to parse result: $e") }
+      case x => sys.error(s"unable to parse result: $x. An array or object was expected.")
     }
 
     (form.method, form.enctype, form.action) match {
