@@ -28,7 +28,8 @@ object KitBuild extends Build {
         "com.typesafe.play"       %% "play-iteratees"      % "2.2.0",
         "com.typesafe.play"       %% "play-json"           % "2.2.0",
         "com.ning"                %  "async-http-client"   % "1.7.6",
-        "commons-collections"     %  "commons-collections" % "3.2.1",
+        "com.google.guava" % "guava" % "15.0",
+        "com.google.code.findbugs" % "jsr305" % "2.0.1",
         "org.specs2" %% "specs2" % "2.3.1" % "test"
       )
 
