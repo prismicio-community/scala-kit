@@ -20,7 +20,7 @@ Then add, the library dependency:
 
 ### API documentation
 
-You can browse the [API documentation](http://prismicio.github.io/scala-kit).
+You can browse the [API documentation](https://developers.prismic.io/documentation/UjBe8bGIJ3EKtgBZ/api-documentation).
 
 ### Licence
 
