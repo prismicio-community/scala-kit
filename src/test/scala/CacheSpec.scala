@@ -22,10 +22,21 @@ class CacheSpec extends Specification {
       val cache = normalCache
       cache get "/foo/2" must beSome(JsNumber(2))
     }
+    "get existing entry, twice" in {
+      val cache = normalCache
+      cache get "/foo/2" must beSome(JsNumber(2))
+      cache get "/foo/2" must beSome(JsNumber(2))
+    }
     "set and get and new entry" in {
       val cache = normalCache
       cache.set("/bar", (expireAt, JsNumber(42)))
       cache get "/bar" must beSome(JsNumber(42))
+    }
+    "discard old entries" in {
+      val cache = normalCache
+      cache.set("/bar", (expireAt, JsNumber(42)))
+      Thread sleep 1001
+      cache get "/bar" must beNone
     }
   }
   "A full cache" should {
