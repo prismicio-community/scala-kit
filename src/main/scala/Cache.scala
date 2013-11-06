@@ -8,7 +8,7 @@ trait Cache {
 }
 
 object NoCache extends Cache {
-  def set(url: String, response: (Long, JsValue)): Unit = ()
+  def set(url: String, response: (Long, JsValue)) {}
   def get(url: String): Option[JsValue] = None
 }
 
@@ -22,7 +22,7 @@ case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
   private val cache: GuavaCache[CacheKey, Response] = 
     CacheBuilder.newBuilder().maximumSize(maxDocuments).build[CacheKey, Response]
 
-  def set(url: String, response: Response): Unit = {
+  def set(url: String, response: Response) {
     cache.put(url, response)
   }
 
