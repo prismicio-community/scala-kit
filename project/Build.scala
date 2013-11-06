@@ -11,7 +11,8 @@ object BuildSettings {
   val buildSettings = Defaults.defaultSettings ++ Seq (
     organization    := buildOrganization,
     version         := buildVersion,
-    scalaVersion    := buildScalaVersion
+    scalaVersion    := buildScalaVersion,
+    scalacOptions   := Seq("-deprecation", "-unchecked", "-feature")
   )
 }
 
