@@ -35,7 +35,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <span class="name">SearchForm</span><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">SearchForm</span><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.prismic.SearchForm#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(api:io.prismic.Api,form:io.prismic.Form,data:Map[String,String]):io.prismic.SearchForm"></a>
+      <a id="&lt;init&gt;(api:io.prismic.Api,form:io.prismic.Form,data:Map[String,Seq[String]]):io.prismic.SearchForm"></a>
       <a id="&lt;init&gt;:SearchForm"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">SearchForm</span><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>)</span>
+        <span class="name">SearchForm</span><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span>
       </span>
       </h4>
       
@@ -212,15 +212,15 @@
               
         </dd></dl></div>
     </li><li name="io.prismic.SearchForm#data" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="data:Map[String,String]"></a>
-      <a id="data:Map[String,String]"></a>
+      <a id="data:Map[String,Seq[String]]"></a>
+      <a id="data:Map[String,Seq[String]]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">data</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Predef.String">String</span>]</span>
+        <span class="name">data</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>
       </span>
       </h4>
       
@@ -370,6 +370,32 @@
       </span>
       <span class="symbol">
         <span class="name">ref</span><span class="params">(<span name="r">r: <a href="Ref.html" class="extype" name="io.prismic.Ref">Ref</a></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.SearchForm#set" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="set(field:String,value:Int):io.prismic.SearchForm"></a>
+      <a id="set(String,Int):SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">set</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.SearchForm#set" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="set(field:String,value:String):io.prismic.SearchForm"></a>
+      <a id="set(String,String):SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">set</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
       </span>
       </h4>
       
