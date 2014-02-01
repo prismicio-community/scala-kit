@@ -1,6 +1,8 @@
 ## Scala development kit for prismic.io
 
-### Maven repository
+### Getting started
+
+#### Install the kit for your project with Maven
 
 You can find this library in our own Maven repository (hosted on Github).
 
@@ -18,9 +20,45 @@ Then add, the library dependency:
 
 *(you may need to adapt the version number)*
 
-### API documentation
 
-You can browse the [API documentation](https://developers.prismic.io/documentation/UjBe8bGIJ3EKtgBZ/api-documentation).
+#### Get started with prismic.io
+
+You can find out [how to get started with prismic.io](https://developers.prismic.io/documentation/UjBaQsuvzdIHvE4D/getting-started) on our [prismic.io developer's portal](https://developers.prismic.io/).
+
+#### Get started using the kit
+
+Also on our [prismic.io developer's portal](https://developers.prismic.io/), on top of our full documentation, you will:
+ * get a thorough introduction of [how to use prismic.io kits](https://developers.prismic.io/documentation/UjBe8bGIJ3EKtgBZ/api-documentation#kits-and-helpers), including this one.
+ * see [what else is available for Scala](https://developers.prismic.io/technologies/UjBh4cuvzeMJvE4k/scala): starter projects, examples, ...
+
+
+#### Kit's detailed documentation
+
+You can find [the documentation of the Scala kit as a Scaladoc](http://prismicio.github.io/scala-kit/).
+
+### Changelog
+
+Need to see what changed, or to upgrade your kit? Check out [this kit's changelog](https://github.com/prismicio/scala-kit/releases).
+
+### Contribute to the kit
+
+Contribution is open to all developer levels, read our "[Contribute to the official kits](https://developers.prismic.io/documentation/UszOeAEAANUlwFpp/contribute-to-the-official-kits)" documentation to learn more.
+
+#### Install the kit locally
+
+Fork and clone the repository, and run `sbt compile` from the newly-created directory ([install sbt](http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html) first if you haven't)
+
+#### Test
+
+Please write tests for any bugfix or new feature.
+
+If you find existing code that is not optimally tested and wish to make it better, we really appreciate it; but you should document it on its own branch and its own pull request.
+
+#### Documentation
+
+Please document any bugfix or new feature.
+
+If you find existing code that is not optimally documented and wish to make it better, we really appreciate it; but you should document it on its own branch and its own pull request.
 
 ### Licence
 
