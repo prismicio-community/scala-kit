@@ -38,7 +38,7 @@ You can find [the documentation of the Scala kit as a Scaladoc](http://prismicio
 
 ### Changelog
 
-Need to see what changed, or to upgrade your kit? We keep our changelog on [this repository's "Releases" tab](https://github.com/prismicio/ruby-kit/releases).
+Need to see what changed, or to upgrade your kit? We keep our changelog on [this repository's "Releases" tab](https://github.com/prismicio/scala-kit/releases).
 
 ### Contribute to the kit
 
