@@ -6,7 +6,7 @@ object BuildSettings {
   val buildName              = "scala-kit"
   val buildOrganization      = "io.prismic"
   val buildVersion           = Option(System.getProperty("version")).map(_.trim).getOrElse("1.0-SNAPSHOT")
-  val buildScalaVersion      = "2.10.2"
+  val buildScalaVersion      = "2.10.3"
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
     organization    := buildOrganization,
