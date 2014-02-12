@@ -16,9 +16,9 @@ class FragmentSpec extends Specification {
     val docChapter = query("""[[:d = at(document.type, "docchapter")]]""").head
     "access fields" in {
       docChapter getGroup "docchapter.docs" must beSome.like {
-        case group ⇒ group.docs.headOption must beSome.like {
-          case doc ⇒ doc.getLink("linktodoc") must beSome.like {
-            case link: Fragment.Link ⇒ success
+        case group => group.docs.headOption must beSome.like {
+          case doc => doc.getLink("linktodoc") must beSome.like {
+            case link: Fragment.Link => success
           }
         }
       }
