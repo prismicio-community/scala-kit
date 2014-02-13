@@ -11,6 +11,9 @@ class FragmentSpec extends Specification {
 
   private lazy val api = await(Api.get("https://micro.prismic.io/api", cache = BuiltInCache()))
   private def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
+  private def resolver = DocumentLinkResolver { link =>
+    s"""http://localhost/${link.typ}/${link.id}"""
+  }
 
   "Group" should {
     val docChapter = query("""[[:d = at(document.type, "docchapter")]]""").head
@@ -21,6 +24,14 @@ class FragmentSpec extends Specification {
             case link: Fragment.Link => success
           }
         }
+      }
+    }
+    "serialize to HTML" in {
+      docChapter getGroup "docchapter.docs" must beSome.like {
+        case group => group asHtml resolver must_== 
+"""<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
+<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
+<section data-field="desc"><p>Just testing another field in a group section.</p></section>"""
       }
     }
   }

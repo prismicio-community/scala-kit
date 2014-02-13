@@ -275,7 +275,7 @@ trait WithFragments {
     case a: Fragment.WebLink        => Some(a.asHtml)
     case a: Fragment.MediaLink      => Some(a.asHtml)
     case a: Fragment.DocumentLink   => Some(a.asHtml(linkResolver))
-    case a: Fragment.Group          => Some(a.asHtml)
+    case a: Fragment.Group          => Some(a asHtml linkResolver)
   }
 
   def getText(field: String): Option[String] = get(field).flatMap {
@@ -322,8 +322,8 @@ trait WithFragments {
     case _                 => None
   }
 
-  def asHtml(linkResolver: DocumentLinkResolver): String = fragments.map {
-    case (field, _) => s"""<section data-field="$field">${getHtml(field, linkResolver).getOrElse("")}</section>"""
+  def asHtml(linkResolver: DocumentLinkResolver): String = fragments.keys.map { field =>
+    s"""<section data-field="$field">${getHtml(field, linkResolver).getOrElse("")}</section>"""
   }.mkString("\n")
 
 }

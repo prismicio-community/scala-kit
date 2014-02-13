@@ -201,7 +201,8 @@ object Fragment {
 
   case class Group(docs: Seq[Group.Doc]) extends Fragment {
 
-    def asHtml(): String = "Group HTML!"
+    def asHtml(linkResolver: DocumentLinkResolver): String =
+      docs map (_ asHtml linkResolver) mkString "\n"
   }
 
   object Group {
