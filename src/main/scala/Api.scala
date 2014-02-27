@@ -148,8 +148,23 @@ case class Response(
   resultsSize: Int,
   totalResponsesSize: Int,
   totalPages: Int,
-  nextPage: Option[Int],
-  prevPage: Option[Int])
+  nextPage: Option[String],
+  prevPage: Option[String])
+
+object Response {
+
+    private implicit val documentReader: Reads[Document] = Document.reader
+    val jsonReader = (
+      (__ \ "results").read[List[Document]] and
+      (__ \ "page").read[Int] and
+      (__ \ "results_per_page").read[Int] and
+      (__ \ "results_size").read[Int] and
+      (__ \ "total_results_size").read[Int] and
+      (__ \ "total_pages").read[Int] and
+      (__ \ "next_page").readNullable[String] and
+      (__ \ "prev_page").readNullable[String]
+    )(Response.apply _)
+}
 
 case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
 
@@ -176,21 +191,12 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
     }
   }
 
+  def page(p: Int) = set("page", p)
+  def pageSize(p: Int) = set("pageSize", p)
+
   def submit(): Future[Response] = {
 
-    implicit val documentReader: Reads[Document] = Document.reader
-    val responseReader = (
-      (__ \ "results").read[List[Document]] and
-      (__ \ "page").read[Int] and
-      (__ \ "results_per_page").read[Int] and
-      (__ \ "results_size").read[Int] and
-      (__ \ "total_results_size").read[Int] and
-      (__ \ "total_pages").read[Int] and
-      (__ \ "next_page").readNullable[Int] and
-      (__ \ "prev_page").readNullable[Int]
-    )(Response.apply _)
-
-    def parseResponse(json: JsValue): Response = responseReader reads json match {
+    def parseResponse(json: JsValue): Response = Response.jsonReader reads json match {
       case JsSuccess(result, _) => result
       case JsError(err)         => sys.error(s"Unable to parse prismic response: $json\n$err")
     }
