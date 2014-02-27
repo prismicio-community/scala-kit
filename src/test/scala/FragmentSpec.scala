@@ -16,7 +16,7 @@ class FragmentSpec extends Specification {
   }
 
   "Group" should {
-    val docChapter = query("""[[:d = at(document.type, "docchapter")]]""").head
+    val docChapter = query("""[[:d = at(document.type, "docchapter")]]""").results.head
     "access fields" in {
       docChapter getGroup "docchapter.docs" must beSome.like {
         case group => group.docs.headOption must beSome.like {
@@ -28,10 +28,10 @@ class FragmentSpec extends Specification {
     }
     "serialize to HTML" in {
       docChapter getGroup "docchapter.docs" must beSome.like {
-        case group => group asHtml resolver must_== 
-"""<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
-<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
-<section data-field="desc"><p>Just testing another field in a group section.</p></section>"""
+        case group => group asHtml resolver must_==
+          """<section data-field="linktodoc"><a href="http://localhost/doc/UrDejAEAAFwMyrW9">installing-meta-micro</a></section>
+<section data-field="desc"><p>Just testing another field in a group section.</p></section>
+<section data-field="linktodoc"><a href="http://localhost/doc/UrDmKgEAALwMyrXA">using-meta-micro</a></section>"""
       }
     }
   }
