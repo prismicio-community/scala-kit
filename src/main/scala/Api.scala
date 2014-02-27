@@ -141,6 +141,16 @@ object ApiData {
 
 }
 
+case class Response(
+  results: List[Document],
+  page: Int,
+  resultsPerPage: Int,
+  resultsSize: Int,
+  totalResponsesSize: Int,
+  totalPages: Int,
+  nextPage: Option[Int],
+  prevPage: Option[Int])
+
 case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
 
   def set(field: String, value: String): SearchForm = form.fields.get(field).map { fieldDesc =>
@@ -166,13 +176,23 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
     }
   }
 
-  def submit(): Future[Seq[Document]] = {
-    implicit val documentReader: Reads[Document] = Document.reader
+  def submit(): Future[Response] = {
 
-    def parseResult(json: JsValue): Seq[Document] = json match {
-      case JsArray(_)  => Json.fromJson[Seq[Document]](json).recoverTotal { e => sys.error(s"unable to parse result: $e") }
-      case JsObject(_) => Json.fromJson[Seq[Document]](json \ "results").recoverTotal { e => sys.error(s"unable to parse result: $e") }
-      case x           => sys.error(s"unable to parse result: $x. An array or object was expected.")
+    implicit val documentReader: Reads[Document] = Document.reader
+    val responseReader = (
+      (__ \ "results").read[List[Document]] and
+      (__ \ "page").read[Int] and
+      (__ \ "results_per_page").read[Int] and
+      (__ \ "results_size").read[Int] and
+      (__ \ "total_results_size").read[Int] and
+      (__ \ "total_pages").read[Int] and
+      (__ \ "next_page").readNullable[Int] and
+      (__ \ "prev_page").readNullable[Int]
+    )(Response.apply _)
+
+    def parseResponse(json: JsValue): Response = responseReader reads json match {
+      case JsSuccess(result, _) => result
+      case JsError(err)         => sys.error(s"Unable to parse prismic response: $json\n$err")
     }
 
     (form.method, form.enctype, form.action) match {
@@ -187,7 +207,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         }
 
         api.cache.get(url).map { json =>
-          Future.successful(parseResult(json))
+          Future.successful(parseResponse(json))
         }.getOrElse {
           CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson).get() map { resp =>
             resp.status match {
@@ -199,14 +219,15 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
                   case _                    =>
                 }
 
-                parseResult(json)
+                parseResponse(json)
               case error => sys.error(s"Http error(status:$error msg:${resp.statusText}")
             }
           }
         }
 
-      case _ =>
+      case _ => Future.failed {
         sys.error(s"Form type not supported")
+      }
     }
   }
 
@@ -222,11 +243,9 @@ trait WithFragments {
 
   def get(field: String): Option[Fragment] = fragments.get(field).orElse(getAll(field).headOption)
 
-  def getAll(field: String): Seq[Fragment] = {
-    fragments.collect {
-      case (IndexedKey(key, _), fragment) if key == field => fragment
-    }.toSeq
-  }
+  def getAll(field: String): Seq[Fragment] = fragments.collect {
+    case (IndexedKey(key, _), fragment) if key == field => fragment
+  }.toSeq
 
   def getLink(field: String): Option[Fragment.Link] = get(field).flatMap {
     case a: Fragment.WebLink      => Some(a)
