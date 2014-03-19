@@ -11,14 +11,14 @@ import scala.language.postfixOps
 
 import core._
 
-object Error extends Enumeration {
-  type Code = Value
-  val AUTHORIZATION_NEEDED, INVALID_TOKEN, UNEXPECTED = Value
+sealed trait ApiError extends RuntimeException {
+  def message: String
+  override def getMessage = message
 }
 
-case class ApiError(code: Error.Code, message: String) extends RuntimeException {
-  override def getMessage = s"$code $message".trim
-}
+case class AuthorizationNeeded(message: String, oAuthUrl: String) extends ApiError
+case class InvalidToken(message: String, oAuthUrl: String) extends ApiError
+case class UnexpectedError(message: String) extends ApiError
 
 case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (Symbol, String) => Unit) {
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
@@ -61,9 +61,15 @@ object Api {
       .map { resp =>
         resp.status match {
           case 200                          => Api(ApiData.reader.reads(resp.json).getOrElse(sys.error(s"Error while parsing API document: ${resp.json}")), accessToken, cache, logger)
-          case 401 if accessToken.isDefined => throw ApiError(code = Error.INVALID_TOKEN, message = "The provided access token is either invalid or expired")
-          case 401                          => throw ApiError(code = Error.AUTHORIZATION_NEEDED, message = "You need to provide an access token to access this repository")
-          case err                          => throw ApiError(code = Error.UNEXPECTED, message = s"Got an HTTP error $err (${resp.statusText})")
+          case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
+            case Some(url) if accessToken.isDefined =>
+              throw InvalidToken("The provided access token is either invalid or expired", url)
+            case Some(url) =>
+              throw AuthorizationNeeded("You need to provide an access token to access this repository", url)
+            case None =>
+              throw UnexpectedError("Authorization error, but not URL was provided")
+          }
+          case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.statusText})")
         }
       }
   }
