@@ -152,7 +152,7 @@ case class Response(
   page: Int,
   resultsPerPage: Int,
   resultsSize: Int,
-  totalResponsesSize: Int,
+  totalResultsSize: Int,
   totalPages: Int,
   nextPage: Option[String],
   prevPage: Option[String])
