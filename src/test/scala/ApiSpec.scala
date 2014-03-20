@@ -7,7 +7,7 @@ import scala.concurrent.{ Future, Await }
 
 class ApiSpec extends Specification {
 
-  private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(2).seconds)
+  private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(5).seconds)
 
   "private API without authorization" should {
     "without token" in {

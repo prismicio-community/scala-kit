@@ -388,6 +388,7 @@ object Document {
       case "Embed"          => Some(Fragment.Embed.reader.map(identity[Fragment]))
       case "Link.web"       => Some(Fragment.WebLink.reader.map(identity[Fragment]))
       case "Link.document"  => Some(Fragment.DocumentLink.reader.map(identity[Fragment]))
+      case "Link.file"      => Some(Fragment.MediaLink.reader.map(identity[Fragment]))
       case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
       case "Group"          => Some(Fragment.Group.reader.map(identity[Fragment]))
 

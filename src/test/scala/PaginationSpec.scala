@@ -7,7 +7,7 @@ import scala.concurrent.{ Future, Await }
 
 class PaginationSpec extends Specification {
 
-  private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(2).seconds)
+  private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(5).seconds)
 
   private lazy val api = await(Api.get("https://lesbonneschoses.prismic.io/api", cache = BuiltInCache()))
 
