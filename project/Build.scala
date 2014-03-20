@@ -26,13 +26,12 @@ object KitBuild extends Build {
       resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases",
 
       libraryDependencies ++= Seq(
-        "com.typesafe.play"       %% "play-iteratees"      % "2.2.1",
-        "com.typesafe.play"       %% "play-json"           % "2.2.1",
+        "com.typesafe.play"       %% "play-iteratees"      % "2.2.2",
+        "com.typesafe.play"       %% "play-json"           % "2.2.2",
         "com.ning"                %  "async-http-client"   % "1.7.6",
         "commons-collections"     %  "commons-collections" % "3.2.1",
-        "org.specs2" %% "specs2" % "2.3.1" % "test"
+        "org.specs2" %% "specs2" % "2.3.10" % "test"
       )
-
     )
   )
 }
