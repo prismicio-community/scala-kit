@@ -200,6 +200,8 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
   def page(p: Int) = set("page", p)
   def pageSize(p: Int) = set("pageSize", p)
 
+  def orderings(o: String) = set("orderings", o)
+
   def submit(): Future[Response] = {
 
     def parseResponse(json: JsValue): Response = Response.jsonReader reads json match {

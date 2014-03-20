@@ -10,13 +10,20 @@ class PaginationSpec extends Specification {
   private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(2).seconds)
 
   private lazy val api = await(Api.get("https://lesbonneschoses.prismic.io/api", cache = BuiltInCache()))
+
   private def query(page: Int, pageSize: Int = 20) =
-    await(api.forms("everything").ref(api.master).page(page).pageSize(pageSize).submit())
+    await(api.forms("everything").ref(api.master)
+      .page(page).pageSize(pageSize).submit())
+
+  private def orderedQuery(page: Int, pageSize: Int = 20) =
+    await(api.forms("everything").ref(api.master)
+      .page(page).pageSize(pageSize).orderings("[my.docchapter.priority]").submit())
 
   "Pagination" should {
     "first page" in {
       val res = query(1)
       res.page must_== 1
+      res.results.head.id must_== "UkL0gMuvzYUANCpf"
       res.results.size must_== 20
       res.resultsPerPage must_== 20
       res.resultsSize must_== 20
