@@ -2,17 +2,26 @@ package io.prismic
 
 import play.api.libs.json._
 
-private[prismic] trait Cache {
-  def set(url: String, response: (Long, JsValue)): Unit 
-  def get(url: String): Option[JsValue] 
+/**
+ * Cache prismic.io HTTP responses
+ */
+trait Cache {
+  def set(url: String, response: (Long, JsValue)): Unit
+  def get(url: String): Option[JsValue]
 }
 
-private[prismic] object NoCache extends Cache {
+/**
+ * Do NOT cache prismic.io HTTP responses
+ */
+object NoCache extends Cache {
   def set(url: String, response: (Long, JsValue)) {}
   def get(url: String): Option[JsValue] = None
 }
 
-private[prismic] case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
+/**
+ * Default HTTP cache implementation, relying on apache in-memory LRUMap (recommended)
+ */
+case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
 
   import org.apache.commons.collections.map.LRUMap
   import scala.collection.convert.Wrappers.JMapWrapper
@@ -20,7 +29,7 @@ private[prismic] case class BuiltInCache(maxDocuments: Int = 100) extends Cache 
 
   class SafeLRUMap[K, V](val maxSize: Int) extends JMapWrapper[K, V](new LRUMap(maxSize).asInstanceOf[java.util.Map[K, V]]) with SynchronizedMap[K, V]
 
-  private val cache = new SafeLRUMap[String,(Long, JsValue)](maxDocuments)
+  private val cache = new SafeLRUMap[String, (Long, JsValue)](maxDocuments)
 
   def set(url: String, response: (Long, JsValue)) {
     cache.put(url, response)
