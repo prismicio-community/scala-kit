@@ -39,7 +39,16 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>A SearchForm represent a Form returned by the prismic.io API.</p><p>These forms depend on the prismic.io repository, and can be filled and sent
+as regular HTML forms.</p><p>You may get a SearchForm instance through the <a href="Api.html#forms:Map[String,io.prismic.SearchForm]" class="extmbr" name="io.prismic.Api#forms">io.prismic.Api.forms</a> method.</p><p>The SearchForm instance contains helper methods for each predefined form's fields.
+</p></div><dl class="attributes block"> <div class="block">Example:
+               <ol><li class="cmt"><p>
+  val form = api.forms('everything')
+    .page(3)                   // specify the field 'page'
+    .pageSize(20)              // specify the 'page_size' field
+  val results = form.submit()  // submit the search form
+</p></li></ol>
+            </div></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -334,6 +343,45 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.prismic.SearchForm#orderings" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="orderings(o:String):io.prismic.SearchForm"></a>
+      <a id="orderings(String):SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">orderings</span><span class="params">(<span name="o">o: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.SearchForm#page" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="page(p:Int):io.prismic.SearchForm"></a>
+      <a id="page(Int):SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">page</span><span class="params">(<span name="p">p: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.SearchForm#pageSize" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="pageSize(p:Int):io.prismic.SearchForm"></a>
+      <a id="pageSize(Int):SearchForm"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">pageSize</span><span class="params">(<span name="p">p: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <a href="" class="extype" name="io.prismic.SearchForm">SearchForm</a></span>
+      </span>
+      </h4>
+      
     </li><li name="io.prismic.SearchForm#query" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="query(query:String):io.prismic.SearchForm"></a>
       <a id="query(String):SearchForm"></a>
@@ -400,15 +448,15 @@
       </h4>
       
     </li><li name="io.prismic.SearchForm#submit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="submit():scala.concurrent.Future[Seq[io.prismic.Document]]"></a>
-      <a id="submit():Future[Seq[Document]]"></a>
+      <a id="submit():scala.concurrent.Future[io.prismic.Response]"></a>
+      <a id="submit():Future[Response]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">submit</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Document.html" class="extype" name="io.prismic.Document">Document</a>]]</span>
+        <span class="name">submit</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="Response.html" class="extype" name="io.prismic.Response">Response</a>]</span>
       </span>
       </h4>
       

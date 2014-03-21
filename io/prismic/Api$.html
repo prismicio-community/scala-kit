@@ -35,13 +35,14 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Api</span><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Api</span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Instanciate an Api instance from a prismic.io API URL
+</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +60,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="io.prismic.Api"><span>Api</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="io.prismic.Api"><span>Api</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -150,32 +151,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
-    </li><li name="io.prismic.Api#AcceptJson" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AcceptJson:scala.collection.immutable.Map[String,Seq[String]]"></a>
-      <a id="AcceptJson:Map[String,Seq[String]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">AcceptJson</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<span class="extype" name="java.lang.String">String</span>, <span class="extype" name="scala.collection.Seq">Seq</span>[<span class="extype" name="java.lang.String">String</span>]]</span>
-      </span>
-      </h4>
-      
-    </li><li name="io.prismic.Api#MaxAge" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="MaxAge:scala.util.matching.Regex"></a>
-      <a id="MaxAge:Regex"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">MaxAge</span><span class="result">: <span class="extype" name="scala.util.matching.Regex">Regex</span></span>
-      </span>
-      </h4>
-      
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
       <a id="asInstanceOf[T0]:T0"></a>
@@ -253,7 +228,7 @@
     </span>)</span>
               
         </dd></dl></div>
-    </li><li name="io.prismic.Api#get" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.prismic.Api#get" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="get(url:String,accessToken:Option[String],cache:io.prismic.Cache,logger:(Symbol,String)=&gt;Unit):scala.concurrent.Future[io.prismic.Api]"></a>
       <a id="get(String,Option[String],Cache,(Symbol,String)⇒Unit):Future[Api]"></a>
       <h4 class="signature">
@@ -262,10 +237,11 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">get</span><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="accessToken">accessToken: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="cache">cache: <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a> = <span class="symbol"><span class="name"><a href="NoCache$.html">NoCache</a></span></span></span>, <span name="logger">logger: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span> = <span class="symbol">(_,_) =&gt; ()</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="Api.html" class="extype" name="io.prismic.Api">Api</a>]</span>
+        <span class="name">get</span><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="accessToken">accessToken: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="cache">cache: <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a> = <span class="symbol"><span class="name"><a href="NoCache$.html">NoCache</a></span></span></span>, <span name="logger">logger: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span> = <span class="symbol">(_, _) =&gt; ()</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="Api.html" class="extype" name="io.prismic.Api">Api</a>]</span>
       </span>
       </h4>
-      
+      <p class="shortcomment cmt">Instanciate an Api instance from a prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Instanciate an Api instance from a prismic.io API URL
+</p></div></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
       <a id="getClass():Class[_]"></a>
@@ -436,11 +412,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
-              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
