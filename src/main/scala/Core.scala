@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Case Insensitive Ordering
  */
 
-object CaseInsensitiveOrdered extends Ordering[String] {
+private[prismic] object CaseInsensitiveOrdered extends Ordering[String] {
   def compare(x: String, y: String): Int = x.compareToIgnoreCase(y)
 }
 
@@ -46,7 +46,7 @@ object CaseInsensitiveOrdered extends Ordering[String] {
  * and you should use Play's asynchronous mechanisms to use this response.
  *
  */
-object CustomWS {
+private[prismic] object CustomWS {
 
   import com.ning.http.client.Realm.{ AuthScheme, RealmBuilder }
   import javax.net.ssl.SSLContext
@@ -490,7 +490,7 @@ object CustomWS {
 /**
  * A WS HTTP response.
  */
-case class Response(ahcResponse: AHCResponse) {
+private[prismic] case class Response(ahcResponse: AHCResponse) {
 
   import scala.xml._
   import play.api.libs.json._
@@ -547,12 +547,12 @@ case class Response(ahcResponse: AHCResponse) {
 /**
  * An HTTP response header (the body has not been retrieved yet)
  */
-case class ResponseHeaders(status: Int, headers: Map[String, Seq[String]])
+private[prismic] case class ResponseHeaders(status: Int, headers: Map[String, Seq[String]])
 
 /**
  * Sign a WS call.
  */
-trait SignatureCalculator {
+private[prismic] trait SignatureCalculator {
 
   /**
    * Sign it.
@@ -560,4 +560,3 @@ trait SignatureCalculator {
   def sign(request: CustomWS.WSRequest)
 
 }
-

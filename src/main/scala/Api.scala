@@ -11,16 +11,36 @@ import scala.language.postfixOps
 
 import core._
 
+/**
+ * Error thrown when communicating with prismic.io API
+ */
 sealed trait ApiError extends RuntimeException {
   def message: String
   override def getMessage = message
 }
 
+/**
+ * Error thrown when the auth token is omitted, but required
+ */
 case class AuthorizationNeeded(message: String, oAuthUrl: String) extends ApiError
+/**
+ * Error thrown when the auth token is provided, but invalid
+ */
 case class InvalidToken(message: String, oAuthUrl: String) extends ApiError
+/**
+ * Error that should never happen :)
+ */
 case class UnexpectedError(message: String) extends ApiError
 
-case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger: (Symbol, String) => Unit) {
+/**
+ * High-level entry point for communcations with prismic.io API
+ */
+final class Api(
+    data: ApiData,
+    accessToken: Option[String],
+    private[prismic] val cache: Cache,
+    private[prismic] val logger: (Symbol, String) => Unit) {
+
   def refs: Map[String, Ref] = data.refs.groupBy(_.label).mapValues(_.head)
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
@@ -30,6 +50,9 @@ case class Api(data: ApiData, accessToken: Option[String], cache: Cache, logger:
   def oauthTokenEndpoint = data.oauthEndpoints._2
 }
 
+/**
+ * Builds URL specific to an application, based on a generic prismic.io document link.
+ */
 trait DocumentLinkResolver {
   def apply(link: Fragment.DocumentLink): String
   def apply(document: Document): String = apply(
@@ -37,30 +60,45 @@ trait DocumentLinkResolver {
   )
 }
 
+/**
+ * DocumentLinkResolver builders
+ */
 object DocumentLinkResolver {
 
+  /**
+   * Builds a DocumentLinkResolver
+   */
   def apply(api: Api)(f: (((Fragment.DocumentLink, Option[String])) => String)) = new DocumentLinkResolver {
     def apply(link: Fragment.DocumentLink): String = f((link, api.bookmarks.find(_._2 == link.id).map(_._1)))
   }
 
+  /**
+   * Builds a DocumentLinkResolver
+   */
   def apply(f: Fragment.DocumentLink => String) = new DocumentLinkResolver {
     def apply(link: Fragment.DocumentLink): String = f(link)
   }
 
 }
 
+/**
+ * Instanciate an Api instance from a prismic.io API URL
+ */
 object Api {
 
-  val AcceptJson = Map("Accept" -> Seq("application/json"))
-  val MaxAge = """max-age\s*=\s*(\d+)""".r
+  private[prismic] val AcceptJson = Map("Accept" -> Seq("application/json"))
+  private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
 
+  /**
+   * Instanciate an Api instance from a prismic.io API URL
+   */
   def get(url: String, accessToken: Option[String] = None, cache: Cache = NoCache, logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
     CustomWS.url(logger, accessToken.map(token => s"$url?access_token=$token").getOrElse(url))
       .copy(headers = AcceptJson)
       .get()
       .map { resp =>
         resp.status match {
-          case 200                          => Api(ApiData.reader.reads(resp.json).getOrElse(sys.error(s"Error while parsing API document: ${resp.json}")), accessToken, cache, logger)
+          case 200 => new Api(ApiData.reader.reads(resp.json).getOrElse(sys.error(s"Error while parsing API document: ${resp.json}")), accessToken, cache, logger)
           case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
             case Some(url) if accessToken.isDefined =>
               throw InvalidToken("The provided access token is either invalid or expired", url)
@@ -76,13 +114,20 @@ object Api {
 
 }
 
+/**
+ * Represent a prismic.io reference, a fixed point in time.
+ *
+ * The references must be provided when accessing to any prismic.io resource
+ * (except /api) and allow to assert that the URL you use will always
+ * returns the same results.
+ */
 case class Ref(
   ref: String,
   label: String,
   isMasterRef: Boolean = false,
   scheduledAt: Option[DateTime] = None)
 
-object Ref {
+private[prismic] object Ref {
 
   implicit val reader = (
     (__ \ "ref").read[String] and
@@ -93,9 +138,12 @@ object Ref {
 
 }
 
+/**
+ * A prismic.io document field metadata
+ */
 case class Field(`type`: String, multiple: Boolean, default: Option[String])
 
-object Field {
+private[prismic] object Field {
   implicit val reader = (
     (__ \ "type").read[String] and
     (__ \ "multiple").readNullable[Boolean].map(_.getOrElse(false)) and
@@ -119,11 +167,11 @@ case class Form(
 
 }
 
-object Form {
+private[prismic] object Form {
   implicit val reader = Json.reads[Form]
 }
 
-case class ApiData(
+private[prismic] case class ApiData(
   val refs: Seq[Ref],
   val bookmarks: Map[String, String],
   val types: Map[String, String],
@@ -131,7 +179,7 @@ case class ApiData(
   val forms: Map[String, Form],
   val oauthEndpoints: (String, String))
 
-object ApiData {
+private[prismic] object ApiData {
 
   implicit val reader = (
     (__ \ 'refs).read[Seq[Ref]] and
@@ -147,6 +195,9 @@ object ApiData {
 
 }
 
+/**
+ * Paginator for prismic.io documents
+ */
 case class Response(
   results: List[Document],
   page: Int,
@@ -157,21 +208,37 @@ case class Response(
   nextPage: Option[String],
   prevPage: Option[String])
 
-object Response {
+private[prismic] object Response {
 
-    private implicit val documentReader: Reads[Document] = Document.reader
-    val jsonReader = (
-      (__ \ "results").read[List[Document]] and
-      (__ \ "page").read[Int] and
-      (__ \ "results_per_page").read[Int] and
-      (__ \ "results_size").read[Int] and
-      (__ \ "total_results_size").read[Int] and
-      (__ \ "total_pages").read[Int] and
-      (__ \ "next_page").readNullable[String] and
-      (__ \ "prev_page").readNullable[String]
-    )(Response.apply _)
+  private implicit val documentReader: Reads[Document] = Document.reader
+  val jsonReader = (
+    (__ \ "results").read[List[Document]] and
+    (__ \ "page").read[Int] and
+    (__ \ "results_per_page").read[Int] and
+    (__ \ "results_size").read[Int] and
+    (__ \ "total_results_size").read[Int] and
+    (__ \ "total_pages").read[Int] and
+    (__ \ "next_page").readNullable[String] and
+    (__ \ "prev_page").readNullable[String]
+  )(Response.apply _)
 }
 
+/**
+ * A SearchForm represent a Form returned by the prismic.io API.
+ *
+ * These forms depend on the prismic.io repository, and can be filled and sent
+ * as regular HTML forms.
+ *
+ * You may get a SearchForm instance through the [[io.prismic.Api.forms]] method.
+ *
+ * The SearchForm instance contains helper methods for each predefined form's fields.
+ *
+ * @example
+ *   val form = api.forms('everything')
+ *     .page(3)                   // specify the field 'page'
+ *     .pageSize(20)              // specify the 'page_size' field
+ *   val results = form.submit()  // submit the search form
+ */
 case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
 
   def set(field: String, value: String): SearchForm = form.fields.get(field).map { fieldDesc =>
@@ -206,7 +273,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
 
     def parseResponse(json: JsValue): Response = Response.jsonReader reads json match {
       case JsSuccess(result, _) => result
-      case JsError(err)         => sys.error(s"Unable to parse prismic response: $json\n$err")
+      case JsError(err)         => sys.error(s"Unable to parse prismic.io response: $json\n$err")
     }
 
     (form.method, form.enctype, form.action) match {
@@ -247,16 +314,20 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
 
 }
 
-trait WithFragments {
+private[prismic] trait WithFragments {
 
   def fragments: Map[String, Fragment]
 
   private val IndexedKey = """^([^\[]+)(\[\d+\])?$""".r
 
-  def apply(field: String): Fragment = fragments(field)
-
+  /**
+   * Access any fragment by name
+   */
   def get(field: String): Option[Fragment] = fragments.get(field).orElse(getAll(field).headOption)
 
+  /**
+   * Access any fragment sequence by name
+   */
   def getAll(field: String): Seq[Fragment] = fragments.collect {
     case (IndexedKey(key, _), fragment) if key == field => fragment
   }.toSeq
@@ -361,6 +432,9 @@ trait WithFragments {
 
 }
 
+/**
+ * A prismic.io document
+ */
 case class Document(
     id: String,
     typ: String,
@@ -374,7 +448,7 @@ case class Document(
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
 }
 
-object Document {
+private[prismic] object Document {
 
   def parse(jsvalue: JsObject): Option[Fragment] = {
     (jsvalue \ "type").asOpt[String].flatMap {
@@ -418,4 +492,3 @@ object Document {
   )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
 
 }
-

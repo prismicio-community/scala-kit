@@ -21,6 +21,8 @@ object KitBuild extends Build {
   lazy val ScalaKit = Project(
     BuildSettings.buildName, file("."),
     settings = BuildSettings.buildSettings ++ Seq(
+      scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
+      scalacOptions in (Compile, doc) ++= Seq("-doc-root-content", baseDirectory.value+"/root-doc.txt"),
 
       resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
       resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases",

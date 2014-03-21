@@ -2,17 +2,17 @@ package io.prismic
 
 import play.api.libs.json._
 
-trait Cache {
+private[prismic] trait Cache {
   def set(url: String, response: (Long, JsValue)): Unit 
   def get(url: String): Option[JsValue] 
 }
 
-object NoCache extends Cache {
+private[prismic] object NoCache extends Cache {
   def set(url: String, response: (Long, JsValue)) {}
   def get(url: String): Option[JsValue] = None
 }
 
-case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
+private[prismic] case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
 
   import org.apache.commons.collections.map.LRUMap
   import scala.collection.convert.Wrappers.JMapWrapper
