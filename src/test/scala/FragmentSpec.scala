@@ -69,9 +69,20 @@ class FragmentSpec extends Specification {
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
     val doc = query("""[[:d = at(document.id, "UkL0gMuvzYUANCpu")]]""").results.head
     val struct = doc getStructuredText "article.content"
-    println(doc.fragments.keys)
     "find first" in {
       struct must beSome
+    }
+  }
+  "Image" should {
+    val api = await(Api.get("https://test-public.prismic.io/api"))
+    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
+    val doc = query("""[[:d = at(document.id, "Uyr9sgEAAGVHNoFZ")]]""").results.head
+    val img = doc.getImage("article.illustration", "icon")
+    val url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
+    "find first" in {
+      img must beSome.like {
+        case v: Fragment.Image.View => v.asHtml must_== s"""<img alt="some alt text" src="$url" width="100" height="100" />"""
+      }
     }
   }
 }

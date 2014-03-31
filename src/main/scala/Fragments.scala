@@ -173,9 +173,9 @@ object Fragment {
 
   object Image {
 
-    case class View(url: String, width: Int, height: Int) {
+    case class View(url: String, width: Int, height: Int, alt: Option[String]) {
       def ratio = width / height
-      def asHtml: String = s"""<img src="${url}" width="${width}" height="${height}">"""
+      def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="${url}" width="${width}" height="${height}" />"""
     }
 
     implicit val viewReader: Reads[View] =
@@ -184,9 +184,10 @@ object Fragment {
         (__ \ 'dimensions).read(
           (__ \ 'width).read[Int] and
             (__ \ 'height).read[Int] tupled
-        )
+        ) and
+        (__ \ 'alt).read[Option[String]]
       ).tupled.map {
-            case (url, (width, height)) => View(url, width, height)
+            case (url, (width, height), alt) => View(url, width, height, alt)
           }
 
     implicit val reader: Reads[Image] =
