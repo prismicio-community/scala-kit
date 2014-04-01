@@ -301,7 +301,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
                 }
 
                 parseResponse(json)
-              case error => sys.error(s"Http error(status:$error msg:${resp.statusText}")
+              case error => sys.error(s"Http error(status:$error msg:${resp.statusText} body:${resp.body}")
             }
           }
         }
