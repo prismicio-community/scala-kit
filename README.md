@@ -9,7 +9,7 @@ You can find this library in our own Maven repository (hosted on Github).
 If you are using __sbt__, first add the reposiotry resolver:
 
 ```
-resolvers += "Prismic.io kits" at "https://github.com/prismicio/repository/raw/master/maven/"
+resolvers += "Prismic.io kits" at "https://s3.amazonaws.com/prismic-maven-kits/repository/maven/"
 ```
 
 Then add, the library dependency:
