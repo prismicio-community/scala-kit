@@ -92,13 +92,15 @@ object Api {
   /**
    * Instanciate an Api instance from a prismic.io API URL
    */
-  def get(url: String, accessToken: Option[String] = None, cache: Cache = NoCache, logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
-    CustomWS.url(logger, accessToken.map(token => s"$url?access_token=$token").getOrElse(url))
-      .copy(headers = AcceptJson)
-      .get()
-      .map { resp =>
+  def get(endpoint: String, accessToken: Option[String] = None, cache: Cache = Cache.defaultCache, logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
+    val url = accessToken.map(token => s"$endpoint?access_token=$token").getOrElse(endpoint)
+    cache.getOrSet(url, 5000L) {
+      CustomWS.url(logger, url)
+        .copy(headers = AcceptJson)
+        .get()
+        .map { resp =>
         resp.status match {
-          case 200 => new Api(ApiData.reader.reads(resp.json).getOrElse(sys.error(s"Error while parsing API document: ${resp.json}")), accessToken, cache, logger)
+          case 200 => resp.json
           case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
             case Some(url) if accessToken.isDefined =>
               throw InvalidToken("The provided access token is either invalid or expired", url)
@@ -110,6 +112,9 @@ object Api {
           case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.statusText})")
         }
       }
+    }.map { json =>
+      new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: ${json}")), accessToken, cache, logger)
+    }
   }
 
 }
