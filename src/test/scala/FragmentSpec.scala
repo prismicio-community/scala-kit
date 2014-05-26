@@ -15,7 +15,7 @@ class FragmentSpec extends Specification {
   "Group" should {
     val api = await(Api.get("https://micro.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val docChapter = query("""[[:d = at(document.type, "docchapter")]]""").results.head
+    val docChapter = query("""[[:d = at(document.id, "UrDcEAEAAKUbpbND")]]""").results.head
     "access fields" in {
       docChapter getGroup "docchapter.docs" must beSome.like {
         case group => group.docs.headOption must beSome.like {

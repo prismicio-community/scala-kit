@@ -13,7 +13,7 @@ class CacheSpec extends Specification {
     }
     "set and get and new entry" in {
       val cache = emptyCache
-      cache.set("/bar", (expireAt, JsNumber(42)))
+      cache.set("/bar", (ttl, JsNumber(42)))
       cache get "/bar" must beSome(JsNumber(42))
     }
   }
@@ -29,12 +29,12 @@ class CacheSpec extends Specification {
     }
     "set and get and new entry" in {
       val cache = normalCache
-      cache.set("/bar", (expireAt, JsNumber(42)))
+      cache.set("/bar", (ttl, JsNumber(42)))
       cache get "/bar" must beSome(JsNumber(42))
     }
     "discard old entries" in {
       val cache = normalCache
-      cache.set("/bar", (expireAt, JsNumber(42)))
+      cache.set("/bar", (ttl, JsNumber(42)))
       Thread sleep 1001
       cache get "/bar" must beNone
     }
@@ -42,12 +42,12 @@ class CacheSpec extends Specification {
   "A full cache" should {
     "accept new entries" in {
       val cache = fullCache
-      cache.set("/bar", (expireAt, JsNumber(42)))
+      cache.set("/bar", (ttl, JsNumber(42)))
       cache get "/bar" must beSome(JsNumber(42))
     }
     "discard old entries" in {
       val cache = fullCache
-      cache.set("/bar", (expireAt, JsNumber(42)))
+      cache.set("/bar", (ttl, JsNumber(42)))
       cache get "/foo/1" must beNone
     }
   }
@@ -57,11 +57,11 @@ class CacheSpec extends Specification {
   def fullCache = fill(emptyCache, 10)
 
   def fill(cache: Cache, nbDocuments: Int) = {
-    (1 to nbDocuments) foreach { i => cache.set(s"/foo/$i", (expireAt, JsNumber(i))) }
+    (1 to nbDocuments) foreach { i => cache.set(s"/foo/$i", (ttl, JsNumber(i))) }
     cache
   }
 
-  def expireAt = System.currentTimeMillis + 1000
+  def ttl = 1000
 
   var cache: Cache = emptyCache
 }
