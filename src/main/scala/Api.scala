@@ -9,8 +9,6 @@ import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-import core._
-
 /**
  * Error thrown when communicating with prismic.io API
  */
@@ -86,8 +84,15 @@ object DocumentLinkResolver {
  */
 object Api {
 
-  private[prismic] val AcceptJson = Map("Accept" -> Seq("application/json"))
+  private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
+  private[prismic] val httpClient: play.api.libs.ws.WSClient = {
+    import play.api.libs.ws._
+    import play.api.libs.ws.ning._
+    new NingWSClient(
+      new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig()).build()
+    )
+  }
 
   /**
    * Instanciate an Api instance from a prismic.io API URL
@@ -95,23 +100,22 @@ object Api {
   def get(endpoint: String, accessToken: Option[String] = None, cache: Cache = Cache.defaultCache, logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
     val url = accessToken.map(token => s"$endpoint?access_token=$token").getOrElse(endpoint)
     cache.getOrSet(url, 5000L) {
-      CustomWS.url(logger, url)
-        .copy(headers = AcceptJson)
+      httpClient.url(url).withHeaders(AcceptJson: _*)
         .get()
         .map { resp =>
-        resp.status match {
-          case 200 => resp.json
-          case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
-            case Some(url) if accessToken.isDefined =>
-              throw InvalidToken("The provided access token is either invalid or expired", url)
-            case Some(url) =>
-              throw AuthorizationNeeded("You need to provide an access token to access this repository", url)
-            case None =>
-              throw UnexpectedError("Authorization error, but not URL was provided")
+          resp.status match {
+            case 200 => resp.json
+            case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
+              case Some(url) if accessToken.isDefined =>
+                throw InvalidToken("The provided access token is either invalid or expired", url)
+              case Some(url) =>
+                throw AuthorizationNeeded("You need to provide an access token to access this repository", url)
+              case None =>
+                throw UnexpectedError("Authorization error, but not URL was provided")
+            }
+            case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.statusText})")
           }
-          case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.statusText})")
         }
-      }
     }.map { json =>
       new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: ${json}")), accessToken, cache, logger)
     }
@@ -295,7 +299,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResponse(json))
         }.getOrElse {
-          CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson).get() map { resp =>
+          Api.httpClient.url(url).withHeaders(Api.AcceptJson: _*).get() map { resp =>
             resp.status match {
               case 200 =>
                 val json = resp.json

@@ -30,6 +30,7 @@ object KitBuild extends Build {
       libraryDependencies ++= Seq(
         "com.typesafe.play"       %% "play-iteratees"      % "2.3.0",
         "com.typesafe.play"       %% "play-json"           % "2.3.0",
+        "com.typesafe.play"       %% "play-ws"             % "2.3.0",
         "com.ning"                %  "async-http-client"   % "1.8.9",
         "commons-collections"     %  "commons-collections" % "3.2.1",
         "org.specs2" %% "specs2" % "2.3.12" % "test"
