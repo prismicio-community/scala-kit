@@ -200,6 +200,17 @@ private[prismic] object ApiData {
 
 }
 
+case class LinkedDocument(id: String, typ: String, tags: Seq[String])
+
+private[prismic] object LinkedDocument {
+
+  implicit val reader: Reads[LinkedDocument] = (
+    (__ \ "id").read[String] and
+    (__ \ "type").read[String] and
+    (__ \ "tags").read[Seq[String]]
+  )(LinkedDocument.apply _)
+}
+
 /**
  * Paginator for prismic.io documents
  */
@@ -211,11 +222,15 @@ case class Response(
   totalResultsSize: Int,
   totalPages: Int,
   nextPage: Option[String],
-  prevPage: Option[String])
+  prevPage: Option[String],
+  linkedDocuments: List[LinkedDocument]
+)
 
 private[prismic] object Response {
 
   private implicit val documentReader: Reads[Document] = Document.reader
+  private implicit val linkedDocumentReader: Reads[LinkedDocument] = LinkedDocument.reader
+
   val jsonReader = (
     (__ \ "results").read[List[Document]] and
     (__ \ "page").read[Int] and
@@ -224,7 +239,8 @@ private[prismic] object Response {
     (__ \ "total_results_size").read[Int] and
     (__ \ "total_pages").read[Int] and
     (__ \ "next_page").readNullable[String] and
-    (__ \ "prev_page").readNullable[String]
+    (__ \ "prev_page").readNullable[String] and
+    (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil))
   )(Response.apply _)
 }
 
