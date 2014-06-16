@@ -222,14 +222,12 @@ case class Response(
   totalResultsSize: Int,
   totalPages: Int,
   nextPage: Option[String],
-  prevPage: Option[String],
-  linkedDocuments: List[LinkedDocument]
+  prevPage: Option[String]
 )
 
 private[prismic] object Response {
 
   private implicit val documentReader: Reads[Document] = Document.reader
-  private implicit val linkedDocumentReader: Reads[LinkedDocument] = LinkedDocument.reader
 
   val jsonReader = (
     (__ \ "results").read[List[Document]] and
@@ -239,8 +237,7 @@ private[prismic] object Response {
     (__ \ "total_results_size").read[Int] and
     (__ \ "total_pages").read[Int] and
     (__ \ "next_page").readNullable[String] and
-    (__ \ "prev_page").readNullable[String] and
-    (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil))
+    (__ \ "prev_page").readNullable[String]
   )(Response.apply _)
 }
 
@@ -462,6 +459,7 @@ case class Document(
     href: String,
     tags: Seq[String],
     slugs: Seq[String],
+    linkedDocuments: List[LinkedDocument],
     fragments: Map[String, Fragment]) extends WithFragments {
 
   def slug: String = slugs.headOption.getOrElse("-")
@@ -496,6 +494,7 @@ private[prismic] object Document {
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "slugs").read[Seq[String]] and
+    (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil)) and
     (__ \ "type").read[String].flatMap[(String, Map[String, Fragment])] { typ =>
       (__ \ "data" \ typ).read[JsObject].map { data =>
         collection.immutable.ListMap(
@@ -510,6 +509,6 @@ private[prismic] object Document {
         )
       }.map(data => (typ, data))
     }
-  )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
+  )((id, href, tags, slugs, linkedDocuments, typAndData) => Document(id, typAndData._1, href, tags, slugs, linkedDocuments, typAndData._2))
 
 }
