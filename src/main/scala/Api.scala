@@ -202,12 +202,13 @@ private[prismic] object ApiData {
 
 }
 
-case class LinkedDocument(id: String, typ: String, tags: Seq[String])
+case class LinkedDocument(id: String, slug: Option[String], typ: String, tags: Seq[String])
 
 private[prismic] object LinkedDocument {
 
   implicit val reader: Reads[LinkedDocument] = (
     (__ \ "id").read[String] and
+    (__ \ "slug").readNullable[String] and
     (__ \ "type").read[String] and
     (__ \ "tags").read[Seq[String]]
   )(LinkedDocument.apply _)

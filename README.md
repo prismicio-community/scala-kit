@@ -15,7 +15,7 @@ resolvers += "Prismic.io kits" at "https://s3.amazonaws.com/prismic-maven-kits/r
 Then add, the library dependency:
 
 ```
-"io.prismic" %% "scala-kit" % "1.0-M15"
+"io.prismic" %% "scala-kit" % "1.0-M16"
 ```
 
 *(you may need to adapt the version number)*
