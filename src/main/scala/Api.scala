@@ -127,6 +127,7 @@ object Api {
  * returns the same results.
  */
 case class Ref(
+  id: String,
   ref: String,
   label: String,
   isMasterRef: Boolean = false,
@@ -135,6 +136,7 @@ case class Ref(
 private[prismic] object Ref {
 
   implicit val reader = (
+    (__ \ "id").read[String] and
     (__ \ "ref").read[String] and
     (__ \ "label").read[String] and
     ((__ \ "isMasterRef").read[Boolean] orElse Reads.pure(false)) and
