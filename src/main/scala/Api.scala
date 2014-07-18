@@ -131,6 +131,7 @@ object Api {
  * returns the same results.
  */
 case class Ref(
+  id: String,
   ref: String,
   label: String,
   isMasterRef: Boolean = false,
@@ -139,6 +140,7 @@ case class Ref(
 private[prismic] object Ref {
 
   implicit val reader = (
+    (__ \ "id").read[String] and
     (__ \ "ref").read[String] and
     (__ \ "label").read[String] and
     ((__ \ "isMasterRef").read[Boolean] orElse Reads.pure(false)) and
@@ -204,6 +206,18 @@ private[prismic] object ApiData {
 
 }
 
+case class LinkedDocument(id: String, slug: Option[String], typ: String, tags: Seq[String])
+
+private[prismic] object LinkedDocument {
+
+  implicit val reader: Reads[LinkedDocument] = (
+    (__ \ "id").read[String] and
+    (__ \ "slug").readNullable[String] and
+    (__ \ "type").read[String] and
+    (__ \ "tags").read[Seq[String]]
+  )(LinkedDocument.apply _)
+}
+
 /**
  * Paginator for prismic.io documents
  */
@@ -215,11 +229,13 @@ case class Response(
   totalResultsSize: Int,
   totalPages: Int,
   nextPage: Option[String],
-  prevPage: Option[String])
+  prevPage: Option[String]
+)
 
 private[prismic] object Response {
 
   private implicit val documentReader: Reads[Document] = Document.reader
+
   val jsonReader = (
     (__ \ "results").read[List[Document]] and
     (__ \ "page").read[Int] and
@@ -450,6 +466,7 @@ case class Document(
     href: String,
     tags: Seq[String],
     slugs: Seq[String],
+    linkedDocuments: List[LinkedDocument],
     fragments: Map[String, Fragment]) extends WithFragments {
 
   def slug: String = slugs.headOption.getOrElse("-")
@@ -484,6 +501,7 @@ private[prismic] object Document {
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "slugs").read[Seq[String]] and
+    (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil)) and
     (__ \ "type").read[String].flatMap[(String, Map[String, Fragment])] { typ =>
       (__ \ "data" \ typ).read[JsObject].map { data =>
         collection.immutable.ListMap(
@@ -498,6 +516,6 @@ private[prismic] object Document {
         )
       }.map(data => (typ, data))
     }
-  )((id, href, tags, slugs, typAndData) => Document(id, typAndData._1, href, tags, slugs, typAndData._2))
+  )((id, href, tags, slugs, linkedDocuments, typAndData) => Document(id, typAndData._1, href, tags, slugs, linkedDocuments, typAndData._2))
 
 }
