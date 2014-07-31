@@ -34,6 +34,19 @@ class FragmentSpec extends Specification {
       }
     }
   }
+  "GeoPoint" should {
+    val api = await(Api.get("https://test-public.prismic.io/api"))
+    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
+    val doc = query("""[[:d = at(document.id, "U9pZMDQAADEAYj_n")]]""").results.head
+    "get latitude & longitude" in {
+      doc getGeoPoint "product.location" must beSome.like {
+        case p: Fragment.GeoPoint =>
+          p.latitude must_== 48.87687670000001
+          p.longitude must_== 2.3338801999999825
+          p.asHtml must_== """<div class="geopoint"><span class="latitude">48.87687670000001</span><span class="longitude">2.3338801999999825</span></div>"""
+      }
+    }
+  }
   "Link" should {
     val api = await(Api.get("https://test-public.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())

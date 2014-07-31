@@ -160,6 +160,23 @@ object Fragment {
 
   // ------------------
 
+  case class GeoPoint(latitude: Double, longitude: Double) extends Fragment {
+    def asHtml: String = s"""<div class="geopoint"><span class="latitude">${latitude}</span><span class="longitude">${longitude}</span></div>"""
+  }
+
+  object GeoPoint {
+
+    implicit val reader: Reads[GeoPoint] = {
+      (
+        (__ \ "latitude").read[Double] and
+        (__ \ "longitude").read[Double]
+      )(GeoPoint.apply _)
+    }
+
+  }
+
+  // ------------------
+
   case class Image(main: Image.View, views: Map[String, Image.View] = Map.empty) extends Fragment {
 
     def getView(key: String): Option[Image.View] = key.toLowerCase match {

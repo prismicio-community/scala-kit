@@ -403,6 +403,7 @@ private[prismic] trait WithFragments {
     case a: Fragment.Image          => Some(a.asHtml)
     case a: Fragment.WebLink        => Some(a.asHtml)
     case a: Fragment.MediaLink      => Some(a.asHtml)
+    case a: Fragment.GeoPoint       => Some(a.asHtml)
     case a: Fragment.DocumentLink   => Some(a.asHtml(linkResolver))
     case a: Fragment.Group          => Some(a asHtml linkResolver)
   }
@@ -433,6 +434,11 @@ private[prismic] trait WithFragments {
 
   def getDate(field: String, pattern: String): Option[String] = get(field).flatMap {
     case a: Fragment.Date => Some(a.asText(pattern))
+    case _                => None
+  }
+
+  def getGeoPoint(field: String): Option[Fragment.GeoPoint] = get(field).flatMap {
+    case a: Fragment.GeoPoint => Some(a)
     case _                => None
   }
 
@@ -483,6 +489,7 @@ private[prismic] object Document {
       case "Color"          => Some(Fragment.Color.reader.map(identity[Fragment]))
       case "Number"         => Some(Fragment.Number.reader.map(identity[Fragment]))
       case "Date"           => Some(Fragment.Date.reader.map(identity[Fragment]))
+      case "GeoPoint"       => Some(Fragment.GeoPoint.reader.map(identity[Fragment]))
       case "Text"           => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Select"         => Some(Fragment.Text.reader.map(identity[Fragment]))
       case "Embed"          => Some(Fragment.Embed.reader.map(identity[Fragment]))
