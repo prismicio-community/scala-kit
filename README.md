@@ -1,5 +1,7 @@
 ## Scala development kit for prismic.io
 
+[![Build Status](https://api.travis-ci.org/prismicio/scala-kit.png)](https://travis-ci.org/prismicio/scala-kit)
+
 ### Getting started
 
 #### Install the kit for your project with Maven

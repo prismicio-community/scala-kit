@@ -84,13 +84,14 @@ object DocumentLinkResolver {
  */
 object Api {
 
+  private[prismic] val UserAgent = s"Prismic.io ${Info.name} ${Info.version}/scala=${Info.scalaVersion}"
   private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
   private[prismic] val httpClient: play.api.libs.ws.WSClient = {
     import play.api.libs.ws._
     import play.api.libs.ws.ning._
     new NingWSClient(
-      new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig()).build()
+      new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig(userAgent = Some(UserAgent))).build()
     )
   }
 

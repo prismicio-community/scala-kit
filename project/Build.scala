@@ -26,7 +26,17 @@ object KitBuild extends Build {
 
       resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
       resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases",
-
+      sourceGenerators in Compile <+= (sourceManaged in Compile, version, scalaVersion, name) map { (d, v, sv, n) =>
+        val file = d / "info.scala"
+        IO.write(file, """package io.prismic
+                         |object Info {
+                         |  val version = "%s"
+                         |  val scalaVersion = "%s"
+                         |  val name = "%s"
+                         |}
+                         |""".stripMargin.format(v, sv, n))
+        Seq(file)
+      },
       libraryDependencies ++= Seq(
         "com.typesafe.play" %% "play-iteratees" % "2.3.1",
         "com.typesafe.play" %% "play-json" % "2.3.1",
