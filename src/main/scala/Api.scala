@@ -84,7 +84,7 @@ object DocumentLinkResolver {
  */
 object Api {
 
-  private[prismic] val UserAgent = s"Prismic.io ${Info.name} ${Info.version}/scala=${Info.scalaVersion}"
+  private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
   private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
   private[prismic] val httpClient: play.api.libs.ws.WSClient = {
