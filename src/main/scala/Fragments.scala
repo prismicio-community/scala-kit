@@ -10,6 +10,28 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.{ postfixOps, implicitConversions }
 import scala.util._
 
+trait HtmlSerializer {
+  def apply(elt: Fragment.StructuredText.Element, content: String): Option[String]
+}
+
+object HtmlSerializer {
+  import Fragment.StructuredText._
+
+  def apply(f: PartialFunction[(Element, String), String]) = new HtmlSerializer {
+    override def apply(elt: Element, content: String) =
+      if (f.isDefinedAt((elt, content))) {
+        Some(f.apply(elt, content))
+      } else {
+        None
+      }
+  }
+
+  def empty = new HtmlSerializer {
+    override def apply(elts: Element, content: String): Option[String] = None
+  }
+
+}
+
 sealed trait Fragment
 
 object Fragment {
@@ -236,7 +258,7 @@ object Fragment {
 
     implicit val reader: Reads[Group] =
       Reads.seq(__.read[Map[String, Fragment]]).map { docs =>
-        Group(docs map { Doc(_) })
+        Group(docs.map(Doc))
       }
   }
 
@@ -258,8 +280,8 @@ object Fragment {
       case i: StructuredText.Block.Image => i
     }
 
-    def asHtml(linkResolver: DocumentLinkResolver): String = {
-      StructuredText.asHtml(blocks, linkResolver)
+    def asHtml(linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
+      StructuredText.asHtml(blocks, linkResolver, htmlSerializer)
     }
 
   }
@@ -268,10 +290,10 @@ object Fragment {
 
   object StructuredText {
 
-    def asHtml(blocks: Seq[Block], linkResolver: DocumentLinkResolver): String = {
+    def asHtml(blocks: Seq[Block], linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer): String = {
       case class Group(htmlTag: Option[String], blocks: Seq[Block])
 
-      val grouped = blocks.foldLeft(List.empty[Group]) {
+      val grouped: List[Group] = blocks.foldLeft(List.empty[Group]) {
         case ((group@Group(Some("ul"), _)) :: rest, block@StructuredText.Block.ListItem(text, spans, false, label)) => group.copy(blocks = group.blocks :+ block) +: rest
         case ((group@Group(Some("ol"), _)) :: rest, block@StructuredText.Block.ListItem(text, spans, true, label)) => group.copy(blocks = group.blocks :+ block) +: rest
         case (groups, block@StructuredText.Block.ListItem(text, spans, false, label)) => Group(Some("ul"), Seq(block)) +: groups
@@ -280,80 +302,80 @@ object Fragment {
       }.reverse
 
       grouped.flatMap {
-        case Group(Some(tag), blocks) => (s"<$tag>") +: blocks.map(block => asHtml(block, linkResolver)) :+ (s"</$tag>")
-        case Group(None, blocks)      => blocks.map(block => asHtml(block, linkResolver))
+        case Group(Some(tag), bcks) => s"<$tag>" +: bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer)) :+ s"</$tag>"
+        case Group(None, bcks)      => bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer))
       }.mkString("\n\n")
     }
 
+    @deprecated("Use Block.asHtml", "1.0.14")
     def asHtml(block: Block, linkResolver: DocumentLinkResolver): String = {
-      val cls = block.label match {
-        case Some(label) => s""" class="$label""""
-        case None => ""
-      }
-      block match {
-        case StructuredText.Block.Heading(text, spans, level, _) => s"""<h$level$cls>${asHtml(text, spans, linkResolver)}</h$level>"""
-        case StructuredText.Block.Paragraph(text, spans, _)      => s"""<p$cls>${asHtml(text, spans, linkResolver)}</p>"""
-        case StructuredText.Block.Preformatted(text, spans, _)   => s"""<pre$cls>${asHtml(text, spans, linkResolver)}</pre>"""
-        case StructuredText.Block.ListItem(text, spans, _, _)    => s"""<li$cls>${asHtml(text, spans, linkResolver)}</li>"""
-        case StructuredText.Block.Image(view, _)                 => s"""<p$cls>${view.asHtml}</p>"""
-        case StructuredText.Block.Embed(obj, _)                  => obj.asHtml
-      }
+      Block.asHtml(block, linkResolver)
     }
 
-    def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver): String = {
+    private def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver, serializer: HtmlSerializer): String = {
 
       def escape(character: String): String = {
         character.replace("<", "&lt;").replace("\n", "<br>")
       }
 
-      def writeTag(span: Span, opening: Boolean): String = {
-        val cls = span.label match {
-          case Some(label) => s""" class="$label""""
-          case None => ""
-        }
-        span match {
-          case _: Span.Em                                  => if (opening) s"<em$cls>" else "</em>"
-          case _: Span.Strong                              => if (opening) s"<strong$cls>" else "</strong>"
-          case Span.Hyperlink(_, _, link: DocumentLink, _) => if (opening) s"""<a$cls href="${linkResolver(link)}">""" else "</a>"
-          case Span.Hyperlink(_, _, link: MediaLink, _)    => if (opening) s"""<a$cls href="${link.url}">""" else "</a>"
-          case Span.Hyperlink(_, _, link: WebLink, _)      => if (opening) s"""<a$cls href="${link.url}">""" else "</a>"
-          case _                                           => if (opening) s"<span$cls>" else "</span>"
+      def serialize(element: Element, content: String): String = {
+        serializer(element, content).getOrElse {
+          val cls = element.label match {
+            case Some(label) => s""" class="$label""""
+            case None => ""
+          }
+          element match {
+            case b: Block => Block.asHtml(b, linkResolver)
+            case _: Span.Em => s"<em$cls>$content</em>"
+            case _: Span.Strong => s"<strong$cls>$content</strong>"
+            case Span.Hyperlink(_, _, link: DocumentLink, _) => s"""<a$cls href="${linkResolver(link)}">$content</a>"""
+            case Span.Hyperlink(_, _, link: MediaLink, _) => s"""<a$cls href="${link.url}">$content</a>"""
+            case Span.Hyperlink(_, _, link: WebLink, _) => s"""<a$cls href="${link.url}">$content</a>"""
+            case _ => s"<span$cls>$content</span>"
+          }
         }
       }
 
-      def writeHtml(endingsToApply: Seq[Span], startingsToApply: Seq[Span]): String = {
-        endingsToApply.map(e => writeTag(e, opening = false)).mkString + startingsToApply.map(s => writeTag(s, opening = true)).mkString
-      }
-
-      import scala.collection.mutable.ListBuffer
+      case class OpenSpan(span: Span, content: String)
 
       @scala.annotation.tailrec
-      def step(in: Seq[(Char, Int)], startings: Seq[Span], endings: Seq[Span] = Nil, html: ListBuffer[String] = ListBuffer()): String = {
-        val nextOp = (startings.headOption.map(_.start).toList ++ endings.headOption.toList.map(_.end)).reduceOption(Math.min)
+      def step(in: Seq[(Char, Int)], spans: Seq[Span], stack: Seq[OpenSpan] = Nil, html: String = ""): String = {
         in match {
-          case ((_, pos) :: tail) if !nextOp.exists(_ == pos) => {
-            val (done, toDo) = in.toList.span(i => !nextOp.exists(i._2 == _))
-            step(toDo, startings, endings, html += escape(done.map(_._1).mkString))
+          case ((_, pos) :: tail) if stack.headOption.map(_.span.end) == Some(pos) => {
+            // Need to close a tag
+            val tagHtml = serialize(stack.head.span, stack.head.content)
+            stack.drop(1) match {
+              case Nil => step(in, spans, Nil, html + tagHtml)
+              case h :: t => step(in, spans, h.copy(content = h.content + tagHtml) :: t, html)
+            }
+          }
+          case ((_, pos) :: tail) if spans.headOption.map(_.start) == Some(pos) => {
+            // Need to open a tag
+            step(in, spans.drop(1), OpenSpan(spans.head, "") +: stack, html)
           }
           case (current, pos) :: tail => {
-            val (endingsToApply, othersEnding) = endings.span(_.end == pos)
-            val (startingsToApply, othersStarting) = startings.span(_.start == pos)
-            val applied = writeHtml(endingsToApply, startingsToApply) + escape(current.toString)
-            val moreEndings = startingsToApply.reverse
-            val newEndings = moreEndings ++ othersEnding
-            step(tail, othersStarting, newEndings, html += applied)
+            stack match {
+              case Nil =>
+                // Top level
+                step(tail, spans, stack, html + escape(current.toString))
+              case head :: t =>
+                // There is an open span, insert inside
+                step(tail, spans, head.copy(content = head.content + escape(current.toString)) :: t, html)
+            }
           }
-          case Nil => html.mkString + writeHtml(endings, Seq.empty).mkString
+          case Nil => html
         }
       }
-
       step(text.toList.zipWithIndex, spans.sortBy(_.start))
     }
 
-    sealed trait Span {
+    sealed trait Element {
+      def label: Option[String]
+    }
+
+    sealed trait Span extends Element {
       def start: Int
       def end: Int
-      def label: Option[String]
     }
 
     object Span {
@@ -373,24 +395,37 @@ object Fragment {
             case (typ, start, end, data, label) => typ match {
               case "strong" => Reads.pure(Strong(start, end, label))
               case "em" => Reads.pure(Em(start, end, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link, label))
+              case "hyperlink" if (data \ "type").asOpt[String].contains("Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link, label))
+              case "hyperlink" if (data \ "type").asOpt[String].contains("Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link, label))
+              case "hyperlink" if (data \ "type").asOpt[String].contains("Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link, label))
               case t => Reads(json => JsError(s"Unsupported span type $t"))
             }
           }
     }
 
-    sealed trait Block {
-      def label: Option[String]
-    }
+    sealed trait Block extends Element
 
     object Block {
 
       sealed trait Text extends Block {
         def text: String
         def spans: Seq[Span]
-        def label: Option[String]
+        override def label: Option[String]
+      }
+
+      def asHtml(block: Block, linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
+        val cls = block.label match {
+          case Some(label) => s""" class="$label""""
+          case None => ""
+        }
+        block match {
+          case StructuredText.Block.Heading(text, spans, level, _) => s"""<h$level$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</h$level>"""
+          case StructuredText.Block.Paragraph(text, spans, _)      => s"""<p$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</p>"""
+          case StructuredText.Block.Preformatted(text, spans, _)   => s"""<pre$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</pre>"""
+          case StructuredText.Block.ListItem(text, spans, _, _)    => s"""<li$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</li>"""
+          case StructuredText.Block.Image(view, _)                 => s"""<p$cls>${view.asHtml}</p>"""
+          case StructuredText.Block.Embed(obj, _)                  => obj.asHtml
+        }
       }
 
       case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String]) extends Text
@@ -449,34 +484,30 @@ object Fragment {
 
       case class Embed(obj: Fragment.Embed, label: Option[String]) extends Block
 
-      implicit val reader: Reads[Block] = (
-        (__ \ "type").read[String].flatMap[Block] {
+      implicit val reader: Reads[Block] = (__ \ "type").read[String].flatMap[Block] {
 
-          case "heading1"     => __.read(Heading.reader(1)).map(identity[Block])
-          case "heading2"     => __.read(Heading.reader(2)).map(identity[Block])
-          case "heading3"     => __.read(Heading.reader(3)).map(identity[Block])
-          case "heading4"     => __.read(Heading.reader(4)).map(identity[Block])
-          case "paragraph"    => __.read(Paragraph.reader).map(identity[Block])
-          case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
-          case "list-item"    => __.read(ListItem.reader(ordered = false)).map(identity[Block])
-          case "o-list-item"  => __.read(ListItem.reader(ordered = true)).map(identity[Block])
-          case "image"        => ((__ \ "label").readNullable[String] and __.read[Fragment.Image.View] tupled).map {
-            case (label, view) => Image(view, label): Block
-          }
-          case "embed"        => ((__ \ "label").readNullable[String] and __.read[Fragment.Embed] tupled).map {
-            case (label, obj) => Embed(obj, label): Block
-          }
-          case t              => Reads(json => JsError(s"Unsupported block type $t"))
+        case "heading1" => __.read(Heading.reader(1)).map(identity[Block])
+        case "heading2" => __.read(Heading.reader(2)).map(identity[Block])
+        case "heading3" => __.read(Heading.reader(3)).map(identity[Block])
+        case "heading4" => __.read(Heading.reader(4)).map(identity[Block])
+        case "paragraph" => __.read(Paragraph.reader).map(identity[Block])
+        case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
+        case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
+        case "o-list-item" => __.read(ListItem.reader(ordered = true)).map(identity[Block])
+        case "image" => ((__ \ "label").readNullable[String] and __.read[Fragment.Image.View] tupled).map {
+          case (label, view) => Image(view, label): Block
         }
-      )
+        case "embed" => ((__ \ "label").readNullable[String] and __.read[Fragment.Embed] tupled).map {
+          case (label, obj) => Embed(obj, label): Block
+        }
+        case t => Reads(json => JsError(s"Unsupported block type $t"))
+      }
 
     }
 
-    implicit val reader: Reads[StructuredText] = (
-      __.read(Reads.seq(Block.reader.map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
-        case blocks => StructuredText(blocks)
-      }
-    )
+    implicit val reader: Reads[StructuredText] = __.read(Reads.seq(Block.reader.map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
+      case blocks => StructuredText(blocks)
+    }
 
   }
 
