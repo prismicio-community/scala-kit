@@ -104,7 +104,7 @@ class FragmentSpec extends Specification {
     "serialize with a custom serializer" in {
        struct must beSome.like { case body: StructuredText =>
        body.asHtml(resolver, HtmlSerializer {
-          case (StructuredText.Block.Image(view, _), _) => s"${view.asHtml}"
+          case (StructuredText.Block.Image(view, _, _), _) => s"${view.asHtml}"
           case (em: Span.Em, content) => s"<em class='italic'>$content</em>"
         }) mustEqual
         """<h1>The end of a chapter the beginning of a new one</h1>

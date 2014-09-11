@@ -184,12 +184,12 @@ private[prismic] object Form {
 }
 
 private[prismic] case class ApiData(
-  val refs: Seq[Ref],
-  val bookmarks: Map[String, String],
-  val types: Map[String, String],
-  val tags: Seq[String],
-  val forms: Map[String, Form],
-  val oauthEndpoints: (String, String))
+  refs: Seq[Ref],
+  bookmarks: Map[String, String],
+  types: Map[String, String],
+  tags: Seq[String],
+  forms: Map[String, Form],
+  oauthEndpoints: (String, String))
 
 private[prismic] object ApiData {
 

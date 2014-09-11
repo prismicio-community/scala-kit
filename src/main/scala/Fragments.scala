@@ -88,6 +88,16 @@ object Fragment {
 
   }
 
+  object Link {
+    implicit val reader = Reads[Link] { jsvalue =>
+      (jsvalue \ "type").validate[String] flatMap {
+        case "Link.web" => Fragment.WebLink.reader.reads(jsvalue)
+        case "Link.document" => Fragment.DocumentLink.reader.reads(jsvalue)
+        case "Link.file" => Fragment.MediaLink.reader.reads(jsvalue)
+      }
+    }
+  }
+
   // ------------------
 
   case class Text(value: String) extends Fragment {
@@ -423,7 +433,10 @@ object Fragment {
           case StructuredText.Block.Paragraph(text, spans, _)      => s"""<p$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</p>"""
           case StructuredText.Block.Preformatted(text, spans, _)   => s"""<pre$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</pre>"""
           case StructuredText.Block.ListItem(text, spans, _, _)    => s"""<li$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</li>"""
-          case StructuredText.Block.Image(view, _)                 => s"""<p$cls>${view.asHtml}</p>"""
+          case StructuredText.Block.Image(view, Some(link: DocumentLink), _)     => s"""<p$cls><a href="$linkResolver(link)">${view.asHtml}</a></p>"""
+          case StructuredText.Block.Image(view, Some(link: WebLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
+          case StructuredText.Block.Image(view, Some(link: MediaLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
+          case StructuredText.Block.Image(view, _, _)              => s"""<p$cls>${view.asHtml}</p>"""
           case StructuredText.Block.Embed(obj, _)                  => obj.asHtml
         }
       }
@@ -476,10 +489,19 @@ object Fragment {
           }
       }
 
-      case class Image(view: Fragment.Image.View, label: Option[String]) extends Block {
+      case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String]) extends Block {
         def url = view.url
         def width = view.width
         def height = view.height
+      }
+
+      object Image {
+        implicit val reader: Reads[Image] = (
+          (__ \ "label").readNullable[String] and
+          (__ \ "linkTo").readNullable[Link] and
+          __.read[Fragment.Image.View] tupled).map {
+          case (label, linkTo, view) => Image(view, linkTo, label)
+        }
       }
 
       case class Embed(obj: Fragment.Embed, label: Option[String]) extends Block
@@ -494,9 +516,7 @@ object Fragment {
         case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
         case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
         case "o-list-item" => __.read(ListItem.reader(ordered = true)).map(identity[Block])
-        case "image" => ((__ \ "label").readNullable[String] and __.read[Fragment.Image.View] tupled).map {
-          case (label, view) => Image(view, label): Block
-        }
+        case "image" => __.read(Image.reader).map(identity[Block])
         case "embed" => ((__ \ "label").readNullable[String] and __.read[Fragment.Embed] tupled).map {
           case (label, obj) => Embed(obj, label): Block
         }
