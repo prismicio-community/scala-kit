@@ -1,8 +1,10 @@
 package io.prismic
 
-import _root_.io.prismic.Fragment.StructuredText
+import _root_.io.prismic.Fragment.{Timestamp, StructuredText}
 import _root_.io.prismic.Fragment.StructuredText.{Element, Span}
+import org.joda.time.{DateTimeZone, DateTime}
 import org.specs2.mutable._
+import play.api.libs.json._
 
 import scala.concurrent.duration._
 import scala.concurrent.{ Future, Await }
@@ -57,6 +59,18 @@ class FragmentSpec extends Specification {
       doc getLink "test-link.related" must beSome.like {
         case l: Fragment.MediaLink => l.filename must_== "baastad.pdf"
       }
+    }
+  }
+  "Timestamp" should {
+    val json = Json.obj(
+      "type" -> "Timestamp",
+      "value" -> "2014-06-18T15:30:00+0000"
+    )
+    "be parsed correctly" in {
+        val reference = new DateTime(2014, 6, 18, 15, 30, DateTimeZone.UTC)
+        Document.parse(json) must beSome.like {
+          case Timestamp(dt) => dt must_== reference
+        }
     }
   }
   "Multiple document link" should {

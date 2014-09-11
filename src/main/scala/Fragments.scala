@@ -112,14 +112,28 @@ object Fragment {
 
   // ------------------
 
-  case class Date(value: DateTime) extends Fragment {
+  case class Date(value: LocalDate) extends Fragment {
     def asText(pattern: String) = value.toString(pattern)
     def asHtml: String = s"""<time>$value</time>"""
   }
 
   object Date {
     implicit val reader: Reads[Date] = {
-      Reads(v => v.asOpt[String].flatMap(d => Try(JsSuccess(Date(DateTime.parse(d, format.DateTimeFormat.forPattern("yyyy-MM-dd"))))).toOption).getOrElse(JsError(s"Invalid date value $v")))
+      Reads(v => v.asOpt[String].flatMap(d => Try(JsSuccess(Date(LocalDate.parse(d, format.DateTimeFormat.forPattern("yyyy-MM-dd"))))).toOption).getOrElse(JsError(s"Invalid date value $v")))
+    }
+  }
+
+  case class Timestamp(value: DateTime) extends Fragment {
+    def asText(pattern: String) = value.toString(pattern)
+    def asHtml: String = s"""<time>$value</time>"""
+  }
+
+  object Timestamp {
+    implicit val reader: Reads[Timestamp] = {
+      Reads(v => v.asOpt[String].flatMap { d =>
+        val isoFormat = org.joda.time.format.DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ")
+        Try(JsSuccess(Timestamp(DateTime.parse(d, isoFormat).withZone(DateTimeZone.UTC)))).toOption
+      }.getOrElse(JsError(s"Invalid timestamp value $v")))
     }
   }
 
