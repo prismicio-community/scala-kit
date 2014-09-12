@@ -390,7 +390,10 @@ object Fragment {
           case Nil => html
         }
       }
-      step(text.toList.zipWithIndex, spans.sortBy(_.start))
+      step(text.toList.zipWithIndex, spans.sortWith {
+        case (a, b) if a.start == b.start => (a.end - a.start) > (b.end - b.start)
+        case (a, b) => a.start < b.start
+      })
     }
 
     sealed trait Element {

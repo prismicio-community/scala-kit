@@ -1,7 +1,7 @@
 package io.prismic
 
 import _root_.io.prismic.Fragment.{Timestamp, StructuredText}
-import _root_.io.prismic.Fragment.StructuredText.{Element, Span}
+import _root_.io.prismic.Fragment.StructuredText.{Block, Element, Span}
 import org.joda.time.{DateTimeZone, DateTime}
 import org.specs2.mutable._
 import play.api.libs.json._
@@ -136,6 +136,27 @@ class FragmentSpec extends Specification {
       }
     }
   }
+
+  "Nested spans" should {
+    val text = "abcdefghijklmnopqrstuvwxyz"
+    "correctly serialize with the same starting point" in {
+      Block.asHtml(Block.Paragraph(
+        text,
+        Seq(
+          Span.Em(2, 6, None),
+          Span.Strong(2, 4, None)
+        ), None), resolver) mustEqual "<p>ab<em><strong>cd</strong>ef</em>ghijklmnopqrstuvwxyz</p>"
+    }
+    "correctly serialize with the same starting point (2)" in {
+      Block.asHtml(Block.Paragraph(
+        text,
+        Seq(
+          Span.Em(2, 4, None),
+          Span.Strong(2, 6, None)
+        ), None), resolver) mustEqual "<p>ab<strong><em>cd</em>ef</strong>ghijklmnopqrstuvwxyz</p>"
+    }
+  }
+
   "Image" should {
     val api = await(Api.get("https://test-public.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
