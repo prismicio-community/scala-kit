@@ -279,7 +279,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
   def ref(r: Ref): SearchForm = ref(r.ref)
   def ref(r: String): SearchForm = set("ref", r)
 
-  def query(query: String) = {
+  def query(query: String): SearchForm = {
     if (form.fields.get("q").map(_.multiple).getOrElse(false)) {
       set("q", query)
     }
@@ -288,6 +288,15 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
       def strip(q: String) = q.trim.drop(1).dropRight(1)
       copy(data = data ++ Map("q" -> Seq((s"""[${form.fields("q").default.map(strip).getOrElse("")}${strip(query)}]"""))))
     }
+  }
+
+  /**
+   * Build an "AND" query with all the predicates passed in parameter
+   * @param predicates
+   * @return the SearchForm instance for chaining
+   */
+  def query(predicates: Predicate*): SearchForm = {
+    this.query("[" + predicates.map(_.q).mkString + "]")
   }
 
   def page(p: Int) = set("page", p)

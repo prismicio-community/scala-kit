@@ -18,8 +18,8 @@ class FragmentSpec extends Specification {
 
   "Group" should {
     val api = await(Api.get("https://micro.prismic.io/api"))
-    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val docChapter = query("""[[:d = at(document.id, "UrDcEAEAAKUbpbND")]]""").results.head
+    def query(q: Predicate) = await(api.forms("everything").ref(api.master).query(q).submit())
+    val docChapter = query(Predicate.at("document.id", "UrDcEAEAAKUbpbND")).results.head
     "access fields" in {
       docChapter getGroup "docchapter.docs" must beSome.like {
         case group => group.docs.headOption must beSome.like {
@@ -40,8 +40,8 @@ class FragmentSpec extends Specification {
   }
   "GeoPoint" should {
     val api = await(Api.get("https://test-public.prismic.io/api"))
-    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val doc = query("""[[:d = at(document.id, "U9pZMDQAADEAYj_n")]]""").results.head
+    def query(q: Predicate) = await(api.forms("everything").ref(api.master).query(q).submit())
+    val doc = query(Predicate.at("document.id", "U9pZMDQAADEAYj_n")).results.head
     "get latitude & longitude" in {
       doc getGeoPoint "product.location" must beSome.like {
         case p: Fragment.GeoPoint =>
