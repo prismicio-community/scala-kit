@@ -56,6 +56,12 @@ Please document any bugfix or new feature.
 
 If you find existing code that is not optimally documented and wish to make it better, we really appreciate it; but you should document it on its own branch and its own pull request.
 
+#### Publish Scaladoc
+
+(Prismic.io developers only)
+
+    sbt ghpages-push-site
+
 ### Licence
 
 This software is licensed under the Apache 2 license, quoted below.

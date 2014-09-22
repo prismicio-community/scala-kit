@@ -1,6 +1,9 @@
 import sbt._
 import Keys._
 import xerial.sbt._
+import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.SbtGhPages.ghpages
+import com.typesafe.sbt.SbtGit.GitKeys._
 import com.typesafe.sbt.pgp.PgpKeys
 import Sonatype.SonatypeKeys._
 
@@ -12,12 +15,17 @@ object BuildSettings {
   val buildVersion = Option(System.getProperty("version")).map(_.trim).getOrElse("1.0-SNAPSHOT")
   val buildScalaVersion = "2.11.1"
 
-  val buildSettings = xerial.sbt.Sonatype.sonatypeSettings ++ Seq(
+  val buildSettings = xerial.sbt.Sonatype.sonatypeSettings ++
+      site.settings ++
+      site.includeScaladoc("") ++
+      ghpages.settings ++
+    Seq(
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
     crossScalaVersions := Seq("2.10.4", "2.11.1"),
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature"),
+    gitRemoteRepo := "git@github.com:prismicio/scala-kit.git",
     pomExtra := {
       <url>https://github.com/prismicio/scala-kit</url>
         <licenses>
