@@ -1,5 +1,6 @@
 package io.prismic
 
+import io.prismic.Fragment.GeoPoint
 import io.prismic.Month.Month
 import io.prismic.WeekDay.WeekDay
 import org.joda.time.DateTime
@@ -62,8 +63,16 @@ object Predicate {
 
   import QuerySerializer._
 
-  def apply[T](operator: String, fragment: String, values: T*)(implicit ps: QuerySerializer[T]) = new Predicate {
-    override def q = s"""[:d = $operator($fragment, ${values.map(ps.serialize).mkString(", ")})]"""
+  def apply[T](operator: String, fragment: String, v1: T)(implicit ps: QuerySerializer[T]) = new Predicate {
+    override def q = s"""[:d = $operator($fragment, ${ps.serialize(v1)})]"""
+  }
+
+  def apply[T1, T2](operator: String, fragment: String, v1: T1, v2: T2)(implicit ps1: QuerySerializer[T1], ps2: QuerySerializer[T2]) = new Predicate {
+    override def q = s"""[:d = $operator($fragment, ${ps1.serialize(v1)}, ${ps2.serialize(v2)})]"""
+  }
+
+  def apply[T1, T2, T3](operator: String, fragment: String, v1: T1, v2: T2, v3: T3)(implicit ps1: QuerySerializer[T1], ps2: QuerySerializer[T2], ps3: QuerySerializer[T3]) = new Predicate {
+    override def q = s"""[:d = $operator($fragment, ${ps1.serialize(v1)}, ${ps2.serialize(v2)}, ${ps3.serialize(v3)})]"""
   }
 
   def at(fragment: String, value: String) = apply("at", fragment, value)
@@ -113,5 +122,8 @@ object Predicate {
   def hourBefore(fragment: String, hour: Int) = apply("date.hour-before", fragment, hour)
 
   def hourAfter(fragment: String, hour: Int) = apply("date.hour-after", fragment, hour)
+
+  def near(fragment: String, latitude: BigDecimal, longitude: BigDecimal, radius: Int) =
+    apply("geopoint.near", fragment, latitude, longitude, radius)
 
 }

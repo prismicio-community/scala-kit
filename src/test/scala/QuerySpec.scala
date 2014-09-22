@@ -34,5 +34,10 @@ class QuerySpec extends Specification {
         """[:d = date.month-after(my.blog-post.publication-date, "April")]"""
     }
 
+    "geopoint near" in {
+      Predicate.near("my.store.coordinates", 40.689757, -74.0451453, 15).q must_==
+        """[:d = geopoint.near(my.store.coordinates, 40.689757, -74.0451453, 15)]"""
+    }
+
   }
 }
