@@ -61,7 +61,7 @@ class CacheSpec extends Specification {
     cache
   }
 
-  def ttl = 1000
+  def ttl = 60 * 1000
 
   var cache: Cache = emptyCache
 }
