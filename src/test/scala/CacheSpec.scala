@@ -23,7 +23,7 @@ class CacheSpec extends Specification {
       cache get "/foo/2" must beSome(JsNumber(2))
     }
     "get existing entry, twice" in {
-      val cache = normalCache
+      val cache = longCache
       cache get "/foo/2" must beSome(JsNumber(2))
       cache get "/foo/2" must beSome(JsNumber(2))
     }
@@ -54,14 +54,15 @@ class CacheSpec extends Specification {
 
   def emptyCache = BuiltInCache(maxDocuments = 10)
   def normalCache = fill(emptyCache, 5)
+  def longCache = fill(emptyCache, 5, 60 * 1000)
   def fullCache = fill(emptyCache, 10)
 
-  def fill(cache: Cache, nbDocuments: Int) = {
+  def fill(cache: Cache, nbDocuments: Int, ttl: Int = ttl) = {
     (1 to nbDocuments) foreach { i => cache.set(s"/foo/$i", (ttl, JsNumber(i))) }
     cache
   }
 
-  def ttl = 60 * 1000
+  def ttl = 1000
 
   var cache: Cache = emptyCache
 }
