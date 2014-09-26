@@ -118,7 +118,7 @@ object Api {
           }
         }
     }.map { json =>
-      new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: ${json}")), accessToken, cache, logger)
+      new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: $json")), accessToken, cache, logger)
     }
   }
 
@@ -429,27 +429,32 @@ private[prismic] trait WithFragments {
   }
 
   def getColor(field: String): Option[Fragment.Color] = get(field).flatMap {
-    case a: Fragment.Color => Some(a)
+    case c: Fragment.Color => Some(c)
     case _                 => None
   }
 
   def getNumber(field: String): Option[Fragment.Number] = get(field).flatMap {
-    case a: Fragment.Number => Some(a)
+    case n: Fragment.Number => Some(n)
     case _                  => None
   }
 
   def getDate(field: String): Option[Fragment.Date] = get(field).flatMap {
-    case a: Fragment.Date => Some(a)
+    case d: Fragment.Date => Some(d)
     case _                => None
   }
 
   def getDate(field: String, pattern: String): Option[String] = get(field).flatMap {
-    case a: Fragment.Date => Some(a.asText(pattern))
+    case d: Fragment.Date => Some(d.asText(pattern))
     case _                => None
   }
 
+  def getTimestamp(field: String): Option[Fragment.Timestamp] = get(field).flatMap {
+    case t: Fragment.Timestamp => Some(t)
+    case _ => None
+  }
+
   def getGeoPoint(field: String): Option[Fragment.GeoPoint] = get(field).flatMap {
-    case a: Fragment.GeoPoint => Some(a)
+    case gp: Fragment.GeoPoint => Some(gp)
     case _                => None
   }
 
@@ -464,7 +469,7 @@ private[prismic] trait WithFragments {
   }.getOrElse(false)
 
   def getGroup(field: String): Option[Fragment.Group] = get(field).flatMap {
-    case a: Fragment.Group => Some(a)
+    case g: Fragment.Group => Some(g)
     case _                 => None
   }
 
