@@ -117,7 +117,7 @@ object Predicate {
 
   def year(fragment: String, year: Int) = apply("date.year", fragment, year)
 
-  @deprecated("Use Predicate.year")
+  @deprecated("Use Predicate.year", "1.0.17")
   def dateYear(fragment: String, year: Int) = Predicate.year(fragment, year)
 
   def hour(fragment: String, hour: Int) = apply("date.hour", fragment, hour)
