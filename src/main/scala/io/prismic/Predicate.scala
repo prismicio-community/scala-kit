@@ -95,7 +95,7 @@ object Predicate {
 
   def dateAfter(fragment: String, after: DateTime) = apply("date.after", fragment, after)
 
-  def dateBetween(fragment: String, before: DateTime, after: DateTime) = apply("date.after", fragment, before, after)
+  def dateBetween(fragment: String, before: DateTime, after: DateTime) = apply("date.between", fragment, before, after)
 
   def dayOfMonth(fragment: String, day: Int) = apply("date.day-of-month", fragment, day)
 
@@ -115,7 +115,10 @@ object Predicate {
 
   def monthAfter(fragment: String, month: Month) = apply("date.month-after", fragment, month)
 
-  def dateYear(fragment: String, year: Int) = apply("date.year", fragment, year)
+  def year(fragment: String, year: Int) = apply("date.year", fragment, year)
+
+  @deprecated("Use Predicate.year")
+  def dateYear(fragment: String, year: Int) = Predicate.year(fragment, year)
 
   def hour(fragment: String, hour: Int) = apply("date.hour", fragment, hour)
 
