@@ -43,6 +43,8 @@ final class Api(
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
   def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
+  def experiments: Experiments = data.experiments
+  def experiment: Option[Experiment] = experiments.current
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1
   def oauthTokenEndpoint = data.oauthEndpoints._2
@@ -118,7 +120,7 @@ object Api {
           }
         }
     }.map { json =>
-      new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: $json")), accessToken, cache, logger)
+      new Api(ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: ${json}")), accessToken, cache, logger)
     }
   }
 
@@ -189,10 +191,12 @@ private[prismic] case class ApiData(
   types: Map[String, String],
   tags: Seq[String],
   forms: Map[String, Form],
-  oauthEndpoints: (String, String))
+  oauthEndpoints: (String, String),
+  experiments: Experiments)
 
 private[prismic] object ApiData {
 
+  import Experiment.readsExperiment
   implicit val reader = (
     (__ \ 'refs).read[Seq[Ref]] and
     (__ \ 'bookmarks).read[Map[String, String]] and
@@ -202,7 +206,8 @@ private[prismic] object ApiData {
     (
       (__ \ 'oauth_initiate).read[String] and
         (__ \ 'oauth_token).read[String] tupled
-    )
+    ) and
+      (__ \ 'experiments).readNullable[Experiments].map(_ getOrElse Experiments(Nil, Nil))
   )(ApiData.apply _)
 
 }
@@ -230,8 +235,7 @@ case class Response(
   totalResultsSize: Int,
   totalPages: Int,
   nextPage: Option[String],
-  prevPage: Option[String]
-)
+  prevPage: Option[String])
 
 private[prismic] object Response {
 
@@ -279,7 +283,14 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
   def ref(r: Ref): SearchForm = ref(r.ref)
   def ref(r: String): SearchForm = set("ref", r)
 
-  def query(query: String): SearchForm = {
+  private def parseIntOption(str: String): Option[Int] = try {
+    Some(java.lang.Integer.parseInt(str))
+  }
+  catch {
+    case e: NumberFormatException => None
+  }
+
+  def query(query: String) = {
     if (form.fields.get("q").map(_.multiple).getOrElse(false)) {
       set("q", query)
     }

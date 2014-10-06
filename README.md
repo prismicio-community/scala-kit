@@ -11,7 +11,7 @@ You can find this library in our own Maven repository (hosted on Github).
 Then add, the library dependency:
 
 ```
-"io.prismic" %% "scala-kit" % "1.0.14"
+"io.prismic" %% "scala-kit" % "1.0.15"
 ```
 
 *(you may need to adapt the version number)*
