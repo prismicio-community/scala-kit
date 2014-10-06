@@ -43,7 +43,13 @@ final class Api(
   def bookmarks: Map[String, String] = data.bookmarks
   def forms: Map[String, SearchForm] = data.forms.mapValues(form => SearchForm(this, form, form.defaultData))
   def master: Ref = refs.values.collectFirst { case ref if ref.isMasterRef => ref }.getOrElse(sys.error("no master reference found"))
+  /**
+   * Experiments exposed by prismic.io API
+   */
   def experiments: Experiments = data.experiments
+  /**
+   * Shortcut to the current running experiment, if any
+   */
   def experiment: Option[Experiment] = experiments.current
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1

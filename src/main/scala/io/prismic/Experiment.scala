@@ -4,18 +4,29 @@ import org.joda.time._
 
 import play.api.libs.json._
 
-// variation as exposed by the prismic API
+/**
+ * Experiment variation exposed by prismic.io API
+ * @param id technical prismic.io ID
+ * @param ref queryable ref of the variation (similar to release ref)
+ * @param label user set label
+ */
 case class Variation(
   id: String,
   ref: String,
   label: String)
 
-object Variation {
+private[prismic] object Variation {
 
   implicit val readsVariation = Json.reads[Variation]
 }
 
-// experiment as exposed by the prismic API
+/**
+ * Experiment exposed by prismic.io API
+ * @param id prismic.io experiment ID
+ * @param googleId Google experiment ID, empty if experiment is a draft
+ * @param name user set name
+ * @param variations list of variations for this experiment
+ */
 case class Experiment(
   id: String,
   googleId: Option[String],
@@ -25,22 +36,37 @@ case class Experiment(
 object Experiment {
 
   import Variation.readsVariation
-  implicit val readsExperiment = Json.reads[Experiment]
+  private[prismic] implicit val readsExperiment = Json.reads[Experiment]
 
+  /**
+   * Name of the cookie that prismic.io will use to store the current
+   * experiment variation index.
+   * The experiment.js file uses the same cookie name.
+   */
   val cookieName = "io.prismic.experiment"
 }
 
-// experiments as exposed by the prismic API
+/**
+ * All experiments exposed by prismic.io API
+ * @param draft experiments in draft stage, i.e. not running, for preview purpose
+ * @param running experiments in running stage, that will be presented to users
+ */
 case class Experiments(
   draft: Seq[Experiment],
   running: Seq[Experiment]) {
 
+    /**
+     * First running experiment. To be used as the current running experiment.
+     */
   def current = running.headOption
 
-  lazy val all = running ++ draft
+  /**
+   * All experiments, draft and running
+   */
+  lazy val all = draft ++ running
 }
 
-case object Experiments {
+private[prismic] case object Experiments {
 
   val empty = Experiments(Nil, Nil)
 
