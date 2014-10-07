@@ -23,7 +23,6 @@ object BuildSettings {
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.4", "2.11.1"),
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature"),
     gitRemoteRepo := "git@github.com:prismicio/scala-kit.git",
     pomExtra := {

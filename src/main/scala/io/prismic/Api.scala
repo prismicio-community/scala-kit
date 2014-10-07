@@ -95,7 +95,7 @@ object DocumentLinkResolver {
 object Api {
 
   private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
-  private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
+  private[prismic] val AcceptJson = Map("Accept" -> Seq("application/json"))
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
 
   /**

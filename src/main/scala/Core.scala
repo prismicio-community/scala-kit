@@ -103,7 +103,7 @@ private[prismic] object CustomWS {
   /**
    * A WS Request.
    */
-  class WSRequest(_logger: (Symbol,String) => Unit, _method: String, _auth: Option[Tuple3[String, String, AuthScheme]], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
+  class WSRequest(_logger: (Symbol,String) => Unit, _method: String, _auth: Option[(String, String, AuthScheme)], _calc: Option[SignatureCalculator]) extends RequestBuilderBase[WSRequest](classOf[WSRequest], _method, false) {
 
     import scala.collection.JavaConverters._
 
