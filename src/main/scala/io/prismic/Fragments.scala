@@ -180,9 +180,15 @@ object Fragment {
 
   // ------------------
 
-  case class Embed(typ: String, provider: String, url: String, width: Option[Int], height: Option[Int], html: Option[String], oembedJson: JsValue) extends Fragment {
-    def asHtml: String = {
-      html.map(html => s"""<div data-oembed="$url" data-oembed-type="${typ.toLowerCase}" data-oembed-provider="${provider.toLowerCase}">$html</div>""").getOrElse("")
+  case class Embed(typ: String,
+                   provider: String,
+                   url: String,
+                   width: Option[Int],
+                   height: Option[Int],
+                   html: Option[String],
+                   oembedJson: JsValue) extends Fragment {
+    def asHtml(label: Option[String] = None): String = {
+      html.map(html => s"""<div${label.map(" class=\"" + _ + "\"").getOrElse("")} data-oembed="$url" data-oembed-type="${typ.toLowerCase}" data-oembed-provider="${provider.toLowerCase}">$html</div>""").getOrElse("")
     }
   }
 
@@ -463,7 +469,7 @@ object Fragment {
           case StructuredText.Block.Image(view, Some(link: WebLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
           case StructuredText.Block.Image(view, Some(link: MediaLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
           case StructuredText.Block.Image(view, _, _)              => s"""<p$cls>${view.asHtml}</p>"""
-          case StructuredText.Block.Embed(obj, _)                  => obj.asHtml
+          case StructuredText.Block.Embed(obj, label)                  => obj.asHtml(label)
         }
       }
 
