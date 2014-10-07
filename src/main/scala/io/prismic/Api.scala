@@ -427,7 +427,7 @@ private[prismic] trait WithFragments {
     case a: Fragment.Text           => Some(a.asHtml)
     case a: Fragment.Date           => Some(a.asHtml)
     case a: Fragment.Timestamp      => Some(a.asHtml)
-    case a: Fragment.Embed          => Some(a.asHtml)
+    case a: Fragment.Embed          => Some(a.asHtml())
     case a: Fragment.Image          => Some(a.asHtml)
     case a: Fragment.WebLink        => Some(a.asHtml)
     case a: Fragment.MediaLink      => Some(a.asHtml)
