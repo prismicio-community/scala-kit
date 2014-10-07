@@ -155,6 +155,21 @@ class FragmentSpec extends Specification {
           Span.Strong(2, 6, None)
         ), None), resolver) mustEqual "<p>ab<strong><em>cd</em>ef</strong>ghijklmnopqrstuvwxyz</p>"
     }
+    "correctly serialize with a span taking the whole block" in {
+      Block.asHtml(Block.Paragraph(
+        "Javascript",
+        Seq(
+          Span.Em(0, 10, None)
+        ), None), resolver) mustEqual "<p><em>Javascript</em></p>"
+    }
+    "correctly serialize with 2 spans taking the whole block" in {
+      Block.asHtml(Block.Paragraph(
+        "Javascript",
+        Seq(
+          Span.Em(0, 10, None),
+          Span.Strong(0, 10, None)
+        ), None), resolver) mustEqual "<p><em><strong>Javascript</strong></em></p>"
+    }
   }
 
   "Image" should {
