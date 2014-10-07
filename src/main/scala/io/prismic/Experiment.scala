@@ -5,8 +5,8 @@ import org.joda.time._
 import play.api.libs.json._
 
 /**
- * Experiment variation exposed by prismic.io API
- * @param id technical prismic.io ID
+ * Experiment variation exposed by prismic API
+ * @param id technical prismic ID
  * @param ref queryable ref of the variation (similar to release ref)
  * @param label user set label
  */
@@ -21,8 +21,8 @@ private[prismic] object Variation {
 }
 
 /**
- * Experiment exposed by prismic.io API
- * @param id prismic.io experiment ID
+ * Experiment exposed by prismic API
+ * @param id prismic experiment ID
  * @param googleId Google experiment ID, empty if experiment is a draft
  * @param name user set name
  * @param variations list of variations for this experiment
@@ -39,7 +39,7 @@ object Experiment {
   private[prismic] implicit val readsExperiment = Json.reads[Experiment]
 
   /**
-   * Name of the cookie that prismic.io will use to store the current
+   * Name of the cookie that prismic will use to store the current
    * experiment variation index.
    * The experiment.js file uses the same cookie name.
    */
@@ -47,7 +47,7 @@ object Experiment {
 }
 
 /**
- * All experiments exposed by prismic.io API
+ * All experiments exposed by prismic API
  * @param draft experiments in draft stage, i.e. not running, for preview purpose
  * @param running experiments in running stage, that will be presented to users
  */
