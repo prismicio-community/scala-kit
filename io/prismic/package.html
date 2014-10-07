@@ -192,7 +192,7 @@
     </span>
       <p class="shortcomment cmt">Builds URL specific to an application, based on a generic prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Builds URL specific to an application, based on a generic prismic.io document link.
 </p></div></div>
-    </li><li name="io.prismic.Experiment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.prismic.Experiment" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ExperimentextendsProductwithSerializable"></a>
       <a id="Experiment:Experiment"></a>
       <h4 class="signature">
@@ -208,8 +208,9 @@
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      
-    </li><li name="io.prismic.Experiments" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <p class="shortcomment cmt">Experiment exposed by prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Experiment exposed by prismic.io API</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>prismic.io experiment ID</p></dd><dt class="param">googleId</dt><dd class="cmt"><p>Google experiment ID, empty if experiment is a draft</p></dd><dt class="param">name</dt><dd class="cmt"><p>user set name</p></dd><dt class="param">variations</dt><dd class="cmt"><p>list of variations for this experiment
+</p></dd></dl></div>
+    </li><li name="io.prismic.Experiments" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="ExperimentsextendsProductwithSerializable"></a>
       <a id="Experiments:Experiments"></a>
       <h4 class="signature">
@@ -225,7 +226,8 @@
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">All experiments exposed by prismic.</p><div class="fullcomment"><div class="comment cmt"><p>All experiments exposed by prismic.io API</p></div><dl class="paramcmts block"><dt class="param">draft</dt><dd class="cmt"><p>experiments in draft stage, i.e. not running, for preview purpose</p></dd><dt class="param">running</dt><dd class="cmt"><p>experiments in running stage, that will be presented to users
+</p></dd></dl></div>
     </li><li name="io.prismic.Field" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="FieldextendsProductwithSerializable"></a>
       <a id="Field:Field"></a>
@@ -466,7 +468,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
     </span>
       <p class="shortcomment cmt">Error that should never happen :)
 </p>
-    </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="VariationextendsProductwithSerializable"></a>
       <a id="Variation:Variation"></a>
       <h4 class="signature">
@@ -482,7 +484,8 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">Experiment variation exposed by prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Experiment variation exposed by prismic.io API</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>technical prismic.io ID</p></dd><dt class="param">ref</dt><dd class="cmt"><p>queryable ref of the variation (similar to release ref)</p></dd><dt class="param">label</dt><dd class="cmt"><p>user set label
+</p></dd></dl></div>
     </li></ol>
             </div>
 
@@ -556,23 +559,6 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.prismic.package@Experiment" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      
-    </li><li name="io.prismic.Experiments" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Experiments"></a>
-      <a id="Experiments:Experiments"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Experiments$.html"><span class="name">Experiments</span></a><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Experiments" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>
@@ -710,23 +696,6 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.prismic.package@QuerySerializer" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      
-    </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Variation"></a>
-      <a id="Variation:Variation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Variation$.html"><span class="name">Variation</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Variation" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>
