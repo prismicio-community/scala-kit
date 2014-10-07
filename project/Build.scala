@@ -13,7 +13,7 @@ object BuildSettings {
   val buildName = "scala-kit"
   val buildOrganization = "io.prismic"
   val buildVersion = Option(System.getProperty("version")).map(_.trim).getOrElse("1.0-SNAPSHOT")
-  val buildScalaVersion = "2.11.1"
+  val buildScalaVersion = "2.10.4"
 
   val buildSettings = xerial.sbt.Sonatype.sonatypeSettings ++
       site.settings ++
@@ -73,11 +73,11 @@ object KitBuild extends Build {
         Seq(file)
       },
       libraryDependencies ++= Seq(
-        "com.typesafe.play" %% "play-iteratees" % "2.3.4",
-        "com.typesafe.play" %% "play-json" % "2.3.4",
-        "com.typesafe.play" %% "play-ws" % "2.3.4",
-        "commons-collections" % "commons-collections" % "3.2.1",
-        "org.specs2" %% "specs2" % "2.3.13" % "test"
+        "com.typesafe.play"       %% "play-iteratees"      % "2.2.4",
+        "com.typesafe.play"       %% "play-json"           % "2.2.4",
+        "com.ning"                %  "async-http-client"   % "1.8.9",
+        "commons-collections"     %  "commons-collections" % "3.2.1",
+        "org.specs2" %% "specs2" % "2.3.12" % "test"
       )
     )
   )
