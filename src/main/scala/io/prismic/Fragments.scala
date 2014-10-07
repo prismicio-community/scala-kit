@@ -387,7 +387,16 @@ object Fragment {
                 step(tail, spans, head.copy(content = head.content + escape(current.toString)) :: t, html)
             }
           }
-          case Nil => html
+          case Nil =>
+            stack match {
+              case Nil => html
+              case head :: Nil =>
+                // One last tag open, close it
+                html + serialize(head.span, head.content)
+              case head :: second :: tail =>
+                // At least 2 tags open, close the first and continue
+                step(Nil, spans, second.copy(content = second.content + serialize(head.span, head.content)) :: tail, html)
+            }
         }
       }
       step(text.toList.zipWithIndex, spans.sortWith {
