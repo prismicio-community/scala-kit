@@ -52,18 +52,36 @@ object Experiment {
  * @param running experiments in running stage, that will be presented to users
  */
 case class Experiments(
-  draft: Seq[Experiment],
-  running: Seq[Experiment]) {
+    draft: Seq[Experiment],
+    running: Seq[Experiment]) {
 
-    /**
-     * First running experiment. To be used as the current running experiment.
-     */
+  /**
+   * First running experiment. To be used as the current running experiment.
+   */
   def current = running.headOption
 
   /**
    * All experiments, draft and running
    */
   lazy val all = draft ++ running
+
+  /**
+   * Get the current running experiment variation ref from a cookie content
+   */
+  def refFromCookie(cookie: String): Option[String] =
+    Some(cookie.trim).filter(_.nonEmpty).map(_ split " ") flatMap {
+      case Array(expId, varIndexStr) => running find (_.googleId == expId) flatMap { exp =>
+        parseIntOption(varIndexStr) flatMap exp.variations.lift map (_.ref)
+      }
+      case _ => None
+    }
+
+  private def parseIntOption(str: String): Option[Int] = try {
+    Some(java.lang.Integer.parseInt(str))
+  }
+  catch {
+    case e: NumberFormatException => None
+  }
 }
 
 private[prismic] case object Experiments {
