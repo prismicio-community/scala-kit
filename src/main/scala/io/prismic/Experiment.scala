@@ -69,8 +69,8 @@ case class Experiments(
    * Get the current running experiment variation ref from a cookie content
    */
   def refFromCookie(cookie: String): Option[String] =
-    Some(cookie.trim).filter(_.nonEmpty).map(_ split " ") flatMap {
-      case Array(expId, varIndexStr) => running find (_.googleId == expId) flatMap { exp =>
+    Some(cookie.trim).filter(_.nonEmpty).map(_ split "%20") flatMap {
+      case Array(expId, varIndexStr) => running find (_.googleId == Some(expId)) flatMap { exp =>
         parseIntOption(varIndexStr) flatMap exp.variations.lift map (_.ref)
       }
       case _ => None
