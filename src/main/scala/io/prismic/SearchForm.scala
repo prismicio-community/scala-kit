@@ -1,5 +1,6 @@
 package io.prismic
 
+import io.prismic.core.CustomWS
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import scala.concurrent.Future
@@ -82,7 +83,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResponse(json))
         }.getOrElse {
-          Api.httpClient.url(url).withHeaders(Api.AcceptJson: _*).get() map { resp =>
+          CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson).get() map { resp =>
             resp.status match {
               case 200 =>
                 val json = resp.json
