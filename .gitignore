@@ -5,3 +5,6 @@
 # Scala / sbt
 target
 
+# NPM (used to push doc snippets to gist)
+node_modules/
+
