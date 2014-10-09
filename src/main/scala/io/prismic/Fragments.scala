@@ -350,18 +350,15 @@ object Fragment {
 
       def serialize(element: Element, content: String): String = {
         serializer(element, content).getOrElse {
-          val cls = element.label match {
-            case Some(label) => s""" class="$label""""
-            case None => ""
-          }
           element match {
             case b: Block => Block.asHtml(b, linkResolver)
-            case _: Span.Em => s"<em$cls>$content</em>"
-            case _: Span.Strong => s"<strong$cls>$content</strong>"
-            case Span.Hyperlink(_, _, link: DocumentLink, _) => s"""<a$cls href="${linkResolver(link)}">$content</a>"""
-            case Span.Hyperlink(_, _, link: MediaLink, _) => s"""<a$cls href="${link.url}">$content</a>"""
-            case Span.Hyperlink(_, _, link: WebLink, _) => s"""<a$cls href="${link.url}">$content</a>"""
-            case _ => s"<span$cls>$content</span>"
+            case _: Span.Em => s"<em>$content</em>"
+            case _: Span.Strong => s"<strong>$content</strong>"
+            case Span.Hyperlink(_, _, link: DocumentLink) => s"""<a href="${linkResolver(link)}">$content</a>"""
+            case Span.Hyperlink(_, _, link: MediaLink) => s"""<a href="${link.url}">$content</a>"""
+            case Span.Hyperlink(_, _, link: WebLink) => s"""<a href="${link.url}">$content</a>"""
+            case Span.Label(_, _, label) => s"""<span class="$label">$content</span>"""
+            case _ => s"<span>$content</span>"
           }
         }
       }
@@ -411,9 +408,7 @@ object Fragment {
       })
     }
 
-    sealed trait Element {
-      def label: Option[String]
-    }
+    sealed trait Element
 
     sealed trait Span extends Element {
       def start: Int
@@ -422,30 +417,33 @@ object Fragment {
 
     object Span {
 
-      case class Em(start: Int, end: Int, label: Option[String]) extends Span
-      case class Strong(start: Int, end: Int, label: Option[String]) extends Span
-      case class Hyperlink(start: Int, end: Int, link: Link, label: Option[String]) extends Span
+      case class Em(start: Int, end: Int) extends Span
+      case class Strong(start: Int, end: Int) extends Span
+      case class Hyperlink(start: Int, end: Int, link: Link) extends Span
+      case class Label(start: Int, end: Int, label: String) extends Span
 
       implicit val reader: Reads[Span] =
         (
           (__ \ 'type).read[String] and
           (__ \ 'start).read[Int] and
           (__ \ 'end).read[Int] and
-          (__ \ 'data).readNullable[JsObject].map(_.getOrElse(Json.obj())) and
-          (__ \ 'label).readNullable[String]
+          (__ \ 'data).readNullable[JsObject].map(_.getOrElse(Json.obj()))
         ).tupled.flatMap {
-            case (typ, start, end, data, label) => typ match {
-              case "strong" => Reads.pure(Strong(start, end, label))
-              case "em" => Reads.pure(Em(start, end, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link, label))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link, label))
+            case (typ, start, end, data) => typ match {
+              case "strong" => Reads.pure(Strong(start, end))
+              case "em" => Reads.pure(Em(start, end))
+              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
+              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link))
+              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link))
+              case "label" => (__ \ "data" \ "label").read[String].map(label => Label(start, end, label))
               case t => Reads(json => JsError(s"Unsupported span type $t"))
             }
           }
     }
 
-    sealed trait Block extends Element
+    sealed trait Block extends Element {
+      def label: Option[String]
+    }
 
     object Block {
 
