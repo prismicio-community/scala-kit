@@ -465,11 +465,16 @@ object Fragment {
           case StructuredText.Block.Paragraph(text, spans, _)      => s"""<p$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</p>"""
           case StructuredText.Block.Preformatted(text, spans, _)   => s"""<pre$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</pre>"""
           case StructuredText.Block.ListItem(text, spans, _, _)    => s"""<li$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</li>"""
-          case StructuredText.Block.Image(view, Some(link: DocumentLink), _)     => s"""<p$cls><a href="$linkResolver(link)">${view.asHtml}</a></p>"""
-          case StructuredText.Block.Image(view, Some(link: WebLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
-          case StructuredText.Block.Image(view, Some(link: MediaLink), _)     => s"""<p$cls><a href="${link.url}">${view.asHtml}</a></p>"""
-          case StructuredText.Block.Image(view, _, _)              => s"""<p$cls>${view.asHtml}</p>"""
-          case StructuredText.Block.Embed(obj, label)                  => obj.asHtml(label)
+          case StructuredText.Block.Image(view, hyperlink, label) => {
+            val body = hyperlink match {
+              case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
+              case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case _ => view.asHtml
+            }
+            s"""<p class="${(label.toSeq :+ "block-img").mkString(" ")}">$body</p>"""
+          }
+          case StructuredText.Block.Embed(obj, label)              => obj.asHtml(label)
         }
       }
 
