@@ -103,7 +103,7 @@ class FragmentSpec extends Specification {
         body.asHtml(resolver) mustEqual
         """<h1>The end of a chapter the beginning of a new one</h1>
           |
-          |<p><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
+          |<p class="block-img"><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
           |
           |<p>Jean-Michel Pastranova, the founder of <em>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
           |
@@ -123,7 +123,7 @@ class FragmentSpec extends Specification {
         }) mustEqual
         """<h1>The end of a chapter the beginning of a new one</h1>
           |
-          |<p><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
+          |<p class="block-img"><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
           |
           |<p>Jean-Michel Pastranova, the founder of <em class='italic'>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em class='italic'>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
           |
@@ -143,32 +143,54 @@ class FragmentSpec extends Specification {
       Block.asHtml(Block.Paragraph(
         text,
         Seq(
-          Span.Em(2, 6, None),
-          Span.Strong(2, 4, None)
+          Span.Em(2, 6),
+          Span.Strong(2, 4)
         ), None), resolver) mustEqual "<p>ab<em><strong>cd</strong>ef</em>ghijklmnopqrstuvwxyz</p>"
     }
     "correctly serialize with the same starting point (2)" in {
       Block.asHtml(Block.Paragraph(
         text,
         Seq(
-          Span.Em(2, 4, None),
-          Span.Strong(2, 6, None)
+          Span.Em(2, 4),
+          Span.Strong(2, 6)
         ), None), resolver) mustEqual "<p>ab<strong><em>cd</em>ef</strong>ghijklmnopqrstuvwxyz</p>"
     }
     "correctly serialize with a span taking the whole block" in {
       Block.asHtml(Block.Paragraph(
         "Javascript",
         Seq(
-          Span.Em(0, 10, None)
+          Span.Em(0, 10)
         ), None), resolver) mustEqual "<p><em>Javascript</em></p>"
     }
     "correctly serialize with 2 spans taking the whole block" in {
       Block.asHtml(Block.Paragraph(
         "Javascript",
         Seq(
-          Span.Em(0, 10, None),
-          Span.Strong(0, 10, None)
+          Span.Em(0, 10),
+          Span.Strong(0, 10)
         ), None), resolver) mustEqual "<p><em><strong>Javascript</strong></em></p>"
+    }
+  }
+
+  "Label spans" should {
+    "serialize within <li> tags" in {
+      val json = Json.parse( """{"page":1,"results_per_page":20,"results_size":1,"total_results_size":1,"total_pages":1,"next_page":null,"prev_page":null,"results":[{"id":"VBgfNTYAANcgz2bT","type":"doc","href":"https://wroom.prismic.io/api/documents/search?ref=VDaF_jIAADMA7e5N&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VBgfNTYAANcgz2bT%22%29+%5D%5D","tags":["doc-developers"],"slugs":["querying-a-repository"],"linked_documents":[{"id":"UkTD57O53-4AY1EF","tags":["api"],"type":"doc","slug":"api-documentation"},{"id":"UmlghEnM00YhgHUB","tags":["api"],"type":"doc","slug":"orderings"}],"data":{"doc":{"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Querying a Repository","spans":[]}]},"content":{"type":"StructuredText","value":[{"type":"paragraph","text":"To query your API, you will need to specify a form and a reference in addition to your query.","spans":[{"start":46,"end":50,"type":"strong"},{"start":57,"end":67,"type":"strong"},{"start":78,"end":92,"type":"strong"}]},{"type":"list-item","text":"The operator: this is the function you call to build the predicate, for example Predicate.at.","spans":[{"start":4,"end":12,"type":"em"},{"start":80,"end":93,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The fragment: the first argument you pass, for example \"document.id\".","spans":[{"start":4,"end":12,"type":"em"},{"start":55,"end":68,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The values: the other arguments you pass, usually one but it can be more for some predicates. For example \"product\".","spans":[{"start":4,"end":10,"type":"em"},{"start":106,"end":115,"type":"label","data":{"label":"codespan"}}]}]}}}}],"version":"e5752a1","license":"All Rights Reserved"}""")
+      val response = json.as[Response](Response.jsonReader)
+      val text = response.results.head.getStructuredText("doc.content")
+      text.map(_.asHtml(resolver)) must beSome.like {
+        case html => html mustEqual
+          """<p>To query your API, you will need to specify a <strong>form</strong> and a <strong>reference </strong>in addition<strong> to your query</strong>.</p>
+            |
+            |<ul>
+            |
+            |<li>The <em>operator</em>: this is the function you call to build the predicate, for example <span class="codespan">Predicate.at.</span></li>
+            |
+            |<li>The <em>fragment</em>: the first argument you pass, for example <span class="codespan">"document.id"</span>.</li>
+            |
+            |<li>The <em>values</em>: the other arguments you pass, usually one but it can be more for some predicates. For example <span class="codespan">"product"</span>.</li>
+            |
+            |</ul>""".stripMargin
+      }
     }
   }
 
