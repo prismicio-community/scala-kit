@@ -138,7 +138,7 @@ class DocSpec extends Specification {
             val htmlSerializer = HtmlSerializer {
               // Don't wrap images in a <p> tag
               case (StructuredText.Block.Image(view, _, _), _) => s"${view.asHtml}"
-              // Add a class to hyperlinks
+              // Add a class to em tags
               case (em: Span.Em, content) => s"<em class='italic'>$content</em>"
             }
             val html = doc.getStructuredText("blog-post.body").map(_.asHtml(resolver, htmlSerializer))
