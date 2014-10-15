@@ -25,19 +25,28 @@ class DocSpec extends Specification {
   "API" should {
     "fetch" in {
       val api = await {
-// startgist:f5c7c0a59790bed0b3b7:prismic-api.scala
+        // startgist:f5c7c0a59790bed0b3b7:prismic-api.scala
         val apiFuture: Future[io.prismic.Api] = Api.get("https://lesbonneschoses.prismic.io/api")
         apiFuture.map { api =>
           println("References: " + api.refs)
           api
         }
-// endgist
+        // endgist
       }
       api.refs.size.mustEqual(1)
     }
+    "private" in {
+      await {
+        // startgist:56fb341dba38843df8d4:prismic-apiPrivate.scala
+        // This will fail because the token is invalid, but this is how to access a private API
+        val apiFuture = Api.get("https://lesbonneschoses.prismic.io/api", Some("MC5-XXXXXXX-vRfvv70"))
+        // endgist
+        apiFuture
+      } must throwAn[Exception]
+    }
     "simple query" in {
       val resp: Response = await {
-// startgist:ae4378398935f89045bd:prismic-simplequery.scala
+        // startgist:ae4378398935f89045bd:prismic-simplequery.scala
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
           api.forms("everything")
             .ref(api.master)
@@ -46,7 +55,7 @@ class DocSpec extends Specification {
             response
           }
         }
-// endgist
+        // endgist
       }
       resp.resultsSize.mustEqual(16)
     }
