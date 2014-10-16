@@ -7,6 +7,7 @@ import io.prismic.Fragment.StructuredText.Span
 import org.joda.time.{LocalDate, DateMidnight, DateTime}
 import org.specs2.matcher.MatchSuccess
 import org.specs2.mutable._
+import play.api.libs.json._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -154,7 +155,7 @@ class DocSpec extends Specification {
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
           api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
             val doc = response.results(0)
-            // startgist:ea2f95a70621f3e83032:prismic-getNumber.js
+            // startgist:cbc57eb295c1e56b5137:prismic-getNumber.scala
             // Number predicates
             val gt = Predicate.gt("my.product.price", 10)
             val lt = Predicate.lt("my.product.price", 20)
@@ -194,9 +195,9 @@ class DocSpec extends Specification {
             val hourAfter = Predicate.hourAfter("my.product.releaseDate", 12)
 
             // Accessing Date and Timestamp fields
-            val date = doc.getDate("blog-post.date")
+            val date: Option[Fragment.Date] = doc.getDate("blog-post.date")
             val postYear = date.map(_.value.getYear)
-            val updateTime = doc.getTimestamp("blog-post.update")
+            val updateTime: Option[Fragment.Timestamp] = doc.getTimestamp("blog-post.update")
             val postHour = updateTime.map(_.value.hourOfDay)
             postYear // gisthide
             // endgist
@@ -205,6 +206,202 @@ class DocSpec extends Specification {
       }
       year.mustEqual(Some(2013)) // gisthide
     }
+    "Group" in {
+      val json = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "documents": {
+              "type": "Group",
+              "value": [{
+                "linktodoc": {
+                  "type": "Link.document",
+                  "value": {
+                    "document": {
+                      "id": "UrDejAEAAFwMyrW9",
+                      "type": "doc",
+                      "tags": [],
+                      "slug": "installing-meta-micro"
+                    },
+                    "isBroken": false
+                  }
+                },
+                "desc": {
+                  "type": "StructuredText",
+                  "value": [{
+                    "type": "paragraph",
+                    "text": "A detailed step by step point of view on how installing happens.",
+                    "spans": []
+                  }]
+                }
+              }, {
+                "linktodoc": {
+                  "type": "Link.document",
+                  "value": {
+                    "document": {
+                      "id": "UrDmKgEAALwMyrXA",
+                      "type": "doc",
+                      "tags": [],
+                      "slug": "using-meta-micro"
+                    },
+                    "isBroken": false
+                  }
+                }
+              }]
+            }
+          }
+        }
+      }""")
+      val doc = json.as[Document]
+      val resolver = DocumentLinkResolver { link =>
+        s"/testing_url/${link.id}/${link.slug}"
+      }
+      // startgist:eb66ad3482f273d3b865:prismic-group.scala
+      val docs = doc.getGroup("article.documents").map(_.docs).getOrElse(Nil)
+      docs.map { doc =>
+        // Desc and Link are Fragments, their type depending on what's declared in the Document Mask
+        val desc: Option[StructuredText] = doc.getStructuredText("desc")
+        val link: Option[Fragment.Link] = doc.getLink("linktodoc")
+      }
+      // endgist
+      docs(0).getStructuredText("desc").map(_.asHtml(resolver)) must beSome.like {
+        case h: String => h mustEqual "<p>A detailed step by step point of view on how installing happens.</p>"
+      }
+    }
+    "Link" in {
+      val json = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "source": {
+              "type": "Link.document",
+              "value": {
+                "document": {
+                  "id": "UlfoxUnM0wkXYXbE",
+                  "type": "product",
+                  "tags": ["Macaron"],
+                  "slug": "dark-chocolate-macaron"
+                },
+                "isBroken": false
+              }
+            }
+          }
+        }
+      }""")
+      val doc = json.as[Document]
+      // startgist:9d6cdaabf28c1f01cf25:prismic-link.scala
+      val resolver = DocumentLinkResolver { link =>
+        s"/testing_url/${link.id}/${link.slug}"
+      }
+      val source: Option[Fragment.Link] = doc.getLink("article.source")
+      val url: Option[String] = source.map(_.getUrl(resolver))
+      // endgist
+      url must beSome.like {
+        case s: String => s mustEqual "/testing_url/UlfoxUnM0wkXYXbE/dark-chocolate-macaron"
+      }
+    }
+    "Embed" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "video" : {
+              "type" : "Embed",
+              "value" : {
+                "oembed" : {
+                  "provider_url" : "http://www.youtube.com/",
+                  "type" : "video",
+                  "thumbnail_height" : 360,
+                  "height" : 270,
+                  "thumbnail_url" : "http://i1.ytimg.com/vi/baGfM6dBzs8/hqdefault.jpg",
+                  "width" : 480,
+                  "provider_name" : "YouTube",
+                  "html" : "<iframe width=\"480\" height=\"270\" src=\"http://www.youtube.com/embed/baGfM6dBzs8?feature=oembed\" frameborder=\"0\" allowfullscreen></iframe>",
+                  "author_name" : "Siobhan Wilson",
+                  "version" : "1.0",
+                  "author_url" : "http://www.youtube.com/user/siobhanwilsonsongs",
+                  "thumbnail_width" : 480,
+                  "title" : "Siobhan Wilson - All Dressed Up",
+                  "embed_url" : "https://www.youtube.com/watch?v=baGfM6dBzs8"
+                }
+              }
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:a93ae78003c42b000c3d:prismic-embed.scala
+      val video: Option[Fragment.Embed] = doc.getEmbed("article.video")
+      // Html is the code to include to embed the object, and depends on the embedded service
+      val html: Option[String] = video.map(_.asHtml())
+      // endgist
+      html must beSome.like {
+        case s: String => s mustEqual """<div data-oembed="https://www.youtube.com/watch?v=baGfM6dBzs8" data-oembed-type="video" data-oembed-provider="youtube"><iframe width="480" height="270" src="http://www.youtube.com/embed/baGfM6dBzs8?feature=oembed" frameborder="0" allowfullscreen></iframe></div>"""
+      }
+    }
+    "Color" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "background" : {
+              "type" : "Color",
+              "value": "#000000"
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:18c56eaec43a23d4c760:prismic-color.scala
+      val bgcolor: Option[Fragment.Color] = doc.getColor("article.background")
+      val hexa: Option[String] = bgcolor.map(_.hex)
+      // endgist
+      hexa.mustEqual(Some("#000000"))
+    }
+    "GeoPoint" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "location" : {
+              "type" : "GeoPoint",
+              "value" : {
+                "latitude" : 48.877108,
+                "longitude": 2.3338790
+              }
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:52d98c2aef26e5d8a459:prismic-geopoint.scala
+      // "near" predicate for GeoPoint fragments
+      val near = Predicate.near("my.store.location", 48.8768767, 2.3338802, 10)
+
+      // Accessing GeoPoint fragments
+      val place: Option[Fragment.GeoPoint] = doc.getGeoPoint("article.location")
+      val coordinates = place.map(gp => gp.latitude + "," + gp.longitude)
+      // endgist
+      coordinates.mustEqual(Some("48.877108,2.333879"))
+    }
+
     "StructuredText.asHtml" in {
       val h = await {
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>

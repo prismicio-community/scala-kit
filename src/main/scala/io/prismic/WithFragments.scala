@@ -104,6 +104,11 @@ private[prismic] trait WithFragments {
     case _ => None
   }
 
+  def getEmbed(field: String): Option[Fragment.Embed] = get(field).flatMap {
+    case e: Fragment.Embed => Some(e)
+    case _ => None
+  }
+
   def getGeoPoint(field: String): Option[Fragment.GeoPoint] = get(field).flatMap {
     case gp: Fragment.GeoPoint => Some(gp)
     case _                => None

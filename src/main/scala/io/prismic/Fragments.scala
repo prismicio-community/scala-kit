@@ -36,9 +36,12 @@ sealed trait Fragment
 
 object Fragment {
 
-  sealed trait Link extends Fragment
+  sealed trait Link extends Fragment {
+    def getUrl(linkResolver: DocumentLinkResolver): String
+  }
 
   case class WebLink(url: String, contentType: Option[String] = None) extends Link {
+    override def getUrl(linkResolver: DocumentLinkResolver) = url
     def asHtml(): String = s"""<a href="$url">$url</a>"""
   }
 
@@ -53,6 +56,7 @@ object Fragment {
   }
 
   case class MediaLink(url: String, kind: String, size: Long, filename: String) extends Link {
+    override def getUrl(linkResolver: DocumentLinkResolver) = url
     def asHtml: String = s"""<a href="$url">$filename</a>"""
   }
 
@@ -69,6 +73,7 @@ object Fragment {
   }
 
   case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, isBroken: Boolean) extends Link {
+    override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
     def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
   }
 
