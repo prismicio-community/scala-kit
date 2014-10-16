@@ -2,9 +2,10 @@ package io.prismic
 
 import java.util.Date
 
-import io.prismic.Fragment.StructuredText
+import io.prismic.Fragment.{Number, StructuredText}
 import io.prismic.Fragment.StructuredText.Span
-import org.joda.time.DateTime
+import org.joda.time.{LocalDate, DateMidnight, DateTime}
+import org.specs2.matcher.MatchSuccess
 import org.specs2.mutable._
 
 import scala.concurrent.duration._
@@ -44,6 +45,27 @@ class DocSpec extends Specification {
         apiFuture
       } must throwAn[Exception]
     }
+    "references" in {
+      val resp: Response = await {
+        // startgist:d16a75579a556e248090:prismic-references.scala
+        val previewToken = "MC5VbDdXQmtuTTB6Z0hNWHF3.c--_vVbvv73vv73vv73vv71EA--_vS_vv73vv70T77-9Ke-_ve-_vWfvv70ebO-_ve-_ve-_vQN377-9ce-_vRfvv70"
+        Api.get("https://lesbonneschoses.prismic.io/api", Some(previewToken)).flatMap { api =>
+          val stPatrickRef = api.refs("St-Patrick specials")
+          api.forms("everything")
+            .ref(stPatrickRef)
+            .query(Predicate.at("document.type", "product")).submit().map { response =>
+            // The documents object contains a Response object with all documents of type "product"
+            // including the new "Saint-Patrick's Cupcake"
+            response // gisthide
+          }
+          // endgist
+        }
+      }
+      resp.results.length.mustEqual(17)
+    }
+  }
+
+  "Queries" should {
     "simple query" in {
       val resp: Response = await {
         // startgist:ae4378398935f89045bd:prismic-simplequery.scala
@@ -59,10 +81,28 @@ class DocSpec extends Specification {
       }
       resp.resultsSize.mustEqual(16)
     }
-
+    "orderings" in {
+      val resp: Response = await {
+        // startgist:5195395288473e69fbf3:prismic-orderings.scala
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything")
+            .ref(api.master)
+            .query(Predicate.at("document.type", "product"))
+            .pageSize(100)
+            .orderings("[my.product.price desc]")
+            .submit().map { response =>
+            // The products are now ordered by price, highest first
+            val results = response.results
+            response // gisthide
+          }
+        }
+        // endgist
+      }
+      resp.resultsPerPage.mustEqual(100)
+    }
     "predicates" in {
       val resp = await {
-// startgist:f1cca71970ad71a4c6ef:prismic-predicates.scala
+        // startgist:f1cca71970ad71a4c6ef:prismic-predicates.scala
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
           api.forms("everything").ref(api.master).query(
             Predicate.at("document.type", "blog-post"),
@@ -72,11 +112,99 @@ class DocSpec extends Specification {
             response
           }
         }
-// endgist
+        // endgist
       }
       resp.resultsSize.mustEqual(0)
     }
+    "all predicates" in {
+      // startgist:5e033a4689c67bff8209:prismic-allPredicates.scala
+      // "at" predicate: equality of a fragment to a value.
+      val at = Predicate.at("document.type", "article")
+      // "any" predicate: equality of a fragment to a value.
+      val any = Predicate.any("document.type", Seq("article", "blog-post"))
 
+      // "fulltext" predicate: fulltext search in a fragment.
+      val fulltext = Predicate.fulltext("my.article.body", "sausage")
+
+      // "similar" predicate, with a document id as reference
+      val similar = Predicate.similar("UXasdFwe42D", 10)
+      // endgist
+      at.q.mustEqual( """[:d = at(document.type, "article")]""") // gisthide
+      any.q.mustEqual( """[:d = any(document.type, ["article","blog-post"])]""") // gisthide
+    }
+  }
+
+  "Fragments" should {
+    "getText" in {
+      val author = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:eebd75b2cee2bd8a73fa:prismic-getText.scala
+            val author = doc.getText("blog-post.author").getOrElse("Anonymous")
+            // endgist
+            author // gisthide
+          }
+        }
+      }
+      author.mustEqual("John M. Martelle, Fine Pastry Magazine")
+    }
+    "getNumber" in {
+      val price = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:ea2f95a70621f3e83032:prismic-getNumber.js
+            // Number predicates
+            val gt = Predicate.gt("my.product.price", 10)
+            val lt = Predicate.lt("my.product.price", 20)
+            val inRange = Predicate.inRange("my.product.price", 10, 20)
+
+            // Accessing number fields
+            val price = doc.getNumber("product.price")
+            price // gisthide
+            // endgist
+          }
+        }
+      }
+      price.mustEqual(Some(Number(2.5)))
+    }
+    "Date and Timestamp" in {
+      val year = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:f223bdb33992634608f4:prismic-dateTimestamp.scala
+            // Date and Timestamp predicates
+            var dateBefore = Predicate.dateBefore("my.product.releaseDate", new DateTime(2014, 6, 1, 0, 0, 0))
+            val dateAfter = Predicate.dateAfter("my.product.releaseDate", new DateTime(2014, 1, 1, 0, 0, 0))
+            val dateBetween = Predicate.dateBetween("my.product.releaseDate", new DateTime(2014, 1, 1, 0, 0, 0), new DateTime(2014, 6, 1, 0, 0, 0))
+            val dayOfMonth = Predicate.dayOfMonth("my.product.releaseDate", 14)
+            val dayOfMonthAfter = Predicate.dayOfMonthAfter("my.product.releaseDate", 14)
+            val dayOfMonthBefore = Predicate.dayOfMonthBefore("my.product.releaseDate", 14)
+            val dayOfWeek = Predicate.dayOfWeek("my.product.releaseDate", WeekDay.Tuesday)
+            val dayOfWeekAfter = Predicate.dayOfWeekAfter("my.product.releaseDate", WeekDay.Wednesday)
+            val dayOfWeekBefore = Predicate.dayOfWeekBefore("my.product.releaseDate", WeekDay.Wednesday)
+            val month = Predicate.month("my.product.releaseDate", Month.June)
+            val monthBefore = Predicate.monthBefore("my.product.releaseDate", Month.June)
+            val monthAfter = Predicate.monthAfter("my.product.releaseDate", Month.June)
+            val year = Predicate.year("my.product.releaseDate", 2014)
+            val hour = Predicate.hour("my.product.releaseDate", 12)
+            val hourBefore = Predicate.hourBefore("my.product.releaseDate", 12)
+            val hourAfter = Predicate.hourAfter("my.product.releaseDate", 12)
+
+            // Accessing Date and Timestamp fields
+            val date = doc.getDate("blog-post.date")
+            val postYear = date.map(_.value.getYear)
+            val updateTime = doc.getTimestamp("blog-post.update")
+            val postHour = updateTime.map(_.value.hourOfDay)
+            postYear // gisthide
+            // endgist
+          }
+        }
+      }
+      year.mustEqual(Some(2013)) // gisthide
+    }
     "StructuredText.asHtml" in {
       val h = await {
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
@@ -85,13 +213,13 @@ class DocSpec extends Specification {
             .query(Predicate.at("document.id", "UlfoxUnM0wkXYXbX"))
             .submit()
             .map { response: Response =>
-// startgist:7da680aff5aaf5e61ba5:prismic-asHtml.scala
+            // startgist:7da680aff5aaf5e61ba5:prismic-asHtml.scala
             val doc = response.results.head
             val resolver = DocumentLinkResolver { link =>
               s"/testing_url/${link.id}/${link.slug}"
             }
             val html = doc.getStructuredText("blog-post.body").map(_.asHtml(resolver))
-// endgist
+            // endgist
             html
           }
         }
