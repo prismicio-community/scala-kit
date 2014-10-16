@@ -468,7 +468,7 @@ class DocSpec extends Specification {
             .submit()
             .map { response: Response =>
             val doc: Document = response.results.head
-// startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
+            // startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
             val htmlSerializer = HtmlSerializer {
               // Don't wrap images in a <p> tag
               case (StructuredText.Block.Image(view, _, _), _) => s"${view.asHtml}"
@@ -476,7 +476,7 @@ class DocSpec extends Specification {
               case (em: Span.Em, content) => s"<em class='italic'>$content</em>"
             }
             val html = doc.getStructuredText("blog-post.body").map(_.asHtml(resolver, htmlSerializer))
-// endgist
+            // endgist
             html
           }
         }
@@ -499,4 +499,20 @@ class DocSpec extends Specification {
     }
   }
 
+  "Cache" should {
+    "support custom implementation" in {
+      // startgist:2d2815ed423a84302634:prismic-cache.scala
+      val noopCache = new Cache {
+        def set(key: String, data: (Long, JsValue)) = ()
+        def get(key: String) = None
+        def getOrSet(key: String, ttl: Long)(f: => Future[JsValue]) = f
+        def isExpired(key: String) = false
+        def isPending(key: String) = false
+      }
+      // The Api will use the custom block
+      val apiFuture = Api.get("https://lesbonneschoses.prismic.io/api", cache = noopCache)
+      // endgist
+      await(apiFuture).cache.mustEqual(noopCache)
+    }
+  }
 }
