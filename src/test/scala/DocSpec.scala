@@ -130,8 +130,8 @@ class DocSpec extends Specification {
       // "similar" predicate, with a document id as reference
       val similar = Predicate.similar("UXasdFwe42D", 10)
       // endgist
-      at.q.mustEqual( """[:d = at(document.type, "article")]""") // gisthide
-      any.q.mustEqual( """[:d = any(document.type, ["article","blog-post"])]""") // gisthide
+      at.q.mustEqual( """[:d = at(document.type, "article")]""")
+      any.q.mustEqual( """[:d = any(document.type, ["article","blog-post"])]""")
     }
   }
 
