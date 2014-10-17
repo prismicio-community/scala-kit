@@ -2,10 +2,12 @@ package io.prismic
 
 import java.util.Date
 
-import io.prismic.Fragment.StructuredText
+import io.prismic.Fragment.{Number, StructuredText}
 import io.prismic.Fragment.StructuredText.Span
-import org.joda.time.DateTime
+import org.joda.time.{LocalDate, DateMidnight, DateTime}
+import org.specs2.matcher.MatchSuccess
 import org.specs2.mutable._
+import play.api.libs.json._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -25,19 +27,49 @@ class DocSpec extends Specification {
   "API" should {
     "fetch" in {
       val api = await {
-// startgist:f5c7c0a59790bed0b3b7:prismic-api.scala
+        // startgist:f5c7c0a59790bed0b3b7:prismic-api.scala
         val apiFuture: Future[io.prismic.Api] = Api.get("https://lesbonneschoses.prismic.io/api")
         apiFuture.map { api =>
           println("References: " + api.refs)
           api
         }
-// endgist
+        // endgist
       }
       api.refs.size.mustEqual(1)
     }
+    "private" in {
+      await {
+        // startgist:56fb341dba38843df8d4:prismic-apiPrivate.scala
+        // This will fail because the token is invalid, but this is how to access a private API
+        val apiFuture = Api.get("https://lesbonneschoses.prismic.io/api", Some("MC5-XXXXXXX-vRfvv70"))
+        // endgist
+        apiFuture
+      } must throwAn[Exception]
+    }
+    "references" in {
+      val resp: Response = await {
+        // startgist:d16a75579a556e248090:prismic-references.scala
+        val previewToken = "MC5VbDdXQmtuTTB6Z0hNWHF3.c--_vVbvv73vv73vv73vv71EA--_vS_vv73vv70T77-9Ke-_ve-_vWfvv70ebO-_ve-_ve-_vQN377-9ce-_vRfvv70"
+        Api.get("https://lesbonneschoses.prismic.io/api", Some(previewToken)).flatMap { api =>
+          val stPatrickRef = api.refs("St-Patrick specials")
+          api.forms("everything")
+            .ref(stPatrickRef)
+            .query(Predicate.at("document.type", "product")).submit().map { response =>
+            // The documents object contains a Response object with all documents of type "product"
+            // including the new "Saint-Patrick's Cupcake"
+            response // gisthide
+          }
+          // endgist
+        }
+      }
+      resp.results.length.mustEqual(17)
+    }
+  }
+
+  "Queries" should {
     "simple query" in {
       val resp: Response = await {
-// startgist:ae4378398935f89045bd:prismic-simplequery.scala
+        // startgist:ae4378398935f89045bd:prismic-simplequery.scala
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
           api.forms("everything")
             .ref(api.master)
@@ -46,14 +78,32 @@ class DocSpec extends Specification {
             response
           }
         }
-// endgist
+        // endgist
       }
       resp.resultsSize.mustEqual(16)
     }
-
+    "orderings" in {
+      val resp: Response = await {
+        // startgist:5195395288473e69fbf3:prismic-orderings.scala
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything")
+            .ref(api.master)
+            .query(Predicate.at("document.type", "product"))
+            .pageSize(100)
+            .orderings("[my.product.price desc]")
+            .submit().map { response =>
+            // The products are now ordered by price, highest first
+            val results = response.results
+            response // gisthide
+          }
+        }
+        // endgist
+      }
+      resp.resultsPerPage.mustEqual(100)
+    }
     "predicates" in {
       val resp = await {
-// startgist:f1cca71970ad71a4c6ef:prismic-predicates.scala
+        // startgist:f1cca71970ad71a4c6ef:prismic-predicates.scala
         Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
           api.forms("everything").ref(api.master).query(
             Predicate.at("document.type", "blog-post"),
@@ -63,9 +113,293 @@ class DocSpec extends Specification {
             response
           }
         }
-// endgist
+        // endgist
       }
       resp.resultsSize.mustEqual(0)
+    }
+    "all predicates" in {
+      // startgist:5e033a4689c67bff8209:prismic-allPredicates.scala
+      // "at" predicate: equality of a fragment to a value.
+      val at = Predicate.at("document.type", "article")
+      // "any" predicate: equality of a fragment to a value.
+      val any = Predicate.any("document.type", Seq("article", "blog-post"))
+
+      // "fulltext" predicate: fulltext search in a fragment.
+      val fulltext = Predicate.fulltext("my.article.body", "sausage")
+
+      // "similar" predicate, with a document id as reference
+      val similar = Predicate.similar("UXasdFwe42D", 10)
+      // endgist
+      at.q.mustEqual( """[:d = at(document.type, "article")]""")
+      any.q.mustEqual( """[:d = any(document.type, ["article","blog-post"])]""")
+    }
+  }
+
+  "Fragments" should {
+    "getText" in {
+      val author = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:eebd75b2cee2bd8a73fa:prismic-getText.scala
+            val author = doc.getText("blog-post.author").getOrElse("Anonymous")
+            // endgist
+            author // gisthide
+          }
+        }
+      }
+      author.mustEqual("John M. Martelle, Fine Pastry Magazine")
+    }
+    "getNumber" in {
+      val price = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:cbc57eb295c1e56b5137:prismic-getNumber.scala
+            // Number predicates
+            val gt = Predicate.gt("my.product.price", 10)
+            val lt = Predicate.lt("my.product.price", 20)
+            val inRange = Predicate.inRange("my.product.price", 10, 20)
+
+            // Accessing number fields
+            val price = doc.getNumber("product.price")
+            price // gisthide
+            // endgist
+          }
+        }
+      }
+      price.mustEqual(Some(Number(2.5)))
+    }
+    "Date and Timestamp" in {
+      val year = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:f223bdb33992634608f4:prismic-dateTimestamp.scala
+            // Date and Timestamp predicates
+            var dateBefore = Predicate.dateBefore("my.product.releaseDate", new DateTime(2014, 6, 1, 0, 0, 0))
+            val dateAfter = Predicate.dateAfter("my.product.releaseDate", new DateTime(2014, 1, 1, 0, 0, 0))
+            val dateBetween = Predicate.dateBetween("my.product.releaseDate", new DateTime(2014, 1, 1, 0, 0, 0), new DateTime(2014, 6, 1, 0, 0, 0))
+            val dayOfMonth = Predicate.dayOfMonth("my.product.releaseDate", 14)
+            val dayOfMonthAfter = Predicate.dayOfMonthAfter("my.product.releaseDate", 14)
+            val dayOfMonthBefore = Predicate.dayOfMonthBefore("my.product.releaseDate", 14)
+            val dayOfWeek = Predicate.dayOfWeek("my.product.releaseDate", WeekDay.Tuesday)
+            val dayOfWeekAfter = Predicate.dayOfWeekAfter("my.product.releaseDate", WeekDay.Wednesday)
+            val dayOfWeekBefore = Predicate.dayOfWeekBefore("my.product.releaseDate", WeekDay.Wednesday)
+            val month = Predicate.month("my.product.releaseDate", Month.June)
+            val monthBefore = Predicate.monthBefore("my.product.releaseDate", Month.June)
+            val monthAfter = Predicate.monthAfter("my.product.releaseDate", Month.June)
+            val year = Predicate.year("my.product.releaseDate", 2014)
+            val hour = Predicate.hour("my.product.releaseDate", 12)
+            val hourBefore = Predicate.hourBefore("my.product.releaseDate", 12)
+            val hourAfter = Predicate.hourAfter("my.product.releaseDate", 12)
+
+            // Accessing Date and Timestamp fields
+            val date: Option[Fragment.Date] = doc.getDate("blog-post.date")
+            val postYear = date.map(_.value.getYear)
+            val updateTime: Option[Fragment.Timestamp] = doc.getTimestamp("blog-post.update")
+            val postHour = updateTime.map(_.value.hourOfDay)
+            postYear // gisthide
+            // endgist
+          }
+        }
+      }
+      year.mustEqual(Some(2013)) // gisthide
+    }
+    "Group" in {
+      val json = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "documents": {
+              "type": "Group",
+              "value": [{
+                "linktodoc": {
+                  "type": "Link.document",
+                  "value": {
+                    "document": {
+                      "id": "UrDejAEAAFwMyrW9",
+                      "type": "doc",
+                      "tags": [],
+                      "slug": "installing-meta-micro"
+                    },
+                    "isBroken": false
+                  }
+                },
+                "desc": {
+                  "type": "StructuredText",
+                  "value": [{
+                    "type": "paragraph",
+                    "text": "A detailed step by step point of view on how installing happens.",
+                    "spans": []
+                  }]
+                }
+              }, {
+                "linktodoc": {
+                  "type": "Link.document",
+                  "value": {
+                    "document": {
+                      "id": "UrDmKgEAALwMyrXA",
+                      "type": "doc",
+                      "tags": [],
+                      "slug": "using-meta-micro"
+                    },
+                    "isBroken": false
+                  }
+                }
+              }]
+            }
+          }
+        }
+      }""")
+      val doc = json.as[Document]
+      val resolver = DocumentLinkResolver { link =>
+        s"/testing_url/${link.id}/${link.slug}"
+      }
+      // startgist:eb66ad3482f273d3b865:prismic-group.scala
+      val docs = doc.getGroup("article.documents").map(_.docs).getOrElse(Nil)
+      docs.map { doc =>
+        // Desc and Link are Fragments, their type depending on what's declared in the Document Mask
+        val desc: Option[StructuredText] = doc.getStructuredText("desc")
+        val link: Option[Fragment.Link] = doc.getLink("linktodoc")
+      }
+      // endgist
+      docs(0).getStructuredText("desc").map(_.asHtml(resolver)) must beSome.like {
+        case h: String => h mustEqual "<p>A detailed step by step point of view on how installing happens.</p>"
+      }
+    }
+    "Link" in {
+      val json = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "source": {
+              "type": "Link.document",
+              "value": {
+                "document": {
+                  "id": "UlfoxUnM0wkXYXbE",
+                  "type": "product",
+                  "tags": ["Macaron"],
+                  "slug": "dark-chocolate-macaron"
+                },
+                "isBroken": false
+              }
+            }
+          }
+        }
+      }""")
+      val doc = json.as[Document]
+      // startgist:9d6cdaabf28c1f01cf25:prismic-link.scala
+      val resolver = DocumentLinkResolver { link =>
+        s"/testing_url/${link.id}/${link.slug}"
+      }
+      val source: Option[Fragment.Link] = doc.getLink("article.source")
+      val url: Option[String] = source.map(_.getUrl(resolver))
+      // endgist
+      url must beSome.like {
+        case s: String => s mustEqual "/testing_url/UlfoxUnM0wkXYXbE/dark-chocolate-macaron"
+      }
+    }
+    "Embed" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "video" : {
+              "type" : "Embed",
+              "value" : {
+                "oembed" : {
+                  "provider_url" : "http://www.youtube.com/",
+                  "type" : "video",
+                  "thumbnail_height" : 360,
+                  "height" : 270,
+                  "thumbnail_url" : "http://i1.ytimg.com/vi/baGfM6dBzs8/hqdefault.jpg",
+                  "width" : 480,
+                  "provider_name" : "YouTube",
+                  "html" : "<iframe width=\"480\" height=\"270\" src=\"http://www.youtube.com/embed/baGfM6dBzs8?feature=oembed\" frameborder=\"0\" allowfullscreen></iframe>",
+                  "author_name" : "Siobhan Wilson",
+                  "version" : "1.0",
+                  "author_url" : "http://www.youtube.com/user/siobhanwilsonsongs",
+                  "thumbnail_width" : 480,
+                  "title" : "Siobhan Wilson - All Dressed Up",
+                  "embed_url" : "https://www.youtube.com/watch?v=baGfM6dBzs8"
+                }
+              }
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:a93ae78003c42b000c3d:prismic-embed.scala
+      val video: Option[Fragment.Embed] = doc.getEmbed("article.video")
+      // Html is the code to include to embed the object, and depends on the embedded service
+      val html: Option[String] = video.map(_.asHtml())
+      // endgist
+      html must beSome.like {
+        case s: String => s mustEqual """<div data-oembed="https://www.youtube.com/watch?v=baGfM6dBzs8" data-oembed-type="video" data-oembed-provider="youtube"><iframe width="480" height="270" src="http://www.youtube.com/embed/baGfM6dBzs8?feature=oembed" frameborder="0" allowfullscreen></iframe></div>"""
+      }
+    }
+    "Color" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "background" : {
+              "type" : "Color",
+              "value": "#000000"
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:18c56eaec43a23d4c760:prismic-color.scala
+      val bgcolor: Option[Fragment.Color] = doc.getColor("article.background")
+      val hexa: Option[String] = bgcolor.map(_.hex)
+      // endgist
+      hexa.mustEqual(Some("#000000"))
+    }
+    "GeoPoint" in {
+      val doc = Json.parse("""{
+        "id": "abcd",
+        "type": "article",
+        "href": "",
+        "slugs": [],
+        "tags": [],
+        "data": {
+          "article": {
+            "location" : {
+              "type" : "GeoPoint",
+              "value" : {
+                "latitude" : 48.877108,
+                "longitude": 2.3338790
+              }
+            }
+          }
+        }
+      }""").as[Document]
+      // startgist:52d98c2aef26e5d8a459:prismic-geopoint.scala
+      // "near" predicate for GeoPoint fragments
+      val near = Predicate.near("my.store.location", 48.8768767, 2.3338802, 10)
+
+      // Accessing GeoPoint fragments
+      val place: Option[Fragment.GeoPoint] = doc.getGeoPoint("article.location")
+      val coordinates = place.map(gp => gp.latitude + "," + gp.longitude)
+      // endgist
+      coordinates.mustEqual(Some("48.877108,2.333879"))
     }
 
     "StructuredText.asHtml" in {
@@ -76,13 +410,13 @@ class DocSpec extends Specification {
             .query(Predicate.at("document.id", "UlfoxUnM0wkXYXbX"))
             .submit()
             .map { response: Response =>
-// startgist:7da680aff5aaf5e61ba5:prismic-asHtml.scala
+            // startgist:7da680aff5aaf5e61ba5:prismic-asHtml.scala
             val doc = response.results.head
             val resolver = DocumentLinkResolver { link =>
               s"/testing_url/${link.id}/${link.slug}"
             }
             val html = doc.getStructuredText("blog-post.body").map(_.asHtml(resolver))
-// endgist
+            // endgist
             html
           }
         }
@@ -134,15 +468,15 @@ class DocSpec extends Specification {
             .submit()
             .map { response: Response =>
             val doc: Document = response.results.head
-// startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
+            // startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
             val htmlSerializer = HtmlSerializer {
               // Don't wrap images in a <p> tag
               case (StructuredText.Block.Image(view, _, _), _) => s"${view.asHtml}"
-              // Add a class to hyperlinks
+              // Add a class to em tags
               case (em: Span.Em, content) => s"<em class='italic'>$content</em>"
             }
             val html = doc.getStructuredText("blog-post.body").map(_.asHtml(resolver, htmlSerializer))
-// endgist
+            // endgist
             html
           }
         }
@@ -165,4 +499,20 @@ class DocSpec extends Specification {
     }
   }
 
+  "Cache" should {
+    "support custom implementation" in {
+      // startgist:2d2815ed423a84302634:prismic-cache.scala
+      val noopCache = new Cache {
+        def set(key: String, data: (Long, JsValue)) = ()
+        def get(key: String) = None
+        def getOrSet(key: String, ttl: Long)(f: => Future[JsValue]) = f
+        def isExpired(key: String) = false
+        def isPending(key: String) = false
+      }
+      // The Api will use the custom block
+      val apiFuture = Api.get("https://lesbonneschoses.prismic.io/api", cache = noopCache)
+      // endgist
+      await(apiFuture).cache.mustEqual(noopCache)
+    }
+  }
 }

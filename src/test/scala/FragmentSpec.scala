@@ -172,8 +172,8 @@ class FragmentSpec extends Specification {
     }
   }
 
-  "Label spans" should {
-    "serialize within <li> tags" in {
+  "Block spans" should {
+    "serialize labels within <li> tags" in {
       val json = Json.parse( """{"page":1,"results_per_page":20,"results_size":1,"total_results_size":1,"total_pages":1,"next_page":null,"prev_page":null,"results":[{"id":"VBgfNTYAANcgz2bT","type":"doc","href":"https://wroom.prismic.io/api/documents/search?ref=VDaF_jIAADMA7e5N&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VBgfNTYAANcgz2bT%22%29+%5D%5D","tags":["doc-developers"],"slugs":["querying-a-repository"],"linked_documents":[{"id":"UkTD57O53-4AY1EF","tags":["api"],"type":"doc","slug":"api-documentation"},{"id":"UmlghEnM00YhgHUB","tags":["api"],"type":"doc","slug":"orderings"}],"data":{"doc":{"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Querying a Repository","spans":[]}]},"content":{"type":"StructuredText","value":[{"type":"paragraph","text":"To query your API, you will need to specify a form and a reference in addition to your query.","spans":[{"start":46,"end":50,"type":"strong"},{"start":57,"end":67,"type":"strong"},{"start":78,"end":92,"type":"strong"}]},{"type":"list-item","text":"The operator: this is the function you call to build the predicate, for example Predicate.at.","spans":[{"start":4,"end":12,"type":"em"},{"start":80,"end":93,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The fragment: the first argument you pass, for example \"document.id\".","spans":[{"start":4,"end":12,"type":"em"},{"start":55,"end":68,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The values: the other arguments you pass, usually one but it can be more for some predicates. For example \"product\".","spans":[{"start":4,"end":10,"type":"em"},{"start":106,"end":115,"type":"label","data":{"label":"codespan"}}]}]}}}}],"version":"e5752a1","license":"All Rights Reserved"}""")
       val response = json.as[Response](Response.jsonReader)
       val text = response.results.head.getStructuredText("doc.content")
@@ -191,6 +191,45 @@ class FragmentSpec extends Specification {
             |
             |</ul>""".stripMargin
       }
+    }
+    "serialize starting at the beginning" in {
+      val json = Json.parse(
+        """
+          |[{
+          |  "type": "paragraph",
+          |  "text": "This section describes the REST API to access Prismic.io. It is useful to get an in-depth knowledge on how Prismic.io works, but most of the time you will be using a development kit; for that reason it is recommended to get familiar with the developer's manual before proceeding on this section.",
+          |  "spans": [{
+          |    "start": 0,
+          |    "end": 242,
+          |    "type": "em"
+          |  }, {
+          |    "start": 242,
+          |    "end": 260,
+          |    "type": "hyperlink",
+          |    "data": {
+          |      "type": "Link.document",
+          |      "value": {
+          |        "document": {
+          |          "id": "VBgeDDYAADMAz2Rw",
+          |          "type": "documentation-categoy",
+          |          "tags": ["doc-developers"],
+          |          "slug": "developers-manual"
+          |        },
+          |        "isBroken": false
+          |      }
+          |    }
+          |  }, {
+          |    "start": 242,
+          |    "end": 260,
+          |    "type": "em"
+          |  }, {
+          |    "start": 260,
+          |    "end": 295,
+          |    "type": "em"
+          |  }]
+          |}]
+        """.stripMargin)
+      json.as[StructuredText].asHtml(resolver) mustEqual "<p><em>This section describes the REST API to access Prismic.io. It is useful to get an in-depth knowledge on how Prismic.io works, but most of the time you will be using a development kit; for that reason it is recommended to get familiar with the </em><a href=\"http://localhost/documentation-categoy/VBgeDDYAADMAz2Rw\"><em>developer's manual</em></a><em> before proceeding on this section.</em></p>"
     }
   }
 
