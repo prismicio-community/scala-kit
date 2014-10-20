@@ -1,6 +1,6 @@
 package io.prismic
 
-private[prismic] trait WithFragments {
+trait WithFragments {
 
   def fragments: Map[String, Fragment]
 
