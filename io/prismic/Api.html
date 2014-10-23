@@ -47,7 +47,7 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>High-level entry point for communcations with prismic.io API
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>High-level entry point for communications with prismic.io API
 </p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
@@ -89,7 +89,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="io.prismic.Api#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(data:io.prismic.ApiData,accessToken:Option[String],cache:io.prismic.Cache,logger:(Symbol,String)=&gt;Unit):io.prismic.Api"></a>
+      <a id="&lt;init&gt;(data:io.prismic.ApiData,accessToken:Option[String],serverProxy:Option[io.prismic.ProxyServer],cache:io.prismic.Cache,logger:(Symbol,String)=&gt;Unit):io.prismic.Api"></a>
       <a id="&lt;init&gt;:Api"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -97,10 +97,10 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">Api</span><span class="params">(<span name="data">data: <span class="extype" name="io.prismic.ApiData">ApiData</span></span>, <span name="accessToken">accessToken: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="cache">cache: <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a></span>, <span name="logger">logger: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span>
+        <span class="name">Api</span><span class="params">(<span name="data">data: <span class="extype" name="io.prismic.ApiData">ApiData</span></span>, <span name="accessToken">accessToken: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="serverProxy">serverProxy: <span class="extype" name="scala.Option">Option</span>[<a href="ProxyServer.html" class="extype" name="io.prismic.ProxyServer">ProxyServer</a>]</span>, <span name="cache">cache: <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a></span>, <span name="logger">logger: (<span class="extype" name="scala.Symbol">Symbol</span>, <span class="extype" name="scala.Predef.String">String</span>) ⇒ <span class="extype" name="scala.Unit">Unit</span></span>)</span>
       </span>
       </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.Api@&lt;init&gt;(data:io.prismic.ApiData,accessToken:Option[String],cache:io.prismic.Cache,logger:(Symbol,String)=&gt;Unit):io.prismic.Api" title="Permalink" target="_top">
+      <a href="../../index.html#io.prismic.Api@&lt;init&gt;(data:io.prismic.ApiData,accessToken:Option[String],serverProxy:Option[io.prismic.ProxyServer],cache:io.prismic.Cache,logger:(Symbol,String)=&gt;Unit):io.prismic.Api" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>
@@ -481,6 +481,23 @@
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.prismic.Api@oauthTokenEndpoint:String" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.Api#proxy" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="proxy:Option[io.prismic.ProxyServer]"></a>
+      <a id="proxy:Option[ProxyServer]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">proxy</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="ProxyServer.html" class="extype" name="io.prismic.ProxyServer">ProxyServer</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.prismic.Api@proxy:Option[io.prismic.ProxyServer]" title="Permalink" target="_top">
         <img src="../../lib/permalink.png" />
       </a>
     </span>

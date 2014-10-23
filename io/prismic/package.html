@@ -82,7 +82,7 @@
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">High-level entry point for communcations with prismic.</p><div class="fullcomment"><div class="comment cmt"><p>High-level entry point for communcations with prismic.io API
+      <p class="shortcomment cmt">High-level entry point for communications with prismic.</p><div class="fullcomment"><div class="comment cmt"><p>High-level entry point for communications with prismic.io API
 </p></div></div>
     </li><li name="io.prismic.ApiError" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="ApiErrorextendsRuntimeException"></a>
@@ -165,7 +165,7 @@
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Document.html"><span class="name">Document</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="href">href: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slugs">slugs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="linkedDocuments">linkedDocuments: <span class="extype" name="scala.List">List</span>[<a href="LinkedDocument.html" class="extype" name="io.prismic.LinkedDocument">LinkedDocument</a>]</span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>)</span><span class="result"> extends <span class="extype" name="io.prismic.WithFragments">WithFragments</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Document.html"><span class="name">Document</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="href">href: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slugs">slugs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="linkedDocuments">linkedDocuments: <span class="extype" name="scala.List">List</span>[<a href="LinkedDocument.html" class="extype" name="io.prismic.LinkedDocument">LinkedDocument</a>]</span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>)</span><span class="result"> extends <a href="WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4><span class="permalink">
       <a href="../../index.html#io.prismic.package@DocumentextendsWithFragmentswithProductwithSerializable" title="Permalink" target="_top">
@@ -315,7 +315,7 @@
     </span>
       <p class="shortcomment cmt">Error thrown when the auth token is provided, but invalid
 </p>
-    </li><li name="io.prismic.LinkedDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+    </li><li name="io.prismic.LinkedDocument" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="LinkedDocumentextendsProductwithSerializable"></a>
       <a id="LinkedDocument:LinkedDocument"></a>
       <h4 class="signature">
@@ -331,7 +331,8 @@
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      
+      <p class="shortcomment cmt">A reference to an other Prismic document, used in &quot;related documents&quot;</p><div class="fullcomment"><div class="comment cmt"><p>A reference to an other Prismic document, used in &quot;related documents&quot;</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the Prismic identifier</p></dd><dt class="param">slug</dt><dd class="cmt"><p>optional slug of the document</p></dd><dt class="param">typ</dt><dd class="cmt"><p>document type</p></dd><dt class="param">tags</dt><dd class="cmt"><p>list of tags of the document from Prismic
+</p></dd></dl></div>
     </li><li name="io.prismic.Predicate" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="PredicateextendsAnyRef"></a>
       <a id="Predicate:Predicate"></a>
@@ -352,6 +353,23 @@
 Query.at(&quot;document.type&quot;, &quot;article&quot;)
 Query.dateBefore(&quot;document.created&quot;, new DateTime().minusMonth(1))</p><p>See the helpers in the companion object.
 </p></div></div>
+    </li><li name="io.prismic.ProxyServer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ProxyServerextendsProductwithSerializable"></a>
+      <a id="ProxyServer:ProxyServer"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ProxyServer.html"><span class="name">ProxyServer</span></a><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>, <span name="protocol">protocol: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="principal">principal: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="password">password: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="ntlmDomain">ntlmDomain: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="encoding">encoding: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="nonProxyHosts">nonProxyHosts: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.prismic.package@ProxyServerextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A proxy.</p>
     </li><li name="io.prismic.QuerySerializer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="QuerySerializer[T]extendsAnyRef"></a>
       <a id="QuerySerializer[T]:QuerySerializer[T]"></a>
@@ -405,7 +423,8 @@ returns the same results.
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Paginator for prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Paginator for prismic.io documents
+      <p class="shortcomment cmt">Paginated response to a Prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Paginated response to a Prismic.io query. Note that you may not get all documents in the first page,
+and may need to retrieve more pages or increase the page size.
 </p></div></div>
     </li><li name="io.prismic.SearchForm" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="SearchFormextendsProductwithSerializable"></a>
@@ -466,7 +485,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
         <img src="../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Error that should never happen :)
+      <p class="shortcomment cmt">Error that should never happen
 </p>
     </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="VariationextendsProductwithSerializable"></a>
@@ -486,6 +505,23 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
     </span>
       <p class="shortcomment cmt">Experiment variation exposed by prismic API</p><div class="fullcomment"><div class="comment cmt"><p>Experiment variation exposed by prismic API</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>technical prismic ID</p></dd><dt class="param">ref</dt><dd class="cmt"><p>queryable ref of the variation (similar to release ref)</p></dd><dt class="param">label</dt><dd class="cmt"><p>user set label
 </p></dd></dl></div>
+    </li><li name="io.prismic.WithFragments" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="WithFragmentsextendsAnyRef"></a>
+      <a id="WithFragments:WithFragments"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="WithFragments.html"><span class="name">WithFragments</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#io.prismic.package@WithFragmentsextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      
     </li></ol>
             </div>
 
