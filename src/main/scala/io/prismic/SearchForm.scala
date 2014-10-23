@@ -83,7 +83,11 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResponse(json))
         }.getOrElse {
-          CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson).get() map { resp =>
+          val requestHolder = CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson)
+          (api.proxy match {
+            case Some(p) => requestHolder.withProxyServer(p)
+            case _ => requestHolder
+          }).get() map { resp =>
             resp.status match {
               case 200 =>
                 val json = resp.json

@@ -1,6 +1,8 @@
 package io.prismic.core
 
 import java.io.File
+import io.prismic.ProxyServer
+
 import scala.concurrent.{Future, Promise}
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Input._
@@ -14,6 +16,7 @@ import com.ning.http.client.{
   HttpResponseHeaders,
   HttpResponseStatus,
   Response => AHCResponse,
+  ProxyServer => AHCProxyServer,
   PerRequestConfig
 }
 import collection.immutable.TreeMap
@@ -98,7 +101,7 @@ private[prismic] object CustomWS {
    *
    * @param url the URL to request
    */
-  def url(logger: (Symbol,String) => Unit, url: String): WSRequestHolder = WSRequestHolder(logger, url, Map(), Map(), None, None, None, None, None)
+  def url(logger: (Symbol,String) => Unit, url: String): WSRequestHolder = WSRequestHolder(logger, url, Map(), Map(), None, None, None, None, None, None)
 
   /**
    * A WS Request.
@@ -325,7 +328,8 @@ private[prismic] object CustomWS {
       auth: Option[Tuple3[String, String, AuthScheme]],
       followRedirects: Option[Boolean],
       timeout: Option[Int],
-      virtualHost: Option[String]) {
+      virtualHost: Option[String],
+      proxyServer: Option[ProxyServer]) {
 
     /**
      * sets the signature calculator for the request
@@ -365,6 +369,12 @@ private[prismic] object CustomWS {
      */
     def withFollowRedirects(follow: Boolean): WSRequestHolder =
       this.copy(followRedirects = Some(follow))
+
+    /**
+     * Sets the proxy parameters
+     */
+    def withProxyServer(proxy: ProxyServer) =
+      this.copy(proxyServer = Some(proxy))
 
     /**
      * Sets the request timeout in milliseconds
@@ -449,7 +459,8 @@ private[prismic] object CustomWS {
       val request = new WSRequest(logger, method, auth, calc).setUrl(url)
         .setHeaders(headers)
         .setQueryString(queryString)
-      followRedirects.map(request.setFollowRedirects(_))
+      followRedirects.map(request.setFollowRedirects)
+      proxyServer.map(createProxy).map(request.setProxyServer)
       timeout.map { t: Int =>
         val config = new PerRequestConfig()
         config.setRequestTimeoutInMs(t)
@@ -465,13 +476,14 @@ private[prismic] object CustomWS {
       import com.ning.http.client.generators.FileBodyGenerator
       import java.nio.ByteBuffer
 
-      val bodyGenerator = new FileBodyGenerator(body);
+      val bodyGenerator = new FileBodyGenerator(body)
 
       val request = new WSRequest(logger,method, auth, calc).setUrl(url)
         .setHeaders(headers)
         .setQueryString(queryString)
         .setBody(bodyGenerator)
-      followRedirects.map(request.setFollowRedirects(_))
+      followRedirects.map(request.setFollowRedirects)
+      proxyServer.map(createProxy).map(request.setProxyServer)
       timeout.map { t: Int =>
         val config = new PerRequestConfig()
         config.setRequestTimeoutInMs(t)
@@ -482,6 +494,34 @@ private[prismic] object CustomWS {
       }
 
       request
+    }
+
+    private[core] def createProxy(wsServer: ProxyServer) = {
+      import com.ning.http.client.ProxyServer.Protocol
+      val protocol: Protocol = wsServer.protocol.getOrElse("http").toLowerCase match {
+        case "http" => Protocol.HTTP
+        case "https" => Protocol.HTTPS
+        case "kerberos" => Protocol.KERBEROS
+        case "ntlm" => Protocol.NTLM
+        case "spnego" => Protocol.SPNEGO
+        case _ => scala.sys.error("Unrecognized protocol!")
+      }
+
+      val ningServer = new AHCProxyServer(
+        protocol,
+        wsServer.host,
+        wsServer.port,
+        wsServer.principal.getOrElse(null),
+        wsServer.password.getOrElse(null))
+
+      wsServer.encoding.foreach(ningServer.setEncoding)
+      wsServer.ntlmDomain.foreach(ningServer.setNtlmDomain)
+      for {
+        hosts <- wsServer.nonProxyHosts
+        host <- hosts
+      } ningServer.addNonProxyHost(host)
+
+      ningServer
     }
 
   }

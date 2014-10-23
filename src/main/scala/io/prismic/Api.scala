@@ -17,6 +17,7 @@ import core._
 final class Api(
     data: ApiData,
     accessToken: Option[String],
+    serverProxy: Option[ProxyServer],
     private[prismic] val cache: Cache,
     private[prismic] val logger: (Symbol, String) => Unit) {
 
@@ -32,6 +33,7 @@ final class Api(
    * Shortcut to the current running experiment, if any
    */
   def experiment: Option[Experiment] = experiments.current
+  def proxy: Option[ProxyServer] = serverProxy
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1
   def oauthTokenEndpoint = data.oauthEndpoints._2
@@ -50,12 +52,19 @@ object Api {
   /**
    * Instantiate an Api instance from a prismic.io API URL
    */
-  def get(endpoint: String, accessToken: Option[String] = None, cache: Cache = Cache.defaultCache, logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
+  def get(endpoint: String,
+          accessToken: Option[String] = None,
+          proxy: Option[ProxyServer] = None,
+          cache: Cache = Cache.defaultCache,
+          logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
     val url = accessToken.map(token => s"$endpoint?access_token=$token").getOrElse(endpoint)
     cache.getOrSet(url, 5000L) {
-      CustomWS.url(logger, url)
+      val req = CustomWS.url(logger, url)
         .copy(headers = AcceptJson)
-        .get()
+      (proxy match {
+        case Some(p) => req.withProxyServer(p)
+        case _ => req
+      }).get()
         .map { resp =>
         resp.status match {
           case 200 => resp.json
@@ -74,6 +83,7 @@ object Api {
       new Api(
         ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: $json")),
         accessToken,
+        proxy,
         cache,
         logger)
     }
