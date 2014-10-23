@@ -82,7 +82,11 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResponse(json))
         }.getOrElse {
-          Api.httpClient.url(url).withHeaders(Api.AcceptJson: _*).get() map { resp =>
+          val requestHolder = Api.httpClient.url(url).withHeaders(Api.AcceptJson: _*)
+          (api.proxy match {
+            case Some(p) => requestHolder.withProxyServer(p.asPlayProxyServer)
+            case _ => requestHolder
+          }).get() map { resp =>
             resp.status match {
               case 200 =>
                 val json = resp.json
