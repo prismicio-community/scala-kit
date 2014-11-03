@@ -1,5 +1,9 @@
 package io.prismic
 
+import java.util.Collections
+import org.apache.commons.collections4.map.LRUMap
+import scala.collection.convert.Wrappers.JMapWrapper
+
 import play.api.libs.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -39,13 +43,7 @@ object NoCache extends Cache {
  */
 case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
 
-  import org.apache.commons.collections.map.LRUMap
-  import scala.collection.convert.Wrappers.JMapWrapper
-  import scala.collection.mutable.SynchronizedMap
-
-  class SafeLRUMap[K, V](val maxSize: Int) extends JMapWrapper[K, V](new LRUMap(maxSize).asInstanceOf[java.util.Map[K, V]]) with SynchronizedMap[K, V]
-
-  private val cache = new SafeLRUMap[String, (Long, JsValue)](maxDocuments)
+  private val cache = JMapWrapper(Collections.synchronizedMap(new LRUMap[String, (Long, JsValue)](maxDocuments)))
   private val states = new java.util.concurrent.ConcurrentHashMap[String, State]()
 
   def set(key: String, data: (Long, JsValue)) {
