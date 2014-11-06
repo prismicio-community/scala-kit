@@ -342,11 +342,6 @@ object Fragment {
       }.mkString("\n\n")
     }
 
-    @deprecated("Use Block.asHtml", "1.0.14")
-    def asHtml(block: Block, linkResolver: DocumentLinkResolver): String = {
-      Block.asHtml(block, linkResolver)
-    }
-
     private def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver, serializer: HtmlSerializer): String = {
 
       def escape(character: String): String = {
@@ -458,26 +453,36 @@ object Fragment {
         override def label: Option[String]
       }
 
+      object Text {
+        def unapply(t: Text): Option[(String, Seq[Span], Option[String])] = Some(t.text, t.spans, t.label)
+      }
+
       def asHtml(block: Block, linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
         val cls = block.label match {
           case Some(label) => s""" class="$label""""
           case None => ""
         }
-        block match {
-          case StructuredText.Block.Heading(text, spans, level, _) => s"""<h$level$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</h$level>"""
-          case StructuredText.Block.Paragraph(text, spans, _)      => s"""<p$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</p>"""
-          case StructuredText.Block.Preformatted(text, spans, _)   => s"""<pre$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</pre>"""
-          case StructuredText.Block.ListItem(text, spans, _, _)    => s"""<li$cls>${StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)}</li>"""
-          case StructuredText.Block.Image(view, hyperlink, label) => {
-            val body = hyperlink match {
-              case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
-              case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-              case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-              case _ => view.asHtml
+        val body = block match {
+          case StructuredText.Block.Text(text, spans, _) => StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)
+          case _ => ""
+        }
+        htmlSerializer(block, body).getOrElse {
+          block match {
+            case StructuredText.Block.Heading(text, spans, level, _) => s"""<h$level$cls>$body</h$level>"""
+            case StructuredText.Block.Paragraph(text, spans, _) => s"""<p$cls>$body</p>"""
+            case StructuredText.Block.Preformatted(text, spans, _) => s"""<pre$cls>$body</pre>"""
+            case StructuredText.Block.ListItem(text, spans, _, _) => s"""<li$cls>$body</li>"""
+            case StructuredText.Block.Image(view, hyperlink, label) => {
+              val linkbody = hyperlink match {
+                case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
+                case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+                case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+                case _ => view.asHtml
+              }
+              s"""<p class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
             }
-            s"""<p class="${(label.toSeq :+ "block-img").mkString(" ")}">$body</p>"""
+            case StructuredText.Block.Embed(obj, label) => obj.asHtml(label)
           }
-          case StructuredText.Block.Embed(obj, label)              => obj.asHtml(label)
         }
       }
 

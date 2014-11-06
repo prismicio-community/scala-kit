@@ -2,7 +2,7 @@ package io.prismic
 
 import java.util.Date
 
-import io.prismic.Fragment.{Number, StructuredText}
+import io.prismic.Fragment.{Image, Number, StructuredText}
 import io.prismic.Fragment.StructuredText.Span
 import org.joda.time.{LocalDate, DateMidnight, DateTime}
 import org.specs2.matcher.MatchSuccess
@@ -162,9 +162,9 @@ class DocSpec extends Specification {
             val inRange = Predicate.inRange("my.product.price", 10, 20)
 
             // Accessing number fields
-            val price = doc.getNumber("product.price")
-            price // gisthide
+            val price: Option[Fragment.Number] = doc.getNumber("product.price")
             // endgist
+            price
           }
         }
       }
@@ -199,12 +199,29 @@ class DocSpec extends Specification {
             val postYear = date.map(_.value.getYear)
             val updateTime: Option[Fragment.Timestamp] = doc.getTimestamp("blog-post.update")
             val postHour = updateTime.map(_.value.hourOfDay)
-            postYear // gisthide
             // endgist
+            postYear
           }
         }
       }
-      year.mustEqual(Some(2013)) // gisthide
+      year.mustEqual(Some(2013))
+    }
+    "Image" in {
+      val url = await {
+        Api.get("https://lesbonneschoses.prismic.io/api").flatMap { api =>
+          api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
+            val doc = response.results(0)
+            // startgist:3e42661562dbc7d383a6:prismic-images.scala
+            // Accessing image fields
+            val image: Option[Fragment.Image] = doc.getImage("product.image")
+            // Most of the time you will be using the "main" view
+            val url: Option[String] = image.map(_.main.url)
+            // endgist
+            url
+          }
+        }
+      }
+      url.mustEqual(Some("https://prismic-io.s3.amazonaws.com/lesbonneschoses/f606ad513fcc2a73b909817119b84d6fd0d61a6d.png"))
     }
     "Group" in {
       val json = Json.parse("""{
@@ -485,7 +502,7 @@ class DocSpec extends Specification {
         case s: String => s mustEqual
           """<h1>The end of a chapter the beginning of a new one</h1>
             |
-            |<p class="block-img"><img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
+            |<img alt="" src="https://prismic-io.s3.amazonaws.com/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" />
             |
             |<p>Jean-Michel Pastranova, the founder of <em class='italic'>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em class='italic'>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
             |
