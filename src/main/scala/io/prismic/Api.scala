@@ -41,11 +41,11 @@ final class Api(
    * Return the URL to display a given preview
    * @param token as received from Prismic server to identify the content to preview
    * @param linkResolver the link resolver to build URL for your site
-   * @param default the URL to default to return if the preview doesn't correspond to a document
+   * @param defaultUrl the URL to default to return if the preview doesn't correspond to a document
    *                (usually the home page of your site)
    * @return a Future corresponding to the URL you should redirect the user to preview the requested change
    */
-  def previewSession(token: String, linkResolver: DocumentLinkResolver, default: String): Future[String] = {
+  def previewSession(token: String, linkResolver: DocumentLinkResolver, defaultUrl: String): Future[String] = {
     try {
       (for {
         tokenJson <- Api.httpClient.url(token).withHeaders("Accept" -> "application/json").get().map(_.json)
@@ -55,10 +55,10 @@ final class Api(
       } yield {
         linkResolver(document.asDocumentLink)
       }).recoverWith {
-        case _ => Future.successful(default)
+        case _ => Future.successful(defaultUrl)
       }
     } catch {
-      case _: Exception => Future.successful(default)
+      case _: Exception => Future.successful(defaultUrl)
     }
   }
 
@@ -72,7 +72,7 @@ final class Api(
  */
 object Api {
 
-  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS", 20)
+  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS").getOrElse(20)
   private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
   private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
@@ -130,9 +130,9 @@ object Api {
     }
   }
 
-  private def getIntProperty(key: String, default: Int): Int = Option(System.getProperty(key)).flatMap { strValue =>
+  private def getIntProperty(key: String): Option[Int] = Option(System.getProperty(key)).flatMap { strValue =>
     catching(classOf[NumberFormatException]) opt strValue.toInt
-  }.getOrElse(default)
+  }
 
 }
 
