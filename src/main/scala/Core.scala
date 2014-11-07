@@ -7,7 +7,7 @@ import scala.util.control.Exception._
 import scala.concurrent.{Future, Promise}
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Input._
-//import play.api.http.{ Writeable, ContentTypeOf }
+
 import com.ning.http.client.{
   AsyncHttpClient,
   AsyncHttpClientConfig,
@@ -72,13 +72,6 @@ private[prismic] object CustomWS {
    */
   def client =
     clientHolder.getOrElse {
-      /*val playConfig = play.api.Play.maybeApplication.map(_.configuration)
-      val asyncHttpConfig = new AsyncHttpClientConfig.Builder()
-        .setConnectionTimeoutInMs(playConfig.flatMap(_.getMilliseconds("ws.timeout")).getOrElse(120000L).toInt)
-        .setRequestTimeoutInMs(playConfig.flatMap(_.getMilliseconds("ws.timeout")).getOrElse(120000L).toInt)
-        .setFollowRedirects(playConfig.flatMap(_.getBoolean("ws.followRedirects")).getOrElse(true))
-        .setUseProxyProperties(playConfig.flatMap(_.getBoolean("ws.useProxyProperties")).getOrElse(true))
-      */
 
       val asyncHttpConfig = new AsyncHttpClientConfig.Builder()
         .setConnectionTimeoutInMs(120000)
@@ -87,12 +80,6 @@ private[prismic] object CustomWS {
         .setUseProxyProperties(true)
         .setMaximumConnectionsPerHost(maximumConnectionsPerHost)
 
-      /*playConfig.flatMap(_.getString("ws.useragent")).map { useragent =>
-        asyncHttpConfig.setUserAgent(useragent)
-      }
-      if (playConfig.flatMap(_.getBoolean("ws.acceptAnyCertificate")).getOrElse(false) == false) {
-        asyncHttpConfig.setSSLContext(SSLContext.getDefault)
-      }*/
       val innerClient = new AsyncHttpClient(asyncHttpConfig.build())
       clientHolder = Some(innerClient)
       innerClient
