@@ -38,12 +38,8 @@ object Experiment {
   import Variation.readsVariation
   private[prismic] implicit val readsExperiment = Json.reads[Experiment]
 
-  /**
-   * Name of the cookie that prismic will use to store the current
-   * experiment variation index.
-   * The experiment.js file uses the same cookie name.
-   */
-  val cookieName = "io.prismic.experiment"
+  @deprecated("Use io.prismic.Cookies.experiments", "1.2.9")
+  val cookieName = Cookies.experiments
 }
 
 /**
