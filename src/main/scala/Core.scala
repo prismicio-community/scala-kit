@@ -54,7 +54,7 @@ private[prismic] object CustomWS {
   import com.ning.http.client.Realm.{ AuthScheme, RealmBuilder }
   import javax.net.ssl.SSLContext
 
-  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS", 10)
+  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS", 20)
   private var clientHolder: Option[AsyncHttpClient] = None
 
   /**
