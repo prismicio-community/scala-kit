@@ -3,6 +3,7 @@ package io.prismic.core
 import java.io.File
 import io.prismic.ProxyServer
 
+import scala.util.control.Exception._
 import scala.concurrent.{Future, Promise}
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Input._
@@ -20,7 +21,6 @@ import com.ning.http.client.{
   PerRequestConfig
 }
 import collection.immutable.TreeMap
-//import play.core.utils.CaseInsensitiveOrdered
 import com.ning.http.util.AsyncHttpProviderUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -54,6 +54,7 @@ private[prismic] object CustomWS {
   import com.ning.http.client.Realm.{ AuthScheme, RealmBuilder }
   import javax.net.ssl.SSLContext
 
+  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS", 10)
   private var clientHolder: Option[AsyncHttpClient] = None
 
   /**
@@ -84,6 +85,7 @@ private[prismic] object CustomWS {
         .setRequestTimeoutInMs(120000)
         .setFollowRedirects(true)
         .setUseProxyProperties(true)
+        .setMaximumConnectionsPerHost(maximumConnectionsPerHost)
 
       /*playConfig.flatMap(_.getString("ws.useragent")).map { useragent =>
         asyncHttpConfig.setUserAgent(useragent)
@@ -95,6 +97,10 @@ private[prismic] object CustomWS {
       clientHolder = Some(innerClient)
       innerClient
     }
+
+  private def getIntProperty(key: String, default: Int): Int = Option(System.getProperty(key)).flatMap { strValue =>
+    catching(classOf[NumberFormatException]) opt strValue.toInt
+  }.getOrElse(default)
 
   /**
    * Prepare a new request. You can then construct it by chaining calls.
