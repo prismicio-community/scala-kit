@@ -1,10 +1,14 @@
 package io.prismic
 
+import com.ning.http.client.AsyncHttpClientConfig
 import org.joda.time._
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.libs.ws._
+import play.api.libs.ws.ning.NingWSClient
 
+import scala.util.control.Exception._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
@@ -43,14 +47,22 @@ final class Api(
  */
 object Api {
 
+  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS", 10)
   private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
   private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
   private[prismic] val httpClient: play.api.libs.ws.WSClient = {
-    import play.api.libs.ws._
-    import play.api.libs.ws.ning._
     new NingWSClient(
-      new NingAsyncHttpClientConfigBuilder(DefaultWSClientConfig(userAgent = Some(UserAgent))).build()
+      new AsyncHttpClientConfig.Builder()
+        .setConnectionTimeoutInMs(Defaults.connectionTimeout.toInt)
+        .setIdleConnectionTimeoutInMs(Defaults.idleTimeout.toInt)
+        .setRequestTimeoutInMs(Defaults.requestTimeout.toInt)
+        .setFollowRedirects(Defaults.followRedirects)
+        .setUseProxyProperties(Defaults.useProxyProperties)
+        .setCompressionEnabled(Defaults.compressionEnabled)
+        .setUserAgent(UserAgent)
+        .setMaximumConnectionsPerHost(maximumConnectionsPerHost)
+        .build()
     )
   }
 
@@ -92,6 +104,10 @@ object Api {
         logger)
     }
   }
+
+  private def getIntProperty(key: String, default: Int): Int = Option(System.getProperty(key)).flatMap { strValue =>
+    catching(classOf[NumberFormatException]) opt strValue.toInt
+  }.getOrElse(default)
 
 }
 
