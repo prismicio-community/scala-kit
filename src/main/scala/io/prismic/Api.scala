@@ -37,6 +37,31 @@ final class Api(
   def experiment: Option[Experiment] = experiments.current
   def proxy: Option[ProxyServer] = serverProxy
 
+  /**
+   * Return the URL to display a given preview
+   * @param token as received from Prismic server to identify the content to preview
+   * @param linkResolver the link resolver to build URL for your site
+   * @param default the URL to default to return if the preview doesn't correspond to a document
+   *                (usually the home page of your site)
+   * @return a Future corresponding to the URL you should redirect the user to preview the requested change
+   */
+  def previewSession(token: String, linkResolver: DocumentLinkResolver, default: String): Future[String] = {
+    try {
+      (for {
+        tokenJson <- Api.httpClient.url(token).withHeaders("Accept" -> "application/json").get().map(_.json)
+        mainDocumentId = (tokenJson \ "mainDocument").as[String]
+        results <- forms("everything").query(Predicate.at("document.id", mainDocumentId)).ref(token).submit()
+        document = results.results.head
+      } yield {
+        linkResolver(document.asDocumentLink)
+      }).recoverWith {
+        case _ => Future.successful(default)
+      }
+    } catch {
+      case _: Exception => Future.successful(default)
+    }
+  }
+
   def oauthInitiateEndpoint = data.oauthEndpoints._1
   def oauthTokenEndpoint = data.oauthEndpoints._2
 }
