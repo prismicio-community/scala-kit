@@ -39,7 +39,7 @@ object Experiment {
   private[prismic] implicit val readsExperiment = Json.reads[Experiment]
 
   @deprecated("Use io.prismic.Cookies.experiments", "1.2.9")
-  val cookieName = Cookies.experiments
+  val cookieName = Prismic.experimentsCookie
 }
 
 /**
