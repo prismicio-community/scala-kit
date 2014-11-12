@@ -1,5 +1,6 @@
 ## Scala development kit for prismic.io
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.prismic/scala-kit_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.prismic/scala-kit_2.11)
 [![Build Status](https://api.travis-ci.org/prismicio/scala-kit.png)](https://travis-ci.org/prismicio/scala-kit)
 
 ### Getting started
