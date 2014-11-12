@@ -1,5 +1,6 @@
 package io.prismic
 
+import io.prismic.Fragment.DocumentLink
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -37,6 +38,8 @@ case class Document(
   def slug: String = slugs.headOption.getOrElse("-")
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
+
+  def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, typ, tags, slug, isBroken = false)
 }
 
 private[prismic] object Document {
