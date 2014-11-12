@@ -38,7 +38,7 @@ object Experiment {
   import Variation.readsVariation
   private[prismic] implicit val readsExperiment = Json.reads[Experiment]
 
-  @deprecated("Use io.prismic.Cookies.experiments", "1.2.9")
+  @deprecated("Use Prismic.experimentsCookie", "1.2.9")
   val cookieName = Prismic.experimentsCookie
 }
 
