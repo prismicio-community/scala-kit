@@ -75,7 +75,6 @@ object KitBuild extends Build {
         "com.typesafe.play"       %% "play-iteratees"      % "2.2.4",
         "com.typesafe.play"       %% "play-json"           % "2.2.4",
         "com.ning"                %  "async-http-client"   % "1.8.9",
-        "commons-collections"     %  "commons-collections" % "3.2.1",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.12" % "test"
       )
