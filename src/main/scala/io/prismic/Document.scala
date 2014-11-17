@@ -66,11 +66,13 @@ private[prismic] object Document {
     }.flatMap(_.reads(jsvalue \ "value").asOpt)
   }
 
+  private def decode(slugs: Seq[String]) = slugs.map(java.net.URLDecoder.decode(_, "UTF-8"))
+
   implicit def reader = (
     (__ \ "id").read[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
-    (__ \ "slugs").read[Seq[String]] and
+    (__ \ "slugs").read[Seq[String]].map(decode) and
     (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil)) and
     (__ \ "type").read[String].flatMap[(String, Map[String, Fragment])] { typ =>
       (__ \ "data" \ typ).read[JsObject].map { data =>
