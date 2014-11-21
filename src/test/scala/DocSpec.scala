@@ -35,7 +35,7 @@ class DocSpec extends Specification {
         }
         // endgist
       }
-      api.refs.size.mustEqual(1)
+      api.refs.size.mustEqual(3)
     }
     "private" in {
       await {
