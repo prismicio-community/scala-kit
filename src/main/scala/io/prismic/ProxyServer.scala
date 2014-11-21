@@ -1,7 +1,5 @@
 package io.prismic
 
-import play.api.libs.ws.{WSProxyServer, DefaultWSProxyServer}
-
 /**
  * A proxy.
  */
@@ -26,6 +24,5 @@ case class ProxyServer(
   encoding: Option[String] = None,
 
   nonProxyHosts: Option[Seq[String]] = None) {
-  private[prismic] def asPlayProxyServer: WSProxyServer =
-    DefaultWSProxyServer(host, port, protocol, principal, password, ntlmDomain, encoding, nonProxyHosts)
+
 }

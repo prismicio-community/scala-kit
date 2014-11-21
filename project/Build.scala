@@ -55,7 +55,7 @@ object KitBuild extends Build {
 
   lazy val ScalaKit = Project(
     BuildSettings.buildName, file("."),
-    settings = BuildSettings.buildSettings ++ Seq(
+    settings = BuildSettings.buildSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq(
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
       scalacOptions in (Compile, doc) ++= Seq("-doc-root-content", baseDirectory.value + "/root-doc.txt"),
 
@@ -73,9 +73,11 @@ object KitBuild extends Build {
         Seq(file)
       },
       libraryDependencies ++= Seq(
+        "org.fluentd" % "fluent-logger" % "0.2.10",
         "com.typesafe.play" %% "play-iteratees" % "2.3.4",
         "com.typesafe.play" %% "play-json" % "2.3.4",
-        "com.typesafe.play" %% "play-ws" % "2.3.4",
+        "com.jcraft" % "jzlib" %  "1.1.2",
+        "io.netty" % "netty-all" % "4.0.24.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.13" % "test"
       )

@@ -532,4 +532,5 @@ class DocSpec extends Specification {
       await(apiFuture).cache.mustEqual(noopCache)
     }
   }
+
 }

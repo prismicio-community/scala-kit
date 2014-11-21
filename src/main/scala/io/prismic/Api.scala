@@ -1,12 +1,10 @@
 package io.prismic
 
-import com.ning.http.client.AsyncHttpClientConfig
+import io.netty.handler.codec.http.HttpResponseStatus
 import org.joda.time._
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import play.api.libs.ws._
-import play.api.libs.ws.ning.NingWSClient
 
 import scala.util.control.Exception._
 import scala.concurrent._
@@ -48,7 +46,7 @@ final class Api(
   def previewSession(token: String, linkResolver: DocumentLinkResolver, defaultUrl: String): Future[String] = {
     try {
       (for {
-        tokenJson <- Api.httpClient.url(token).withHeaders("Accept" -> "application/json").get().map(_.json)
+        tokenJson <- HttpClient.getJson(token).map(_.json)
         mainDocumentId = (tokenJson \ "mainDocument").as[String]
         results <- forms("everything").query(Predicate.at("document.id", mainDocumentId)).ref(token).submit()
         document = results.results.head
@@ -72,24 +70,7 @@ final class Api(
  */
 object Api {
 
-  private val maximumConnectionsPerHost = getIntProperty("PRISMIC_MAX_CONNECTIONS").getOrElse(20)
-  private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
-  private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
-  private[prismic] val httpClient: play.api.libs.ws.WSClient = {
-    new NingWSClient(
-      new AsyncHttpClientConfig.Builder()
-        .setConnectionTimeoutInMs(Defaults.connectionTimeout.toInt)
-        .setIdleConnectionTimeoutInMs(Defaults.idleTimeout.toInt)
-        .setRequestTimeoutInMs(Defaults.requestTimeout.toInt)
-        .setFollowRedirects(Defaults.followRedirects)
-        .setUseProxyProperties(Defaults.useProxyProperties)
-        .setCompressionEnabled(Defaults.compressionEnabled)
-        .setUserAgent(UserAgent)
-        .setMaximumConnectionsPerHost(maximumConnectionsPerHost)
-        .build()
-    )
-  }
 
   /**
    * Instantiate an Api instance from a prismic.io API URL
@@ -101,15 +82,10 @@ object Api {
           logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
     val url = accessToken.map(token => s"$endpoint?access_token=$token").getOrElse(endpoint)
     cache.getOrSet(url, 5000L) {
-      val req = httpClient.url(url).withHeaders(AcceptJson: _*)
-      (proxy match {
-        case Some(p) => req.withProxyServer(p.asPlayProxyServer)
-        case _ => req
-      }).get()
-        .map { resp =>
+      HttpClient.getJson(url, proxy = proxy).map { resp =>
           resp.status match {
-            case 200 => resp.json
-            case 401 => (resp.json \ "oauth_initiate").asOpt[String] match {
+            case HttpResponseStatus.OK => resp.json
+            case HttpResponseStatus.UNAUTHORIZED => (resp.json \ "oauth_initiate").asOpt[String] match {
               case Some(u) if accessToken.isDefined =>
                 throw InvalidToken("The provided access token is either invalid or expired", u)
               case Some(u) =>
@@ -117,7 +93,7 @@ object Api {
               case None =>
                 throw UnexpectedError("Authorization error, but not URL was provided")
             }
-            case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.statusText})")
+            case err => throw UnexpectedError(s"Got an HTTP error $err (${resp.body})")
           }
         }
     }.map { json =>
