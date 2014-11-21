@@ -15,7 +15,7 @@ import io.netty.util.CharsetUtil
 import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.JavaConversions._
-import scala.concurrent.{ExecutionContext, Future, Promise}
+import scala.concurrent.{Future, Promise}
 import scala.util.control.Exception._
 
 
@@ -30,12 +30,12 @@ case class ClientResponse(
 
 object HttpClient {
 
-  private val ThreadCount = getIntProperty("PRISMIC_MAX_CONNECTIONS").getOrElse(10)
+  private val ThreadCount = getIntProperty("PRISMIC_MAX_CONNECTIONS").getOrElse(20)
   private[prismic] val UserAgent = s"Prismic-${Info.name}/${Info.version} Scala/${Info.scalaVersion} JVM/${System.getProperty("java.version")}"
   private[prismic] val AcceptJson = Seq("Accept" -> "application/json")
   private[prismic] val MaxAge = """max-age\s*=\s*(\d+)""".r
 
-  implicit val executionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(ThreadCount))
+  val group = new NioEventLoopGroup(ThreadCount)
 
   def getJson(url: String,
               headers: Map[String, Any] = Map.empty,
@@ -63,85 +63,77 @@ object HttpClient {
     }
     val fullPath = uri.getRawPath + Option(uri.getRawQuery).map("?" + _).getOrElse("")
 
-    // Configure the client.
-    val group = new NioEventLoopGroup()
+    val b = new Bootstrap()
+    b.group(group)
+      .channel(classOf[NioSocketChannel])
+      .handler(new ChannelInitializer[SocketChannel] {
+      override def initChannel(ch: SocketChannel) = {
+        val p: ChannelPipeline = ch.pipeline()
 
-    try {
-      val b = new Bootstrap()
-      b.group(group)
-        .channel(classOf[NioSocketChannel])
-        .handler(new ChannelInitializer[SocketChannel] {
-        override def initChannel(ch: SocketChannel) = {
-          val p: ChannelPipeline = ch.pipeline()
+        if (scheme == "https") {
+          val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
+          p.addLast("ssl", sslCtx.newHandler(ch.alloc(), host, port))
+        }
 
-          if (scheme == "https") {
-            val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
-            p.addLast("ssl", sslCtx.newHandler(ch.alloc(), host, port))
+        p.addLast(new HttpClientCodec())
+
+        p.addLast(new HttpContentDecompressor())
+
+        // Uncomment the following line if you don't want to handle HttpContents.
+        p.addLast(new HttpObjectAggregator(1048576))
+
+        p.addLast(new SimpleChannelInboundHandler[HttpObject] {
+          override def channelRead0(ctx: ChannelHandlerContext, msg: HttpObject) {
+            msg match {
+              case response: FullHttpResponse =>
+                result.success(ClientResponse(
+                  response.getStatus,
+                  response.content().toString(CharsetUtil.UTF_8),
+                  response.headers())
+                )
+                ctx.close()
+              case response: HttpResponse =>
+                status = response.getStatus
+                responseHeaders = response.headers()
+              case content: LastHttpContent =>
+                body += content.content().toString(CharsetUtil.UTF_8)
+                ctx.close()
+                result.success(ClientResponse(status, body, responseHeaders))
+              case content: HttpContent =>
+                body += content.content().toString(CharsetUtil.UTF_8)
+              case _ => ()
+            }
           }
 
-          p.addLast(new HttpClientCodec())
-
-          p.addLast(new HttpContentDecompressor())
-
-          // Uncomment the following line if you don't want to handle HttpContents.
-          p.addLast(new HttpObjectAggregator(1048576))
-
-          p.addLast(new SimpleChannelInboundHandler[HttpObject] {
-            override def channelRead0(ctx: ChannelHandlerContext, msg: HttpObject) {
-              msg match {
-                case response: FullHttpResponse =>
-                  result.success(ClientResponse(
-                    response.getStatus,
-                    response.content().toString(CharsetUtil.UTF_8),
-                    response.headers())
-                  )
-                  ctx.close()
-                case response: HttpResponse =>
-                  status = response.getStatus
-                  responseHeaders = response.headers()
-                case content: LastHttpContent =>
-                  body += content.content().toString(CharsetUtil.UTF_8)
-                  ctx.close()
-                  result.success(ClientResponse(status, body, responseHeaders))
-                case content: HttpContent =>
-                  body += content.content().toString(CharsetUtil.UTF_8)
-                case _ => ()
-              }
-            }
-
-            override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
-              cause.printStackTrace()
-              ctx.close()
-              result.failure(cause)
-            }
-          })
-        }
-      })
-
-      // Make the connection attempt.
-      val ch = b.connect(host, port).sync().channel()
-
-      // Prepare the HTTP request.
-      val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
-      (headers ++ Map(
-        HttpHeaders.Names.HOST -> host,
-        HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
-        HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
-      )).map { case (key, value) =>
-        request.headers().set(key, value)
+          override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+            cause.printStackTrace()
+            ctx.close()
+            result.failure(cause)
+          }
+        })
       }
+    })
 
-      // Send the HTTP request.
-      ch.writeAndFlush(request)
+    // Make the connection attempt.
+    val ch = b.connect(host, port).sync().channel()
 
-      // Wait for the server to close the connection.
-      ch.closeFuture().sync()
-
-      result.future
-    } finally {
-      // Shut down executor threads to exit.
-      group.shutdownGracefully()
+    // Prepare the HTTP request.
+    val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
+    (headers ++ Map(
+      HttpHeaders.Names.HOST -> host,
+      HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
+      HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
+    )).map { case (key, value) =>
+      request.headers().set(key, value)
     }
+
+    // Send the HTTP request.
+    ch.writeAndFlush(request)
+
+    // Wait for the server to close the connection.
+    ch.closeFuture().sync()
+
+    result.future
   }
 
   private def getIntProperty(key: String): Option[Int] = Option(System.getProperty(key)).flatMap { strValue =>
