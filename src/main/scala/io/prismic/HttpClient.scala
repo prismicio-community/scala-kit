@@ -120,6 +120,7 @@ object HttpClient {
     // Prepare the HTTP request.
     val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
     (headers ++ Map(
+      HttpHeaders.Names.USER_AGENT -> UserAgent,
       HttpHeaders.Names.HOST -> host,
       HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
       HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
