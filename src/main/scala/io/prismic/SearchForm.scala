@@ -1,6 +1,6 @@
 package io.prismic
 
-import io.prismic.core.CustomWS
+import io.netty.handler.codec.http.{HttpResponseStatus, QueryStringEncoder}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import scala.concurrent.Future
@@ -73,7 +73,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
       case ("GET", "application/x-www-form-urlencoded", action) =>
 
         val url = {
-          val encoder = new org.jboss.netty.handler.codec.http.QueryStringEncoder(form.action)
+          val encoder = new QueryStringEncoder(form.action)
           data.foreach {
             case (key, values) => values.foreach(value => encoder.addParam(key, value))
           }
@@ -83,13 +83,9 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
         api.cache.get(url).map { json =>
           Future.successful(parseResponse(json))
         }.getOrElse {
-          val requestHolder = CustomWS.url(api.logger, url).copy(headers = Api.AcceptJson)
-          (api.proxy match {
-            case Some(p) => requestHolder.withProxyServer(p)
-            case _ => requestHolder
-          }).get() map { resp =>
+          HttpClient.getJson(url, proxy = api.proxy).map { resp =>
             resp.status match {
-              case 200 =>
+              case HttpResponseStatus.OK =>
                 val json = resp.json
 
                 resp.header("Cache-Control").foreach {
@@ -98,7 +94,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
                 }
 
                 parseResponse(json)
-              case error => sys.error(s"Http error(status:$error msg:${resp.statusText} body:${resp.body}")
+              case error => sys.error(s"Http error(status:$error msg:${resp.status.reasonPhrase()} body:${resp.body}")
             }
           }
         }
