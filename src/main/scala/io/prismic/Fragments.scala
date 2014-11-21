@@ -186,14 +186,15 @@ object Fragment {
   // ------------------
 
   case class Embed(typ: String,
-                   provider: String,
+                   provider: Option[String],
                    url: String,
                    width: Option[Int],
                    height: Option[Int],
                    html: Option[String],
                    oembedJson: JsValue) extends Fragment {
     def asHtml(label: Option[String] = None): String = {
-      html.map(html => s"""<div${label.map(" class=\"" + _ + "\"").getOrElse("")} data-oembed="$url" data-oembed-type="${typ.toLowerCase}" data-oembed-provider="${provider.toLowerCase}">$html</div>""").getOrElse("")
+      val providerAttribute = provider.map(p => s""" data-oembed-provider="${p.toLowerCase}"""").getOrElse("")
+      html.map(html => s"""<div${label.map(" class=\"" + _ + "\"").getOrElse("")} data-oembed="$url" data-oembed-type="${typ.toLowerCase}"$providerAttribute>$html</div>""").getOrElse("")
     }
   }
 
@@ -203,7 +204,7 @@ object Fragment {
       (__ \ "oembed").read(
         (
           (__ \ "type").read[String] and
-          (__ \ "provider_name").read[String] and
+          (__ \ "provider_name").readNullable[String] and
           (__ \ "embed_url").read[String] and
           (__ \ "width").readNullable[Int] and
           (__ \ "height").readNullable[Int] and
