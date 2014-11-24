@@ -60,7 +60,18 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
   def page(p: Int) = set("page", p)
   def pageSize(p: Int) = set("pageSize", p)
 
-  def orderings(o: String) = set("orderings", o)
+  /**
+   *
+   * @param o one or more string, containing the name of a field optionally followed by a space and "desc"
+   * @return the SearchForm instance for chaining
+   */
+  def orderings(o: String*) = {
+    o.headOption match {
+      case None => this // noop
+      case Some(first) if first.matches("""^\[.*\]$""") => set("orderings", first) // backward compatibility
+      case _ => set("orderings", s"[${o.mkString(", ")}]") // normal usage
+    }
+  }
 
   def submit(): Future[Response] = {
 
