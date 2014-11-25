@@ -1,4 +1,5 @@
-<!DOCTYPE html >
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html>
         <head>
           <title>prismic - io.prismic</title>
@@ -8,11 +9,6 @@
           
       <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
       <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
-      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
-      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
-      <script type="text/javascript" src="../../lib/template.js"></script>
-      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
-      
       <script type="text/javascript">
          if(top === self) {
             var url = '../../index.html';
@@ -30,11 +26,7 @@
       <div id="definition">
         <img src="../../lib/package_big.png" />
         <p id="owner"><a href="../package.html" class="extype" name="io">io</a></p>
-        <h1>prismic</h1> <span class="permalink">
-      <a href="../../index.html#io.prismic.package" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+        <h1>prismic</h1>
       </div>
 
       <h4 id="signature" class="signature">
@@ -66,7 +58,7 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ApiextendsAnyRef"></a>
       <a id="Api:Api"></a>
       <h4 class="signature">
@@ -77,14 +69,9 @@
       <span class="symbol">
         <a href="Api.html"><span class="name">Api</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ApiextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">High-level entry point for communications with prismic.</p><div class="fullcomment"><div class="comment cmt"><p>High-level entry point for communications with prismic.io API
-</p></div></div>
-    </li><li name="io.prismic.ApiError" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">High-level entry point for communications with prismic.</p>
+    </li><li name="io.prismic.ApiError" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="ApiErrorextendsRuntimeException"></a>
       <a id="ApiError:ApiError"></a>
       <h4 class="signature">
@@ -95,13 +82,8 @@
       <span class="symbol">
         <a href="ApiError.html"><span class="name">ApiError</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ApiErrorextendsRuntimeException" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Error thrown when communicating with prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Error thrown when communicating with prismic.io API
-</p></div></div>
+      </h4>
+      <p class="comment cmt">Error thrown when communicating with prismic.</p>
     </li><li name="io.prismic.AuthorizationNeeded" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="AuthorizationNeededextendsRuntimeExceptionwithApiErrorwithProductwithSerializable"></a>
       <a id="AuthorizationNeeded:AuthorizationNeeded"></a>
@@ -113,12 +95,8 @@
       <span class="symbol">
         <a href="AuthorizationNeeded.html"><span class="name">AuthorizationNeeded</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="oAuthUrl">oAuthUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <a href="ApiError.html" class="extype" name="io.prismic.ApiError">ApiError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@AuthorizationNeededextendsRuntimeExceptionwithApiErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Error thrown when the auth token is omitted, but required
+      </h4>
+      <p class="comment cmt">Error thrown when the auth token is omitted, but required
 </p>
     </li><li name="io.prismic.BuiltInCache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="BuiltInCacheextendsCachewithProductwithSerializable"></a>
@@ -131,14 +109,10 @@
       <span class="symbol">
         <a href="BuiltInCache.html"><span class="name">BuiltInCache</span></a><span class="params">(<span name="maxDocuments">maxDocuments: <span class="extype" name="scala.Int">Int</span> = <span class="symbol">100</span></span>)</span><span class="result"> extends <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@BuiltInCacheextendsCachewithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Default HTTP cache implementation, relying on apache in-memory LRUMap (recommended)
+      </h4>
+      <p class="comment cmt">Default HTTP cache implementation, relying on apache in-memory LRUMap (recommended)
 </p>
-    </li><li name="io.prismic.Cache" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+    </li><li name="io.prismic.Cache" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="CacheextendsAnyRef"></a>
       <a id="Cache:Cache"></a>
       <h4 class="signature">
@@ -149,14 +123,22 @@
       <span class="symbol">
         <a href="Cache.html"><span class="name">Cache</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@CacheextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Cache prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Cache prismic.io HTTP responses
-</p></div></div>
-    </li><li name="io.prismic.Document" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Cache prismic.</p>
+    </li><li name="io.prismic.ClientResponse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ClientResponseextendsProductwithSerializable"></a>
+      <a id="ClientResponse:ClientResponse"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ClientResponse.html"><span class="name">ClientResponse</span></a><span class="params">(<span name="status">status: <span class="extype" name="io.netty.handler.codec.http.HttpResponseStatus">HttpResponseStatus</span></span>, <span name="body">body: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="headers">headers: <span class="extype" name="io.netty.handler.codec.http.HttpHeaders">HttpHeaders</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="io.prismic.Document" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DocumentextendsWithFragmentswithProductwithSerializable"></a>
       <a id="Document:Document"></a>
       <h4 class="signature">
@@ -167,14 +149,9 @@
       <span class="symbol">
         <a href="Document.html"><span class="name">Document</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="href">href: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slugs">slugs: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="linkedDocuments">linkedDocuments: <span class="extype" name="scala.List">List</span>[<a href="LinkedDocument.html" class="extype" name="io.prismic.LinkedDocument">LinkedDocument</a>]</span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>)</span><span class="result"> extends <a href="WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@DocumentextendsWithFragmentswithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A prismic.</p><div class="fullcomment"><div class="comment cmt"><p>A prismic.io document
-</p></div></div>
-    </li><li name="io.prismic.DocumentLinkResolver" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">A prismic.</p>
+    </li><li name="io.prismic.DocumentLinkResolver" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="DocumentLinkResolverextendsAnyRef"></a>
       <a id="DocumentLinkResolver:DocumentLinkResolver"></a>
       <h4 class="signature">
@@ -185,14 +162,9 @@
       <span class="symbol">
         <a href="DocumentLinkResolver.html"><span class="name">DocumentLinkResolver</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@DocumentLinkResolverextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Builds URL specific to an application, based on a generic prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Builds URL specific to an application, based on a generic prismic.io document link.
-</p></div></div>
-    </li><li name="io.prismic.Experiment" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Builds URL specific to an application, based on a generic prismic.</p>
+    </li><li name="io.prismic.Experiment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ExperimentextendsProductwithSerializable"></a>
       <a id="Experiment:Experiment"></a>
       <h4 class="signature">
@@ -203,14 +175,9 @@
       <span class="symbol">
         <a href="Experiment.html"><span class="name">Experiment</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="googleId">googleId: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="variations">variations: <span class="extype" name="scala.Seq">Seq</span>[<a href="Variation.html" class="extype" name="io.prismic.Variation">Variation</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ExperimentextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Experiment exposed by prismic API</p><div class="fullcomment"><div class="comment cmt"><p>Experiment exposed by prismic API</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>prismic experiment ID</p></dd><dt class="param">googleId</dt><dd class="cmt"><p>Google experiment ID, empty if experiment is a draft</p></dd><dt class="param">name</dt><dd class="cmt"><p>user set name</p></dd><dt class="param">variations</dt><dd class="cmt"><p>list of variations for this experiment
-</p></dd></dl></div>
-    </li><li name="io.prismic.Experiments" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Experiment exposed by prismic API</p>
+    </li><li name="io.prismic.Experiments" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ExperimentsextendsProductwithSerializable"></a>
       <a id="Experiments:Experiments"></a>
       <h4 class="signature">
@@ -221,14 +188,9 @@
       <span class="symbol">
         <a href="Experiments.html"><span class="name">Experiments</span></a><span class="params">(<span name="draft">draft: <span class="extype" name="scala.Seq">Seq</span>[<a href="Experiment.html" class="extype" name="io.prismic.Experiment">Experiment</a>]</span>, <span name="running">running: <span class="extype" name="scala.Seq">Seq</span>[<a href="Experiment.html" class="extype" name="io.prismic.Experiment">Experiment</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ExperimentsextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">All experiments exposed by prismic API</p><div class="fullcomment"><div class="comment cmt"><p>All experiments exposed by prismic API</p></div><dl class="paramcmts block"><dt class="param">draft</dt><dd class="cmt"><p>experiments in draft stage, i.e. not running, for preview purpose</p></dd><dt class="param">running</dt><dd class="cmt"><p>experiments in running stage, that will be presented to users
-</p></dd></dl></div>
-    </li><li name="io.prismic.Field" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">All experiments exposed by prismic API</p>
+    </li><li name="io.prismic.Field" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="FieldextendsProductwithSerializable"></a>
       <a id="Field:Field"></a>
       <h4 class="signature">
@@ -239,13 +201,8 @@
       <span class="symbol">
         <a href="Field.html"><span class="name">Field</span></a><span class="params">(<span name="type">type: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="multiple">multiple: <span class="extype" name="scala.Boolean">Boolean</span></span>, <span name="default">default: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@FieldextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A prismic.</p><div class="fullcomment"><div class="comment cmt"><p>A prismic.io document field metadata
-</p></div></div>
+      </h4>
+      <p class="comment cmt">A prismic.</p>
     </li><li name="io.prismic.Form" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="FormextendsProductwithSerializable"></a>
       <a id="Form:Form"></a>
@@ -257,11 +214,7 @@
       <span class="symbol">
         <a href="Form.html"><span class="name">Form</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="method">method: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="rel">rel: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="enctype">enctype: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="action">action: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fields">fields: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Field.html" class="extype" name="io.prismic.Field">Field</a>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@FormextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.Fragment" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="FragmentextendsAnyRef"></a>
@@ -274,11 +227,7 @@
       <span class="symbol">
         <a href="Fragment.html"><span class="name">Fragment</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@FragmentextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.HtmlSerializer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="HtmlSerializerextendsAnyRef"></a>
@@ -291,11 +240,7 @@
       <span class="symbol">
         <a href="HtmlSerializer.html"><span class="name">HtmlSerializer</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@HtmlSerializerextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.InvalidToken" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="InvalidTokenextendsRuntimeExceptionwithApiErrorwithProductwithSerializable"></a>
@@ -308,14 +253,10 @@
       <span class="symbol">
         <a href="InvalidToken.html"><span class="name">InvalidToken</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="oAuthUrl">oAuthUrl: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <a href="ApiError.html" class="extype" name="io.prismic.ApiError">ApiError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@InvalidTokenextendsRuntimeExceptionwithApiErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Error thrown when the auth token is provided, but invalid
+      </h4>
+      <p class="comment cmt">Error thrown when the auth token is provided, but invalid
 </p>
-    </li><li name="io.prismic.LinkedDocument" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.prismic.LinkedDocument" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="LinkedDocumentextendsProductwithSerializable"></a>
       <a id="LinkedDocument:LinkedDocument"></a>
       <h4 class="signature">
@@ -326,14 +267,9 @@
       <span class="symbol">
         <a href="LinkedDocument.html"><span class="name">LinkedDocument</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="slug">slug: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@LinkedDocumentextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A reference to an other Prismic document, used in &quot;related documents&quot;</p><div class="fullcomment"><div class="comment cmt"><p>A reference to an other Prismic document, used in &quot;related documents&quot;</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the Prismic identifier</p></dd><dt class="param">slug</dt><dd class="cmt"><p>optional slug of the document</p></dd><dt class="param">typ</dt><dd class="cmt"><p>document type</p></dd><dt class="param">tags</dt><dd class="cmt"><p>list of tags of the document from Prismic
-</p></dd></dl></div>
-    </li><li name="io.prismic.Predicate" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">A reference to an other Prismic document, used in &quot;related documents&quot;</p>
+    </li><li name="io.prismic.Predicate" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="PredicateextendsAnyRef"></a>
       <a id="Predicate:Predicate"></a>
       <h4 class="signature">
@@ -344,15 +280,8 @@
       <span class="symbol">
         <a href="Predicate.html"><span class="name">Predicate</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@PredicateextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A Prismic predicate.</p><div class="fullcomment"><div class="comment cmt"><p>A Prismic predicate. Examples:
-Query.at(&quot;document.type&quot;, &quot;article&quot;)
-Query.dateBefore(&quot;document.created&quot;, new DateTime().minusMonth(1))</p><p>See the helpers in the companion object.
-</p></div></div>
+      </h4>
+      <p class="comment cmt">A Prismic predicate.</p>
     </li><li name="io.prismic.ProxyServer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ProxyServerextendsProductwithSerializable"></a>
       <a id="ProxyServer:ProxyServer"></a>
@@ -362,14 +291,10 @@ Query.dateBefore(&quot;document.created&quot;, new DateTime().minusMonth(1))</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="ProxyServer.html"><span class="name">ProxyServer</span></a><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>, <span name="protocol">protocol: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="principal">principal: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="password">password: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="ntlmDomain">ntlmDomain: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="encoding">encoding: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="nonProxyHosts">nonProxyHosts: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="ProxyServer.html"><span class="name">ProxyServer</span></a><span class="params">(<span name="host">host: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="port">port: <span class="extype" name="scala.Int">Int</span></span>, <span name="protocol">protocol: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="principal">principal: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="password">password: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="ntlmDomain">ntlmDomain: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="encoding">encoding: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="nonProxyHosts">nonProxyHosts: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ProxyServerextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A proxy.</p>
+      </h4>
+      <p class="comment cmt">A proxy.</p>
     </li><li name="io.prismic.QuerySerializer" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="QuerySerializer[T]extendsAnyRef"></a>
       <a id="QuerySerializer[T]:QuerySerializer[T]"></a>
@@ -381,13 +306,9 @@ Query.dateBefore(&quot;document.created&quot;, new DateTime().minusMonth(1))</p>
       <span class="symbol">
         <a href="QuerySerializer.html"><span class="name">QuerySerializer</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@QuerySerializer[T]extendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
-    </li><li name="io.prismic.Ref" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.prismic.Ref" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="RefextendsProductwithSerializable"></a>
       <a id="Ref:Ref"></a>
       <h4 class="signature">
@@ -396,18 +317,11 @@ Query.dateBefore(&quot;document.created&quot;, new DateTime().minusMonth(1))</p>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Ref.html"><span class="name">Ref</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="isMasterRef">isMasterRef: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="scheduledAt">scheduledAt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.joda.time.DateTime">DateTime</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Ref.html"><span class="name">Ref</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="isMasterRef">isMasterRef: <span class="extype" name="scala.Boolean">Boolean</span> = <span class="symbol">false</span></span>, <span name="scheduledAt">scheduledAt: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="org.joda.time.DateTime">DateTime</span>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@RefextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Represent a prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Represent a prismic.io reference, a fixed point in time.</p><p>The references must be provided when accessing to any prismic.io resource
-(except /api) and allow to assert that the URL you use will always
-returns the same results.
-</p></div></div>
-    </li><li name="io.prismic.Response" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Represent a prismic.</p>
+    </li><li name="io.prismic.Response" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ResponseextendsProductwithSerializable"></a>
       <a id="Response:Response"></a>
       <h4 class="signature">
@@ -418,15 +332,9 @@ returns the same results.
       <span class="symbol">
         <a href="Response.html"><span class="name">Response</span></a><span class="params">(<span name="results">results: <span class="extype" name="scala.List">List</span>[<a href="Document.html" class="extype" name="io.prismic.Document">Document</a>]</span>, <span name="page">page: <span class="extype" name="scala.Int">Int</span></span>, <span name="resultsPerPage">resultsPerPage: <span class="extype" name="scala.Int">Int</span></span>, <span name="resultsSize">resultsSize: <span class="extype" name="scala.Int">Int</span></span>, <span name="totalResultsSize">totalResultsSize: <span class="extype" name="scala.Int">Int</span></span>, <span name="totalPages">totalPages: <span class="extype" name="scala.Int">Int</span></span>, <span name="nextPage">nextPage: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="prevPage">prevPage: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@ResponseextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Paginated response to a Prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Paginated response to a Prismic.io query. Note that you may not get all documents in the first page,
-and may need to retrieve more pages or increase the page size.
-</p></div></div>
-    </li><li name="io.prismic.SearchForm" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      </h4>
+      <p class="comment cmt">Paginated response to a Prismic.</p>
+    </li><li name="io.prismic.SearchForm" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="SearchFormextendsProductwithSerializable"></a>
       <a id="SearchForm:SearchForm"></a>
       <h4 class="signature">
@@ -437,21 +345,8 @@ and may need to retrieve more pages or increase the page size.
       <span class="symbol">
         <a href="SearchForm.html"><span class="name">SearchForm</span></a><span class="params">(<span name="api">api: <a href="Api.html" class="extype" name="io.prismic.Api">Api</a></span>, <span name="form">form: <a href="Form.html" class="extype" name="io.prismic.Form">Form</a></span>, <span name="data">data: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]]</span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@SearchFormextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">A SearchForm represent a Form returned by the prismic.</p><div class="fullcomment"><div class="comment cmt"><p>A SearchForm represent a Form returned by the prismic.io API.</p><p>These forms depend on the prismic.io repository, and can be filled and sent
-as regular HTML forms.</p><p>You may get a SearchForm instance through the <a href="Api.html#forms:Map[String,io.prismic.SearchForm]" class="extmbr" name="io.prismic.Api#forms">io.prismic.Api.forms</a> method.</p><p>The SearchForm instance contains helper methods for each predefined form's fields.
-</p></div><dl class="attributes block"> <div class="block">Example:
-               <ol><li class="cmt"><p>
-  val form = api.forms('everything')
-    .page(3)                   // specify the field 'page'
-    .pageSize(20)              // specify the 'page_size' field
-  val results = form.submit()  // submit the search form
-</p></li></ol>
-            </div></dl></div>
+      </h4>
+      <p class="comment cmt">A SearchForm represent a Form returned by the prismic.</p>
     </li><li name="io.prismic.State" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="StateextendsAnyRef"></a>
       <a id="State:State"></a>
@@ -463,11 +358,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="State.html"><span class="name">State</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@StateextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.UnexpectedError" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="UnexpectedErrorextendsRuntimeExceptionwithApiErrorwithProductwithSerializable"></a>
@@ -480,14 +371,10 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="UnexpectedError.html"><span class="name">UnexpectedError</span></a><span class="params">(<span name="message">message: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span> with <a href="ApiError.html" class="extype" name="io.prismic.ApiError">ApiError</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@UnexpectedErrorextendsRuntimeExceptionwithApiErrorwithProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Error that should never happen
+      </h4>
+      <p class="comment cmt">Error that should never happen
 </p>
-    </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.prismic.Variation" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="VariationextendsProductwithSerializable"></a>
       <a id="Variation:Variation"></a>
       <h4 class="signature">
@@ -498,13 +385,8 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Variation.html"><span class="name">Variation</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="ref">ref: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="label">label: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@VariationextendsProductwithSerializable" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Experiment variation exposed by prismic API</p><div class="fullcomment"><div class="comment cmt"><p>Experiment variation exposed by prismic API</p></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>technical prismic ID</p></dd><dt class="param">ref</dt><dd class="cmt"><p>queryable ref of the variation (similar to release ref)</p></dd><dt class="param">label</dt><dd class="cmt"><p>user set label
-</p></dd></dl></div>
+      </h4>
+      <p class="comment cmt">Experiment variation exposed by prismic API</p>
     </li><li name="io.prismic.WithFragments" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="WithFragmentsextendsAnyRef"></a>
       <a id="WithFragments:WithFragments"></a>
@@ -516,11 +398,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="WithFragments.html"><span class="name">WithFragments</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@WithFragmentsextendsAnyRef" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -529,7 +407,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
 
         <div id="values" class="values members">
               <h3>Value Members</h3>
-              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+              <ol><li name="io.prismic.Api" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Api"></a>
       <a id="Api:Api"></a>
       <h4 class="signature">
@@ -540,13 +418,8 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Api$.html"><span class="name">Api</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Api" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Instanciate an Api instance from a prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Instanciate an Api instance from a prismic.io API URL
-</p></div></div>
+      </h4>
+      <p class="comment cmt">Instanciate an Api instance from a prismic.</p>
     </li><li name="io.prismic.Cache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Cache"></a>
       <a id="Cache:Cache"></a>
@@ -558,11 +431,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Cache$.html"><span class="name">Cache</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Cache" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.DocumentLinkResolver" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DocumentLinkResolver"></a>
@@ -575,12 +444,8 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="DocumentLinkResolver$.html"><span class="name">DocumentLinkResolver</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@DocumentLinkResolver" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">DocumentLinkResolver builders
+      </h4>
+      <p class="comment cmt">DocumentLinkResolver builders
 </p>
     </li><li name="io.prismic.Experiment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Experiment"></a>
@@ -593,11 +458,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Experiment$.html"><span class="name">Experiment</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Experiment" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.Fragment" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Fragment"></a>
@@ -610,11 +471,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Fragment$.html"><span class="name">Fragment</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Fragment" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.HtmlSerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="HtmlSerializer"></a>
@@ -627,11 +484,20 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="HtmlSerializer$.html"><span class="name">HtmlSerializer</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@HtmlSerializer" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
+      
+    </li><li name="io.prismic.HttpClient" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="HttpClient"></a>
+      <a id="HttpClient:HttpClient"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="HttpClient$.html"><span class="name">HttpClient</span></a>
+      </span>
+      </h4>
       
     </li><li name="io.prismic.Info" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Info"></a>
@@ -644,11 +510,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Info$.html"><span class="name">Info</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Info" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.Month" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Month"></a>
@@ -661,13 +523,9 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Month$.html"><span class="name">Month</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Month" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
-    </li><li name="io.prismic.NoCache" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+    </li><li name="io.prismic.NoCache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NoCache"></a>
       <a id="NoCache:NoCache"></a>
       <h4 class="signature">
@@ -678,13 +536,8 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="NoCache$.html"><span class="name">NoCache</span></a><span class="result"> extends <a href="Cache.html" class="extype" name="io.prismic.Cache">Cache</a></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@NoCache" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
-      <p class="shortcomment cmt">Do NOT cache prismic.</p><div class="fullcomment"><div class="comment cmt"><p>Do NOT cache prismic.io HTTP responses
-</p></div></div>
+      </h4>
+      <p class="comment cmt">Do NOT cache prismic.</p>
     </li><li name="io.prismic.Pending" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Pending"></a>
       <a id="Pending:Pending"></a>
@@ -696,11 +549,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Pending$.html"><span class="name">Pending</span></a><span class="result"> extends <a href="State.html" class="extype" name="io.prismic.State">State</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Pending" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.Predicate" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Predicate"></a>
@@ -713,11 +562,20 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="Predicate$.html"><span class="name">Predicate</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@Predicate" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
+      
+    </li><li name="io.prismic.Prismic" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Prismic"></a>
+      <a id="Prismic:Prismic"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Prismic$.html"><span class="name">Prismic</span></a>
+      </span>
+      </h4>
       
     </li><li name="io.prismic.QuerySerializer" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="QuerySerializer"></a>
@@ -730,11 +588,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="QuerySerializer$.html"><span class="name">QuerySerializer</span></a>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@QuerySerializer" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li><li name="io.prismic.WeekDay" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="WeekDay"></a>
@@ -747,11 +601,7 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <span class="symbol">
         <a href="WeekDay$.html"><span class="name">WeekDay</span></a><span class="result"> extends <span class="extype" name="scala.Enumeration">Enumeration</span></span>
       </span>
-      </h4><span class="permalink">
-      <a href="../../index.html#io.prismic.package@WeekDay" title="Permalink" target="_top">
-        <img src="../../lib/permalink.png" />
-      </a>
-    </span>
+      </h4>
       
     </li></ol>
             </div>
@@ -778,7 +628,6 @@ as regular HTML forms.</p><p>You may get a SearchForm instance through the <a hr
       <div id="tooltip"></div>
 
       <div id="footer">  </div>
-
-
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../../lib/template.js"></script>
     </body>
       </html>
