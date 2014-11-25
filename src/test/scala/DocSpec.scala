@@ -488,7 +488,7 @@ class DocSpec extends Specification {
             // startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
             val htmlSerializer = HtmlSerializer {
               // Don't wrap images in a <p> tag
-              case (StructuredText.Block.Image(view, _, _), _) => s"${view.asHtml}"
+              case (StructuredText.Block.Image(view, _, _, _), _) => s"${view.asHtml}"
               // Add a class to em tags
               case (em: Span.Em, content) => s"<em class='italic'>$content</em>"
             }
