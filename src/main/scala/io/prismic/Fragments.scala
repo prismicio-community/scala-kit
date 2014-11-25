@@ -192,9 +192,15 @@ object Fragment {
                    height: Option[Int],
                    html: Option[String],
                    oembedJson: JsValue) extends Fragment {
-    def asHtml(label: Option[String] = None): String = {
-      val providerAttribute = provider.map(p => s""" data-oembed-provider="${p.toLowerCase}"""").getOrElse("")
-      html.map(html => s"""<div${label.map(" class=\"" + _ + "\"").getOrElse("")} data-oembed="$url" data-oembed-type="${typ.toLowerCase}"$providerAttribute>$html</div>""").getOrElse("")
+    def asHtml(label: Option[String] = None, direction: Option[String] = None): String = {
+      val attributes: Seq[(String, String)] = Seq(
+        ("data-oembed", url),
+        ("data-oembed-type", typ.toLowerCase)
+      ) ++
+        label.map(l => ("class", l)).toSeq ++
+        direction.map(d => ("dir", d)).toSeq ++
+        provider.map(p => ("data-oembed-provider", p.toLowerCase))
+      html.map(html => s"""<div ${attributes.map{case (k, v) => s"""$k="$v""""}.mkString(" ")}>$html</div>""").getOrElse("")
     }
   }
 
@@ -330,10 +336,10 @@ object Fragment {
       case class Group(htmlTag: Option[String], blocks: Seq[Block])
 
       val grouped: List[Group] = blocks.foldLeft(List.empty[Group]) {
-        case ((group@Group(Some("ul"), _)) :: rest, block@StructuredText.Block.ListItem(text, spans, false, label)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case ((group@Group(Some("ol"), _)) :: rest, block@StructuredText.Block.ListItem(text, spans, true, label)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case (groups, block@StructuredText.Block.ListItem(text, spans, false, label)) => Group(Some("ul"), Seq(block)) +: groups
-        case (groups, block@StructuredText.Block.ListItem(text, spans, true, label)) => Group(Some("ol"), Seq(block)) +: groups
+        case ((group@Group(Some("ul"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, false, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case ((group@Group(Some("ol"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, true, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
+        case (groups, block@StructuredText.Block.ListItem(_, _, false, _, _)) => Group(Some("ul"), Seq(block)) +: groups
+        case (groups, block@StructuredText.Block.ListItem(_, _, true, _, _)) => Group(Some("ol"), Seq(block)) +: groups
         case (groups, block) => Group(None, Seq(block)) +: groups
       }.reverse
 
@@ -444,6 +450,7 @@ object Fragment {
 
     sealed trait Block extends Element {
       def label: Option[String]
+      def direction: Option[String]
     }
 
     object Block {
@@ -451,7 +458,6 @@ object Fragment {
       sealed trait Text extends Block {
         def text: String
         def spans: Seq[Span]
-        override def label: Option[String]
       }
 
       object Text {
@@ -459,83 +465,87 @@ object Fragment {
       }
 
       def asHtml(block: Block, linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
-        val cls = block.label match {
-          case Some(label) => s""" class="$label""""
-          case None => ""
-        }
+        val cls = (
+          block.label.map(l => s""" class="$l"""").toSeq ++
+          block.direction.map(d => s""" dir="$d"""").toSeq
+        ).mkString(" ")
         val body = block match {
           case StructuredText.Block.Text(text, spans, _) => StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)
           case _ => ""
         }
         htmlSerializer(block, body).getOrElse {
           block match {
-            case StructuredText.Block.Heading(text, spans, level, _) => s"""<h$level$cls>$body</h$level>"""
-            case StructuredText.Block.Paragraph(text, spans, _) => s"""<p$cls>$body</p>"""
-            case StructuredText.Block.Preformatted(text, spans, _) => s"""<pre$cls>$body</pre>"""
-            case StructuredText.Block.ListItem(text, spans, _, _) => s"""<li$cls>$body</li>"""
-            case StructuredText.Block.Image(view, hyperlink, label) => {
+            case StructuredText.Block.Heading(text, spans, level, _, _) => s"""<h$level$cls>$body</h$level>"""
+            case StructuredText.Block.Paragraph(text, spans, _, _) => s"""<p$cls>$body</p>"""
+            case StructuredText.Block.Preformatted(text, spans, _, _) => s"""<pre$cls>$body</pre>"""
+            case StructuredText.Block.ListItem(text, spans, _, _, _) => s"""<li$cls>$body</li>"""
+            case StructuredText.Block.Image(view, hyperlink, label, dir) => {
               val linkbody = hyperlink match {
                 case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
                 case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
                 case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
                 case _ => view.asHtml
               }
-              s"""<p class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
+              s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
             }
-            case StructuredText.Block.Embed(obj, label) => obj.asHtml(label)
+            case StructuredText.Block.Embed(obj, label, direction) => obj.asHtml(label, direction)
           }
         }
       }
 
-      case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String]) extends Text
+      case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String], direction: Option[String]) extends Text
 
       object Heading {
         implicit def reader(level: Int): Reads[Heading] = (
           (__ \ "text").read[String] and
             (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] tupled
+            (__ \ "label").readNullable[String] and
+            (__ \ "direction").readNullable[String] tupled
         ).map {
-            case (content, spans, label) => Heading(content, spans, level, label)
+            case (content, spans, label, direction) => Heading(content, spans, level, label, direction)
           }
       }
 
-      case class Paragraph(text: String, spans: Seq[Span], label: Option[String]) extends Text
+      case class Paragraph(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
 
       object Paragraph {
         implicit val reader: Reads[Paragraph] = (
           (__ \ "text").read[String] and
             (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] tupled
+            (__ \ "label").readNullable[String] and
+            (__ \ "direction").readNullable[String] tupled
         ).map {
-            case (content, spans, label) => Paragraph(content, spans, label)
+            case (content, spans, label, direction) => Paragraph(content, spans, label, direction)
           }
       }
 
-      case class Preformatted(text: String, spans: Seq[Span], label: Option[String]) extends Text
+      case class Preformatted(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
 
       object Preformatted {
         implicit val reader: Reads[Preformatted] = (
           (__ \ "text").read[String] and
             (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] tupled
+            (__ \ "label").readNullable[String] and
+            (__ \ "direction").readNullable[String] tupled
         ).map {
-            case (content, spans, label) => Preformatted(content, spans, label)
+            case (content, spans, label, direction) => Preformatted(content, spans, label, direction)
           }
       }
 
-      case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String]) extends Text
+      case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String], direction: Option[String]) extends Text
 
       object ListItem {
         implicit def reader(ordered: Boolean): Reads[ListItem] = (
           (__ \ "text").read[String] and
             (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] tupled
+            (__ \ "label").readNullable[String] and
+            (__ \ "direction").readNullable[String] tupled
         ).map {
-            case (content, spans, label) => ListItem(content, spans, ordered, label)
+            case (content, spans, label, direction) => ListItem(content, spans, ordered, label, direction)
           }
       }
 
-      case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String]) extends Block {
+      case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String], direction: Option[String]) extends Block {
         def url = view.url
         def width = view.width
         def height = view.height
@@ -544,13 +554,14 @@ object Fragment {
       object Image {
         implicit val reader: Reads[Image] = (
           (__ \ "label").readNullable[String] and
+          (__ \ "direction").readNullable[String] and
           (__ \ "linkTo").readNullable[Link] and
           __.read[Fragment.Image.View] tupled).map {
-          case (label, linkTo, view) => Image(view, linkTo, label)
+          case (label, direction, linkTo, view) => Image(view, linkTo, label, direction)
         }
       }
 
-      case class Embed(obj: Fragment.Embed, label: Option[String]) extends Block
+      case class Embed(obj: Fragment.Embed, label: Option[String], direction: Option[String]) extends Block
 
       implicit val reader: Reads[Block] = (__ \ "type").read[String].flatMap[Block] {
 
@@ -563,8 +574,8 @@ object Fragment {
         case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
         case "o-list-item" => __.read(ListItem.reader(ordered = true)).map(identity[Block])
         case "image" => __.read(Image.reader).map(identity[Block])
-        case "embed" => ((__ \ "label").readNullable[String] and __.read[Fragment.Embed] tupled).map {
-          case (label, obj) => Embed(obj, label): Block
+        case "embed" => ((__ \ "label").readNullable[String] and (__ \ "direction").readNullable[String] and __.read[Fragment.Embed] tupled).map {
+          case (label, direction, obj) => Embed(obj, label, direction): Block
         }
         case t => Reads(json => JsError(s"Unsupported block type $t"))
       }
