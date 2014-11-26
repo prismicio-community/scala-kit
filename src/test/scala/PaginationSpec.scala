@@ -9,7 +9,7 @@ class PaginationSpec extends Specification {
 
   private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(5).seconds)
 
-  private lazy val api = await(Api.get("https://lesbonneschoses.prismic.io/api", cache = BuiltInCache()))
+  private lazy val api = await(Api.get("https://lesbonneschoses.cdn.prismic.io/api", cache = BuiltInCache()))
 
   private val ref = api.master.ref
   private def query(page: Int, pageSize: Int = 20) =
@@ -29,7 +29,7 @@ class PaginationSpec extends Specification {
       res.resultsPerPage must_== 20
       res.resultsSize must_== 20
       res.totalPages must_== 2
-      res.nextPage must_== Some(s"https://lesbonneschoses.prismic.io/api/documents/search?ref=$ref&page=2&pageSize=20")
+      res.nextPage must_== Some(s"https://lesbonneschoses.cdn.prismic.io/api/documents/search?ref=$ref&page=2&pageSize=20")
       res.prevPage must_== None
     }
     "second page" in {
@@ -40,7 +40,7 @@ class PaginationSpec extends Specification {
       res.resultsSize must_== 20
       res.totalPages must_== 2
       res.nextPage must_== None
-      res.prevPage must_== Some(s"https://lesbonneschoses.prismic.io/api/documents/search?ref=$ref&page=1&pageSize=20")
+      res.prevPage must_== Some(s"https://lesbonneschoses.cdn.prismic.io/api/documents/search?ref=$ref&page=1&pageSize=20")
     }
     "setting page size" in {
       val res = query(1, 7)
@@ -49,7 +49,7 @@ class PaginationSpec extends Specification {
       res.resultsPerPage must_== 7
       res.resultsSize must_== 7
       res.totalPages must_== 6
-      res.nextPage must_== Some(s"https://lesbonneschoses.prismic.io/api/documents/search?ref=$ref&page=2&pageSize=7")
+      res.nextPage must_== Some(s"https://lesbonneschoses.cdn.prismic.io/api/documents/search?ref=$ref&page=2&pageSize=7")
       res.prevPage must_== None
     }
   }
