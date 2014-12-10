@@ -28,6 +28,7 @@ private[prismic] object LinkedDocument {
  */
 case class Document(
     id: String,
+    uid: Option[String],
     typ: String,
     href: String,
     tags: Seq[String],
@@ -70,6 +71,7 @@ private[prismic] object Document {
 
   implicit def reader = (
     (__ \ "id").read[String] and
+    (__ \ "uid").readNullable[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "slugs").read[Seq[String]].map(decode) and
@@ -88,6 +90,6 @@ private[prismic] object Document {
         )
       }.map(data => (typ, data))
     }
-  )((id, href, tags, slugs, linkedDocuments, typAndData) => Document(id, typAndData._1, href, tags, slugs, linkedDocuments, typAndData._2))
+  )((id, uid, href, tags, slugs, linkedDocuments, typAndData) => Document(id, uid, typAndData._1, href, tags, slugs, linkedDocuments, typAndData._2))
 
 }

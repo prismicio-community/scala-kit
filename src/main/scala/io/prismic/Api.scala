@@ -62,6 +62,7 @@ final class Api(
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1
   def oauthTokenEndpoint = data.oauthEndpoints._2
+
 }
 
 
