@@ -40,18 +40,6 @@ case class Document(
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
 
-  def linkedDocuments: Iterable[LinkedDocument] = fragments.flatMap {
-    case (_, link: Fragment.DocumentLink) => Seq(LinkedDocument(link.id, Some(link.slug), link.typ, link.tags))
-    case (_, text: Fragment.StructuredText) => text.blocks.flatMap {
-      case textBlock: Fragment.StructuredText.Block.Text => textBlock.spans.flatMap {
-        case Hyperlink(_, _, DocumentLink(lid, ltyp, ltags, lslug, _)) => Some(LinkedDocument(lid, Some(lslug), ltyp, ltags))
-        case _ => None
-      }
-      case _ => Nil
-    }
-    case _ => Nil
-  }
-
   def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, typ, tags, slug, isBroken = false)
 }
 
