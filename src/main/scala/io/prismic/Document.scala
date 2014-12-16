@@ -6,25 +6,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 /**
- * A reference to an other Prismic document, used in "related documents"
- * @param id the Prismic identifier
- * @param slug optional slug of the document
- * @param typ document type
- * @param tags list of tags of the document from Prismic
- */
-case class LinkedDocument(id: String, slug: Option[String], typ: String, tags: Seq[String])
-
-private[prismic] object LinkedDocument {
-
-  implicit val reader: Reads[LinkedDocument] = (
-    (__ \ "id").read[String] and
-    (__ \ "slug").readNullable[String] and
-    (__ \ "type").read[String] and
-    (__ \ "tags").read[Seq[String]]
-  )(LinkedDocument.apply _)
-}
-
-/**
  * A prismic.io document
  */
 case class Document(
