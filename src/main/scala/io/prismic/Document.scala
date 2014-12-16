@@ -1,6 +1,7 @@
 package io.prismic
 
 import io.prismic.Fragment.DocumentLink
+import io.prismic.Fragment.StructuredText.Span.Hyperlink
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
@@ -33,12 +34,23 @@ case class Document(
     href: String,
     tags: Seq[String],
     slugs: Seq[String],
-    linkedDocuments: List[LinkedDocument],
     fragments: Map[String, Fragment]) extends WithFragments {
 
   def slug: String = slugs.headOption.getOrElse("-")
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
+
+  def linkedDocuments: Iterable[LinkedDocument] = fragments.flatMap {
+    case (_, link: Fragment.DocumentLink) => Seq(LinkedDocument(link.id, Some(link.slug), link.typ, link.tags))
+    case (_, text: Fragment.StructuredText) => text.blocks.flatMap {
+      case textBlock: Fragment.StructuredText.Block.Text => textBlock.spans.flatMap {
+        case Hyperlink(_, _, DocumentLink(lid, ltyp, ltags, lslug, _)) => Some(LinkedDocument(lid, Some(lslug), ltyp, ltags))
+        case _ => None
+      }
+      case _ => Nil
+    }
+    case _ => Nil
+  }
 
   def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, typ, tags, slug, isBroken = false)
 }
@@ -75,7 +87,6 @@ private[prismic] object Document {
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "slugs").read[Seq[String]].map(decode) and
-    (__ \ "linked_documents").readNullable[List[LinkedDocument]].map(_.getOrElse(Nil)) and
     (__ \ "type").read[String].flatMap[(String, Map[String, Fragment])] { typ =>
       (__ \ "data" \ typ).read[JsObject].map { data =>
         collection.immutable.ListMap(
@@ -90,6 +101,6 @@ private[prismic] object Document {
         )
       }.map(data => (typ, data))
     }
-  )((id, uid, href, tags, slugs, linkedDocuments, typAndData) => Document(id, uid, typAndData._1, href, tags, slugs, linkedDocuments, typAndData._2))
+  )((id, uid, href, tags, slugs, typAndData) => Document(id, uid, typAndData._1, href, tags, slugs, typAndData._2))
 
 }

@@ -83,6 +83,7 @@ class DocSpec extends Specification {
         // endgist
       }
       resp.resultsSize.mustEqual(16)
+      resp.results(1).linkedDocuments.size.mustEqual(3)
     }
     "orderings" in {
       val resp: Response = await {
