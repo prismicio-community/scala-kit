@@ -256,7 +256,7 @@ object Fragment {
 
     case class View(url: String, width: Int, height: Int, alt: Option[String]) {
       def ratio = width / height
-      def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="${url}" width="${width}" height="${height}" />"""
+      def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="$url" width="$width" height="$height" />"""
     }
 
     implicit val viewReader: Reads[View] =

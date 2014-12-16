@@ -61,6 +61,63 @@ final class Api(
 
   def oauthInitiateEndpoint = data.oauthEndpoints._1
   def oauthTokenEndpoint = data.oauthEndpoints._2
+
+  // Helpers
+
+  /**
+   * Do an "at" query
+   * @param field the field to query, for example "my.post.title"
+   * @param value the value to match
+   * @return
+   */
+  def findBy(field: String,
+             value: String,
+             form: String = "everything",
+             ref: Ref = master,
+             page: Int = 1,
+             pageSize: Int = 20
+              ): Future[Seq[Document]] =
+    forms(form).ref(ref).page(page).pageSize(pageSize).query(Predicate.at(field, value)).submit().map(_.results)
+
+  /**
+   * Search documents from a list of ids
+   * @param values
+   * @return
+   */
+  def findByIds(values: Seq[String],
+                form: String = "everything",
+                ref: Ref = master,
+                page: Int = 1,
+                pageSize: Int = 20
+                 ): Future[Seq[Document]] =
+    forms(form).ref(ref).page(page).pageSize(pageSize).query(Predicate.any("document.id", values)).submit().map(_.results)
+
+  /**
+   * Retrieve the document with the corresponding id
+   * @param value
+   * @return
+   */
+  def findById(value: String,
+               form: String = "everything",
+               ref: Ref = master,
+               page: Int = 1,
+               pageSize: Int = 20
+                ): Future[Option[Document]] =
+    findBy("document.id", value, form, ref, page, pageSize).map(_.headOption)
+
+  /**
+   * Retrieve the document with the corresponding uid
+   * @param value
+   * @return
+   */
+  def findByUid(value: String,
+               form: String = "everything",
+               ref: Ref = master,
+               page: Int = 1,
+               pageSize: Int = 20
+                ): Future[Option[Document]] =
+    findBy("document.uid", value, form, ref, page, pageSize).map(_.headOption)
+
 }
 
 
