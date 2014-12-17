@@ -53,6 +53,12 @@ object BuildSettings {
 
 object KitBuild extends Build {
 
+  lazy val nettyproxy = Project(
+    id = "nettyproxy",
+    base = file("./netty-proxy"),
+    settings = BuildSettings.buildSettings
+  )
+
   lazy val ScalaKit = Project(
     BuildSettings.buildName, file("."),
     settings = BuildSettings.buildSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq(
@@ -82,5 +88,6 @@ object KitBuild extends Build {
         "org.specs2" %% "specs2" % "2.3.13" % "test"
       )
     )
-  )
+  ).aggregate(nettyproxy)
+   .dependsOn(nettyproxy)
 }

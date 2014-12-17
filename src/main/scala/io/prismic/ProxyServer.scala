@@ -21,8 +21,4 @@ case class ProxyServer(
 
   ntlmDomain: Option[String] = None,
 
-  encoding: Option[String] = None,
-
-  nonProxyHosts: Option[Seq[String]] = None) {
-
-}
+  encoding: Option[String] = None)

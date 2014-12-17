@@ -10,6 +10,7 @@ import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitializer, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslContext
+import io.netty.handler.proxy.HttpProxyHandler
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.CharsetUtil
 import play.api.libs.json.{JsValue, Json}
@@ -18,6 +19,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.{Future, Promise}
 import scala.util.control.Exception._
 
+import java.net.InetSocketAddress
 
 case class ClientResponse(
   status: HttpResponseStatus,
@@ -78,6 +80,10 @@ object HttpClient {
         p.addLast(new HttpClientCodec())
 
         p.addLast(new HttpContentDecompressor())
+
+        proxy.map { prox =>
+          p.addLast(new HttpProxyHandler(new InetSocketAddress(prox.host, prox.port), prox.principal.orNull, prox.password.orNull))
+        }
 
         // Uncomment the following line if you don't want to handle HttpContents.
         p.addLast(new HttpObjectAggregator(1048576))
