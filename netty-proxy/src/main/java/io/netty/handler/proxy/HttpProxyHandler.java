@@ -26,26 +26,36 @@ import io.netty.util.CharsetUtil;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.security.InvalidParameterException;
 
 public final class HttpProxyHandler extends ProxyHandler {
 
-    private static final String PROTOCOL = "http";
     private static final String AUTH_BASIC = "basic";
 
-    private final HttpClientCodec codec = new HttpClientCodec();
+    private final HttpClientCodec2 codec = new HttpClientCodec2();
+    private final String protocol;
     private final String username;
     private final String password;
     private final CharSequence authorization;
     private HttpResponseStatus status;
 
     public HttpProxyHandler(SocketAddress proxyAddress) {
+        this(proxyAddress, "http");
+    }
+
+    public HttpProxyHandler(SocketAddress proxyAddress, String protocol) {
         super(proxyAddress);
-        username = null;
-        password = null;
-        authorization = null;
+        this.protocol = protocol;
+        this.username = null;
+        this.password = null;
+        this.authorization = null;
     }
 
     public HttpProxyHandler(SocketAddress proxyAddress, String username, String password) {
+        this(proxyAddress, username, password, "http");
+    }
+
+    public HttpProxyHandler(SocketAddress proxyAddress, String username, String password, String protocol) {
         super(proxyAddress);
         if (username == null) {
             throw new NullPointerException("username");
@@ -53,8 +63,12 @@ public final class HttpProxyHandler extends ProxyHandler {
         if (password == null) {
             throw new NullPointerException("password");
         }
+        if (!"http".equals(protocol) && !"https".equals(protocol)) {
+            throw new InvalidParameterException("protocol should be http or https");
+        }
         this.username = username;
         this.password = password;
+        this.protocol = protocol;
 
         ByteBuf authz = Unpooled.copiedBuffer(username + ':' + password, CharsetUtil.UTF_8);
         ByteBuf authzBase64 = Base64.encode(authz, false);
@@ -66,8 +80,8 @@ public final class HttpProxyHandler extends ProxyHandler {
     }
 
     @Override
-    public String protocol() {
-        return PROTOCOL;
+    public String protocol(){
+        return protocol;
     }
 
     @Override
