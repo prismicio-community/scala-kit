@@ -82,16 +82,18 @@ object HttpClient {
         p.addLast(new HttpContentDecompressor())
 
         proxy match {
-          case Some(ProxyServer(phost, pport, protocol, Some(username), Some(password), ntlmDomain, encoding)) =>
+          case Some(ProxyServer(phost, pport, protocol, Some(username), Some(password))) =>
             p.addLast(new HttpProxyHandler(
               new InetSocketAddress(phost, pport),
               username,
               password,
-              protocol.getOrElse("http")))
-          case Some(ProxyServer(phost, pport, protocol, None, _, ntlmDomain, encoding)) =>
+              protocol
+            ))
+          case Some(ProxyServer(phost, pport, protocol, None, _)) =>
             p.addLast(new HttpProxyHandler(
               new InetSocketAddress(phost, pport),
-              protocol.getOrElse("http")))
+              protocol
+            ))
           case _ => ()
         }
 
