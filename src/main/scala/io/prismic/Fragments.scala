@@ -72,23 +72,31 @@ object Fragment {
     }
   }
 
-  case class DocumentLink(id: String, typ: String, tags: Seq[String], slug: String, isBroken: Boolean) extends Link {
+  case class DocumentLink(id: String,
+                          uid: Option[String],
+                          typ: String,
+                          tags: Seq[String],
+                          slug: String,
+                          fragments: Map[String, Fragment],
+                          isBroken: Boolean) extends Link with WithFragments {
     override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
-    def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
+    override def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
   }
 
   object DocumentLink {
 
-    implicit val reader: Reads[DocumentLink] = {
-      (
-        (__ \ "document").read(
-          (__ \ "id").read[String] and
-            (__ \ "type").read[String] and
-            (__ \ "tags").readNullable[Seq[String]].map(_.getOrElse(Nil)) and
-            (__ \ "slug").read[String] tupled
-        ) and
-          (__ \ "isBroken").readNullable[Boolean].map(_.getOrElse(false))
-      ).tupled.map(link => DocumentLink(link._1._1, link._1._2, link._1._3, link._1._4, link._2))
+    implicit val reader = Reads[DocumentLink] { json: JsValue =>
+      val uid = (json \ "document" \ "uid").asOpt[String]
+      val tags = (json \ "document" \ "tags").asOpt[Seq[String]].getOrElse(Nil)
+      val isBroken = (json \ "isBroken").asOpt[Boolean].getOrElse(false)
+      for {
+        id <- (json \ "document" \ "id").validate[String]
+        slug <- (json \ "document" \ "slug").validate[String]
+        typ <- (json \ "document" \ "type").validate[String]
+        data = (json \ "document" \ "data" \ typ).validate[Map[String, Fragment]](Document.fragmentsReader(typ)).getOrElse(Map.empty)
+      } yield {
+        DocumentLink(id, uid, typ, tags, slug, data, isBroken)
+      }
     }
 
   }
@@ -564,7 +572,6 @@ object Fragment {
       case class Embed(obj: Fragment.Embed, label: Option[String], direction: Option[String]) extends Block
 
       implicit val reader: Reads[Block] = (__ \ "type").read[String].flatMap[Block] {
-
         case "heading1" => __.read(Heading.reader(1)).map(identity[Block])
         case "heading2" => __.read(Heading.reader(2)).map(identity[Block])
         case "heading3" => __.read(Heading.reader(3)).map(identity[Block])

@@ -18,7 +18,7 @@ trait WithFragments {
     case (_, link: Fragment.DocumentLink) => Seq(link)
     case (_, text: Fragment.StructuredText) => text.blocks.flatMap {
       case textBlock: Fragment.StructuredText.Block.Text => textBlock.spans.flatMap {
-        case Hyperlink(_, _, link@DocumentLink(_, _, _, _, _)) => Some(link)
+        case Hyperlink(_, _, link@DocumentLink(_, _, _, _, _, _, _)) => Some(link)
         case _ => None
       }
       case _ => Nil

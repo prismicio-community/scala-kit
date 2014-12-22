@@ -5,9 +5,7 @@ package io.prismic
  */
 trait DocumentLinkResolver {
   def apply(link: Fragment.DocumentLink): String
-  def apply(document: Document): String = apply(
-    Fragment.DocumentLink(document.id, document.typ, document.tags, document.slug, isBroken = false)
-  )
+  def apply(document: Document): String = apply(document.asDocumentLink)
 }
 
 /**
