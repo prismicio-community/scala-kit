@@ -79,6 +79,8 @@ object Predicate {
 
   def any(fragment: String, values: Seq[String]) = apply("any", fragment, values)
 
+  def in(fragment: String, values: Seq[String]) = apply("in", fragment, values)
+
   def fulltext(fragment: String, value: String) = apply("fulltext", fragment, value)
 
   def similar(documentId: String, maxResults: Long) = new Predicate {
