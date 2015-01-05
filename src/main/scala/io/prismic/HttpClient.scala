@@ -1,6 +1,6 @@
 package io.prismic
 
-import java.net.URI
+import java.net.{InetSocketAddress, URI}
 import java.util.concurrent.Executors
 
 import io.netty.bootstrap.Bootstrap
@@ -9,6 +9,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitializer, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http._
+import io.netty.handler.proxy.HttpProxyHandler
 import io.netty.handler.ssl.SslContext
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.CharsetUtil
@@ -79,8 +80,15 @@ object HttpClient {
 
         p.addLast(new HttpContentDecompressor())
 
-        // Uncomment the following line if you don't want to handle HttpContents.
         p.addLast(new HttpObjectAggregator(1048576))
+
+        proxy.map { prox =>
+          p.addLast(new HttpProxyHandler(
+            new InetSocketAddress(prox.host, prox.port),
+            prox.principal.orNull,
+            prox.password.orNull)
+          )
+        }
 
         p.addLast(new SimpleChannelInboundHandler[HttpObject] {
           override def channelRead0(ctx: ChannelHandlerContext, msg: HttpObject) {
