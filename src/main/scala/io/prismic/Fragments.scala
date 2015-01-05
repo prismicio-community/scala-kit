@@ -1,6 +1,7 @@
 package io.prismic
 
 import org.joda.time._
+import spray.json.JsValue
 
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -57,7 +58,7 @@ object Fragment {
     override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
     override def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
   }
-
+/*
   object DocumentLink {
 
     implicit val reader = Reads[DocumentLink] { json: JsValue =>
@@ -85,17 +86,11 @@ object Fragment {
       }
     }
   }
-
+*/
   // ------------------
 
   case class Text(value: String) extends Fragment {
     def asHtml: String = s"""<span class="text">$value</span>"""
-  }
-
-  object Text {
-    implicit val reader: Reads[Text] = {
-      Reads(v => v.asOpt[String].map(d => JsSuccess(Text(d))).getOrElse(JsError(s"Invalid text value $v")))
-    }
   }
 
   // ------------------
@@ -105,24 +100,9 @@ object Fragment {
     def asHtml: String = s"""<time>$value</time>"""
   }
 
-  object Date {
-    implicit val reader: Reads[Date] = {
-      Reads(v => v.asOpt[String].flatMap(d => Try(JsSuccess(Date(LocalDate.parse(d, format.DateTimeFormat.forPattern("yyyy-MM-dd"))))).toOption).getOrElse(JsError(s"Invalid date value $v")))
-    }
-  }
-
   case class Timestamp(value: DateTime) extends Fragment {
     def asText(pattern: String) = value.toString(pattern)
     def asHtml: String = s"""<time>$value</time>"""
-  }
-
-  object Timestamp {
-    implicit val reader: Reads[Timestamp] = {
-      Reads(v => v.asOpt[String].flatMap { d =>
-        val isoFormat = org.joda.time.format.DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ")
-        Try(JsSuccess(Timestamp(DateTime.parse(d, isoFormat).withZone(DateTimeZone.UTC)))).toOption
-      }.getOrElse(JsError(s"Invalid timestamp value $v")))
-    }
   }
 
   // ------------------
@@ -131,12 +111,6 @@ object Fragment {
     def asInt = value.toInt
     def asText(pattern: String) = new java.text.DecimalFormat(pattern).format(value)
     def asHtml: String = s"""<span class="number">$value</span>"""
-  }
-
-  object Number {
-    implicit val reader: Reads[Number] = {
-      Reads(v => v.asOpt[Double].map(d => JsSuccess(Number(d))).getOrElse(JsError(s"Invalid number value $v")))
-    }
   }
 
   // ------------------
@@ -158,10 +132,6 @@ object Fragment {
     def asRGB(hex: String): (Int, Int, Int) = hex match {
       case HexColor(r, g, b) => (Integer.parseInt(r, 16), Integer.parseInt(g, 16), Integer.parseInt(b, 16))
       case _                 => (0, 0, 0)
-    }
-
-    implicit val reader: Reads[Color] = {
-      Reads(v => v.asOpt[String].filter(isValidColorValue).map(hex => JsSuccess(Color(hex))).getOrElse(JsError(s"Invalid color value $v")))
     }
 
   }
@@ -187,39 +157,10 @@ object Fragment {
     }
   }
 
-  object Embed {
-
-    implicit val reader: Reads[Embed] = {
-      (__ \ "oembed").read(
-        (
-          (__ \ "type").read[String] and
-          (__ \ "provider_name").readNullable[String] and
-          (__ \ "embed_url").read[String] and
-          (__ \ "width").readNullable[Int] and
-          (__ \ "height").readNullable[Int] and
-          (__ \ "html").readNullable[String] and
-          __.read[JsObject]
-        )(Embed.apply _)
-      )
-    }
-
-  }
-
   // ------------------
 
   case class GeoPoint(latitude: Double, longitude: Double) extends Fragment {
     def asHtml: String = s"""<div class="geopoint"><span class="latitude">${latitude}</span><span class="longitude">${longitude}</span></div>"""
-  }
-
-  object GeoPoint {
-
-    implicit val reader: Reads[GeoPoint] = {
-      (
-        (__ \ "latitude").read[Double] and
-        (__ \ "longitude").read[Double]
-      )(GeoPoint.apply _)
-    }
-
   }
 
   // ------------------
@@ -241,7 +182,7 @@ object Fragment {
       def ratio = width / height
       def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="$url" width="$width" height="$height" />"""
     }
-
+/*
     implicit val viewReader: Reads[View] =
       (
         (__ \ 'url).read[String] and
@@ -261,7 +202,7 @@ object Fragment {
       ).tupled.map {
           case (main, views) => Image(main, views)
         }
-
+*/
   }
 
   case class Group(docs: Seq[Group.Doc]) extends Fragment {
@@ -273,7 +214,7 @@ object Fragment {
   object Group {
 
     case class Doc(fragments: Map[String, Fragment]) extends WithFragments
-
+/*
     private implicit val fragmentRead: Reads[Fragment] = Reads { value =>
       value.asOpt[JsObject] flatMap Document.parse match {
         case Some(f) => JsSuccess(f)
@@ -284,7 +225,7 @@ object Fragment {
     implicit val reader: Reads[Group] =
       Reads.seq(__.read[Map[String, Fragment]]).map { docs =>
         Group(docs.map(Doc))
-      }
+      }*/
   }
 
   case class StructuredText(blocks: Seq[StructuredText.Block]) extends Fragment {
@@ -411,7 +352,7 @@ object Fragment {
       case class Strong(start: Int, end: Int) extends Span
       case class Hyperlink(start: Int, end: Int, link: Link) extends Span
       case class Label(start: Int, end: Int, label: String) extends Span
-
+/*
       implicit val reader: Reads[Span] =
         (
           (__ \ 'type).read[String] and
@@ -428,7 +369,7 @@ object Fragment {
               case "label" => (__ \ "data" \ "label").read[String].map(label => Label(start, end, label))
               case t => Reads(json => JsError(s"Unsupported span type $t"))
             }
-          }
+          }*/
     }
 
     sealed trait Block extends Element {
@@ -477,7 +418,7 @@ object Fragment {
       }
 
       case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String], direction: Option[String]) extends Text
-
+/*
       object Heading {
         implicit def reader(level: Int): Reads[Heading] = (
           (__ \ "text").read[String] and
@@ -488,9 +429,9 @@ object Fragment {
             case (content, spans, label, direction) => Heading(content, spans, level, label, direction)
           }
       }
-
+*/
       case class Paragraph(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-
+/*
       object Paragraph {
         implicit val reader: Reads[Paragraph] = (
           (__ \ "text").read[String] and
@@ -501,9 +442,9 @@ object Fragment {
             case (content, spans, label, direction) => Paragraph(content, spans, label, direction)
           }
       }
-
+*/
       case class Preformatted(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-
+/*
       object Preformatted {
         implicit val reader: Reads[Preformatted] = (
           (__ \ "text").read[String] and
@@ -514,9 +455,9 @@ object Fragment {
             case (content, spans, label, direction) => Preformatted(content, spans, label, direction)
           }
       }
-
+*/
       case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String], direction: Option[String]) extends Text
-
+/*
       object ListItem {
         implicit def reader(ordered: Boolean): Reads[ListItem] = (
           (__ \ "text").read[String] and
@@ -527,13 +468,13 @@ object Fragment {
             case (content, spans, label, direction) => ListItem(content, spans, ordered, label, direction)
           }
       }
-
+*/
       case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String], direction: Option[String]) extends Block {
         def url = view.url
         def width = view.width
         def height = view.height
       }
-
+/*
       object Image {
         implicit val reader: Reads[Image] = (
           (__ \ "label").readNullable[String] and
@@ -543,9 +484,9 @@ object Fragment {
           case (label, direction, linkTo, view) => Image(view, linkTo, label, direction)
         }
       }
-
+*/
       case class Embed(obj: Fragment.Embed, label: Option[String], direction: Option[String]) extends Block
-
+/*
       implicit val reader: Reads[Block] = (__ \ "type").read[String].flatMap[Block] {
         case "heading1" => __.read(Heading.reader(1)).map(identity[Block])
         case "heading2" => __.read(Heading.reader(2)).map(identity[Block])
@@ -561,13 +502,13 @@ object Fragment {
         }
         case t => Reads(json => JsError(s"Unsupported block type $t"))
       }
-
+*/
     }
-
+/*
     implicit val reader: Reads[StructuredText] = __.read(Reads.seq(Block.reader.map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
       case blocks => StructuredText(blocks)
     }
-
+*/
   }
 
 }

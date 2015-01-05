@@ -1,9 +1,10 @@
 package io.prismic
 
 import io.netty.handler.codec.http.{HttpResponseStatus, QueryStringEncoder}
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import spray.json.JsValue
 import scala.concurrent.Future
+
+import PrismicJsonProtocol._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -146,7 +147,7 @@ case class Response(
   totalPages: Int,
   nextPage: Option[String],
   prevPage: Option[String])
-
+/*
 private[prismic] object Response {
 
   private implicit val documentReader: Reads[Document] = Document.reader
@@ -162,3 +163,4 @@ private[prismic] object Response {
     (__ \ "prev_page").readNullable[String]
   )(Response.apply _)
 }
+*/
