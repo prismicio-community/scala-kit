@@ -71,24 +71,22 @@ object HttpClient {
       override def initChannel(ch: SocketChannel) = {
         val p: ChannelPipeline = ch.pipeline()
 
+        proxy match {
+          case Some(ProxyServer(phost, pport, _, Some(username), Some(password), _, _, _)) =>
+            p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport), username, password))
+          case Some(ProxyServer(phost, pport, _, _, _, _, _, _)) =>
+            p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport)))
+          case _ => ()
+        }
+
         if (scheme == "https") {
           val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
           p.addLast("ssl", sslCtx.newHandler(ch.alloc(), host, port))
         }
 
         p.addLast(new HttpClientCodec())
-
         p.addLast(new HttpContentDecompressor())
-
         p.addLast(new HttpObjectAggregator(1048576))
-
-        proxy.map { prox =>
-          p.addLast(new HttpProxyHandler(
-            new InetSocketAddress(prox.host, prox.port),
-            prox.principal.orNull,
-            prox.password.orNull)
-          )
-        }
 
         p.addLast(new SimpleChannelInboundHandler[HttpObject] {
           override def channelRead0(ctx: ChannelHandlerContext, msg: HttpObject) {
