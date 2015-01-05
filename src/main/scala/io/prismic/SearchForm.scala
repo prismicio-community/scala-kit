@@ -58,7 +58,22 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
   }
 
   def page(p: Int) = set("page", p)
+
   def pageSize(p: Int) = set("pageSize", p)
+
+  /**
+   * Restrict the fragments to be return to the set of fields in parameter
+   * @param fields
+   * @return
+   */
+  def fetch(fields: Iterable[String]) = set("fetch", fields.mkString(","))
+
+  /**
+   * Add the requested fields to the DocumentLink objects within the results
+   * @param fields
+   * @return
+   */
+  def fetchLinks(fields: Iterable[String]) = set("fetchLinks", fields.mkString(","))
 
   /**
    *

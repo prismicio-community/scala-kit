@@ -7,7 +7,6 @@ import com.typesafe.sbt.SbtGit.GitKeys._
 import com.typesafe.sbt.pgp.PgpKeys
 import Sonatype.SonatypeKeys._
 
-
 object BuildSettings {
 
   val buildName = "scala-kit"
@@ -60,6 +59,7 @@ object KitBuild extends Build {
 
       resolvers += "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/",
       resolvers += "Sonatype releases" at "http://oss.sonatype.org/content/repositories/releases",
+      resolvers += "Netty snapshots" at "http://clinker.netty.io/nexus/content/repositories/snapshots",
       sourceGenerators in Compile <+= (sourceManaged in Compile, version, scalaVersion, name) map { (d, v, sv, n) =>
         val file = d / "info.scala"
         IO.write(file, """package io.prismic
@@ -76,7 +76,7 @@ object KitBuild extends Build {
         "com.typesafe.play" %% "play-iteratees" % "2.2.4",
         "com.typesafe.play" %% "play-json" % "2.2.4",
         "com.jcraft" % "jzlib" %  "1.1.2",
-        "io.netty" % "netty-all" % "4.0.24.Final",
+        "io.netty" % "netty-all" % "4.1.0.Beta4-SNAPSHOT",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.12" % "test"
       )

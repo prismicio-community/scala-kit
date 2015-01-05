@@ -14,11 +14,11 @@ trait WithFragments {
    */
   def get(field: String): Option[Fragment] = fragments.get(field).orElse(getAll(field).headOption)
 
-  def linkedDocuments: Iterable[LinkedDocument] = fragments.flatMap {
-    case (_, link: Fragment.DocumentLink) => Seq(LinkedDocument(link.id, Some(link.slug), link.typ, link.tags))
+  def linkedDocuments: Iterable[Fragment.DocumentLink] = fragments.flatMap {
+    case (_, link: Fragment.DocumentLink) => Seq(link)
     case (_, text: Fragment.StructuredText) => text.blocks.flatMap {
       case textBlock: Fragment.StructuredText.Block.Text => textBlock.spans.flatMap {
-        case Hyperlink(_, _, DocumentLink(lid, ltyp, ltags, lslug, _)) => Some(LinkedDocument(lid, Some(lslug), ltyp, ltags))
+        case Hyperlink(_, _, link@DocumentLink(_, _, _, _, _, _, _)) => Some(link)
         case _ => None
       }
       case _ => Nil

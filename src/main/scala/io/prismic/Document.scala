@@ -6,25 +6,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
 /**
- * A reference to an other Prismic document, used in "related documents"
- * @param id the Prismic identifier
- * @param slug optional slug of the document
- * @param typ document type
- * @param tags list of tags of the document from Prismic
- */
-case class LinkedDocument(id: String, slug: Option[String], typ: String, tags: Seq[String])
-
-private[prismic] object LinkedDocument {
-
-  implicit val reader: Reads[LinkedDocument] = (
-    (__ \ "id").read[String] and
-    (__ \ "slug").readNullable[String] and
-    (__ \ "type").read[String] and
-    (__ \ "tags").read[Seq[String]]
-  )(LinkedDocument.apply _)
-}
-
-/**
  * A prismic.io document
  */
 case class Document(
@@ -40,7 +21,7 @@ case class Document(
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
 
-  def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, typ, tags, slug, isBroken = false)
+  def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, uid, typ, tags, slug, fragments, isBroken = false)
 }
 
 private[prismic] object Document {
@@ -69,25 +50,27 @@ private[prismic] object Document {
 
   private def decode(slugs: Seq[String]) = slugs.map(java.net.URLDecoder.decode(_, "UTF-8"))
 
-  implicit def reader = (
+  def fragmentsReader(typ: String) = Reads[Map[String, Fragment]] {
+    case JsObject(fields) => JsSuccess(collection.immutable.ListMap(fields.map {
+      case (key, json: JsObject) => parse(json).toList.map(fragment => (s"$typ.$key", fragment))
+      case (key, jsons: JsArray) => jsons.value.zipWithIndex.collect {
+        case (json: JsObject, i) => parse(json).toList.map(fragment => (s"$typ.$key[$i]", fragment))
+        case _ => Nil
+      }.flatten
+      case _ => Nil
+    }.flatten:_*))
+    case _ => JsError("JsObject expected")
+  }
+
+  implicit def reader: Reads[Document] = (
     (__ \ "id").read[String] and
     (__ \ "uid").readNullable[String] and
     (__ \ "href").read[String] and
     (__ \ "tags").read[Seq[String]] and
     (__ \ "slugs").read[Seq[String]].map(decode) and
     (__ \ "type").read[String].flatMap[(String, Map[String, Fragment])] { typ =>
-      (__ \ "data" \ typ).read[JsObject].map { data =>
-        collection.immutable.ListMap(
-          data.fields.map {
-            case (key, json: JsObject) => parse(json).toList.map(fragment => (s"$typ.$key", fragment))
-            case (key, jsons: JsArray) => jsons.value.zipWithIndex.collect {
-              case (json: JsObject, i) => parse(json).toList.map(fragment => (s"$typ.$key[$i]", fragment))
-              case _                   => Nil
-            }.flatten
-            case _ => Nil
-          }.flatten: _*
-        )
-      }.map(data => (typ, data))
+      (__ \ "data" \ typ).read[Map[String, Fragment]](fragmentsReader(typ))
+      .map(data => (typ, data))
     }
   )((id, uid, href, tags, slugs, typAndData) => Document(id, uid, typAndData._1, href, tags, slugs, typAndData._2))
 
