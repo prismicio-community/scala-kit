@@ -2,9 +2,6 @@ package io.prismic
 
 import org.joda.time._
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.{ postfixOps, implicitConversions }
@@ -45,31 +42,9 @@ object Fragment {
     def asHtml(): String = s"""<a href="$url">$url</a>"""
   }
 
-  object WebLink {
-
-    implicit val reader: Reads[WebLink] = {
-      (__ \ "url").read[String].map {
-        case url => WebLink(url)
-      }
-    }
-
-  }
-
   case class MediaLink(url: String, kind: String, size: Long, filename: String) extends Link {
     override def getUrl(linkResolver: DocumentLinkResolver) = url
     def asHtml: String = s"""<a href="$url">$filename</a>"""
-  }
-
-  object MediaLink {
-
-    implicit val reader: Reads[MediaLink] = {
-      (
-        (__ \ "file" \ "url").read[String] and
-        (__ \ "file" \ "kind").read[String] and
-        (__ \ "file" \ "size").read[String].map(_.toLong) and
-        (__ \ "file" \ "name").read[String]
-      )(MediaLink.apply _)
-    }
   }
 
   case class DocumentLink(id: String,

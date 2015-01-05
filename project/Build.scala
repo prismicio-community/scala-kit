@@ -74,8 +74,8 @@ object KitBuild extends Build {
       },
       libraryDependencies ++= Seq(
         "org.fluentd" % "fluent-logger" % "0.2.10",
-        "com.typesafe.play" %% "play-iteratees" % "2.3.4",
-        "com.typesafe.play" %% "play-json" % "2.3.4",
+        "joda-time" %% "joda-time" % "2.6",
+        "io.spray" %%  "spray-json" % "1.3.1",
         "com.jcraft" % "jzlib" %  "1.1.2",
         "io.netty" % "netty-all" % "4.0.24.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
