@@ -9,9 +9,7 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitializer, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http._
-import io.netty.handler.proxy.HttpProxyHandler
 import io.netty.handler.ssl.SslContext
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.CharsetUtil
 import play.api.libs.json.{JsValue, Json}
 
@@ -71,6 +69,7 @@ object HttpClient {
       override def initChannel(ch: SocketChannel) = {
         val p: ChannelPipeline = ch.pipeline()
 
+        /** Proxy support disabled until stable release of Netty 4.1
         proxy match {
           case Some(ProxyServer(phost, pport, _, Some(username), Some(password), _, _, _)) =>
             p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport), username, password))
@@ -78,6 +77,7 @@ object HttpClient {
             p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport)))
           case _ => ()
         }
+          */
 
         if (scheme == "https") {
           val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
