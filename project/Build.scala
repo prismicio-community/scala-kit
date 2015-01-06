@@ -75,6 +75,7 @@ object KitBuild extends Build {
         "org.fluentd" % "fluent-logger" % "0.2.10",
         "com.typesafe.play" %% "play-iteratees" % "2.3.4",
         "com.typesafe.play" %% "play-json" % "2.3.4",
+        "io.netty" % "netty-all" % "4.0.24.Final",
         "com.jcraft" % "jzlib" %  "1.1.2",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.13" % "test"
