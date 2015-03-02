@@ -2,8 +2,6 @@ package io.prismic
 
 import org.joda.time._
 
-import play.api.libs.json._
-
 /**
  * Experiment variation exposed by prismic API
  * @param id technical prismic ID
@@ -14,11 +12,11 @@ case class Variation(
   id: String,
   ref: String,
   label: String)
-
+/*
 private[prismic] object Variation {
 
   implicit val readsVariation = Json.reads[Variation]
-}
+}*/
 
 /**
  * Experiment exposed by prismic API
@@ -32,7 +30,7 @@ case class Experiment(
   googleId: Option[String],
   name: String,
   variations: Seq[Variation])
-
+/*
 object Experiment {
 
   import Variation.readsVariation
@@ -41,7 +39,7 @@ object Experiment {
   @deprecated("Use Prismic.experimentsCookie", "1.2.9")
   val cookieName = Prismic.experimentsCookie
 }
-
+*/
 /**
  * All experiments exposed by prismic API
  * @param draft experiments in draft stage, i.e. not running, for preview purpose
@@ -79,7 +77,7 @@ case class Experiments(
     case e: NumberFormatException => None
   }
 }
-
+/*
 private[prismic] case object Experiments {
 
   val empty = Experiments(Nil, Nil)
@@ -87,3 +85,4 @@ private[prismic] case object Experiments {
   import Experiment.readsExperiment
   implicit val readsExperiments = Json.reads[Experiments]
 }
+*/

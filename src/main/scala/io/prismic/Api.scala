@@ -182,7 +182,7 @@ case class Ref(
   label: String,
   isMasterRef: Boolean = false,
   scheduledAt: Option[DateTime] = None)
-
+/*
 private[prismic] object Ref {
 
   implicit val reader = (
@@ -194,12 +194,12 @@ private[prismic] object Ref {
   )(Ref.apply _)
 
 }
-
+*/
 /**
  * A prismic.io document field metadata
  */
 case class Field(`type`: String, multiple: Boolean, default: Option[String])
-
+/*
 private[prismic] object Field {
   implicit val reader = (
     (__ \ "type").read[String] and
@@ -207,7 +207,7 @@ private[prismic] object Field {
     (__ \ "default").readNullable[String]
   )(Field.apply _)
 }
-
+*/
 case class Form(
     name: Option[String],
     method: String,
@@ -223,11 +223,11 @@ case class Form(
   }
 
 }
-
+/*
 private[prismic] object Form {
   implicit val reader = Json.reads[Form]
 }
-
+*/
 private[prismic] case class ApiData(
   refs: Seq[Ref],
   bookmarks: Map[String, String],
@@ -236,7 +236,7 @@ private[prismic] case class ApiData(
   forms: Map[String, Form],
   oauthEndpoints: (String, String),
   experiments: Experiments)
-
+/*
 private[prismic] object ApiData {
 
   import Experiment.readsExperiment
@@ -254,3 +254,4 @@ private[prismic] object ApiData {
   )(ApiData.apply _)
 
 }
+*/

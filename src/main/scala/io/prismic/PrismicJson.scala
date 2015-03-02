@@ -1,5 +1,7 @@
 package io.prismic
 
+import scala.language.implicitConversions
+import scala.util.control.Exception._
 import spray.json._
 
 class PrismicJson(json: JsValue) {
@@ -9,6 +11,14 @@ class PrismicJson(json: JsValue) {
       case Seq(value) => value
     }
     case _ => JsNull
+  }
+
+  def validate[T](field: String): Either[Throwable, T] = catching(classOf[DeserializationException]) either {
+    json.convertTo[T]
+  }
+
+  def toOpt[T]: Option[T] = catching(classOf[DeserializationException]) opt {
+    json.convertTo[T]
   }
 
 }

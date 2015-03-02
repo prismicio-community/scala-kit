@@ -1,9 +1,9 @@
 package io.prismic
 
+import spray.json._
+
 import io.prismic.Fragment.DocumentLink
 import io.prismic.Fragment.StructuredText.Span.Hyperlink
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
 
 /**
  * A prismic.io document
@@ -26,30 +26,7 @@ case class Document(
 
 private[prismic] object Document {
 
-  def parse(jsvalue: JsObject): Option[Fragment] = {
-    (jsvalue \ "type").asOpt[String].flatMap {
-
-      case "Image"          => Some(Fragment.Image.reader.map(identity[Fragment]))
-      case "Color"          => Some(Fragment.Color.reader.map(identity[Fragment]))
-      case "Number"         => Some(Fragment.Number.reader.map(identity[Fragment]))
-      case "Date"           => Some(Fragment.Date.reader.map(identity[Fragment]))
-      case "Timestamp"      => Some(Fragment.Timestamp.reader.map(identity[Fragment]))
-      case "GeoPoint"       => Some(Fragment.GeoPoint.reader.map(identity[Fragment]))
-      case "Text"           => Some(Fragment.Text.reader.map(identity[Fragment]))
-      case "Select"         => Some(Fragment.Text.reader.map(identity[Fragment]))
-      case "Embed"          => Some(Fragment.Embed.reader.map(identity[Fragment]))
-      case "Link.web"       => Some(Fragment.WebLink.reader.map(identity[Fragment]))
-      case "Link.document"  => Some(Fragment.DocumentLink.reader.map(identity[Fragment]))
-      case "Link.file"      => Some(Fragment.MediaLink.reader.map(identity[Fragment]))
-      case "StructuredText" => Some(Fragment.StructuredText.reader.map(identity[Fragment]))
-      case "Group"          => Some(Fragment.Group.reader.map(identity[Fragment]))
-
-      case t                => None
-    }.flatMap(_.reads(jsvalue \ "value").asOpt)
-  }
-
-  private def decode(slugs: Seq[String]) = slugs.map(java.net.URLDecoder.decode(_, "UTF-8"))
-
+/*
   def fragmentsReader(typ: String) = Reads[Map[String, Fragment]] {
     case JsObject(fields) => JsSuccess(collection.immutable.ListMap(fields.map {
       case (key, json: JsObject) => parse(json).toList.map(fragment => (s"$typ.$key", fragment))
@@ -73,5 +50,5 @@ private[prismic] object Document {
       .map(data => (typ, data))
     }
   )((id, uid, href, tags, slugs, typAndData) => Document(id, uid, typAndData._1, href, tags, slugs, typAndData._2))
-
+*/
 }
