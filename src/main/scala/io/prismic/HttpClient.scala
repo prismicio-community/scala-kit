@@ -1,6 +1,6 @@
 package io.prismic
 
-import java.net.URI
+import java.net.{InetSocketAddress, URI}
 import java.util.concurrent.Executors
 
 import io.netty.bootstrap.Bootstrap
@@ -10,7 +10,6 @@ import io.netty.channel.socket.nio.NioSocketChannel
 import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitializer, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslContext
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.CharsetUtil
 import play.api.libs.json.{JsValue, Json}
 
@@ -70,16 +69,23 @@ object HttpClient {
       override def initChannel(ch: SocketChannel) = {
         val p: ChannelPipeline = ch.pipeline()
 
+        /** Proxy support disabled until stable release of Netty 4.1
+        proxy match {
+          case Some(ProxyServer(phost, pport, _, Some(username), Some(password), _, _, _)) =>
+            p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport), username, password))
+          case Some(ProxyServer(phost, pport, _, _, _, _, _, _)) =>
+            p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport)))
+          case _ => ()
+        }
+          */
+
         if (scheme == "https") {
           val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
           p.addLast("ssl", sslCtx.newHandler(ch.alloc(), host, port))
         }
 
         p.addLast(new HttpClientCodec())
-
         p.addLast(new HttpContentDecompressor())
-
-        // Uncomment the following line if you don't want to handle HttpContents.
         p.addLast(new HttpObjectAggregator(1048576))
 
         p.addLast(new SimpleChannelInboundHandler[HttpObject] {

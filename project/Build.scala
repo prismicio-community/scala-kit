@@ -7,7 +7,6 @@ import com.typesafe.sbt.SbtGit.GitKeys._
 import com.typesafe.sbt.pgp.PgpKeys
 import Sonatype.SonatypeKeys._
 
-
 object BuildSettings {
 
   val buildName = "scala-kit"
@@ -78,6 +77,7 @@ object KitBuild extends Build {
         "io.spray" %%  "spray-json" % "1.3.1",
         "com.jcraft" % "jzlib" %  "1.1.2",
         "io.netty" % "netty-all" % "4.0.24.Final",
+        "com.jcraft" % "jzlib" %  "1.1.2",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.13" % "test"
       )
