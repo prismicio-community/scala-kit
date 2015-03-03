@@ -1,9 +1,9 @@
 package io.prismic
 
 import io.netty.handler.codec.http.{HttpResponseStatus, QueryStringEncoder}
-import spray.json.JsValue
 import scala.concurrent.Future
 
+import PrismicJson._
 import PrismicJsonProtocol._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -134,7 +134,7 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
  * and may need to retrieve more pages or increase the page size.
  */
 case class Response(
-  results: List[Document],
+  results: Seq[Document],
   page: Int,
   resultsPerPage: Int,
   resultsSize: Int,

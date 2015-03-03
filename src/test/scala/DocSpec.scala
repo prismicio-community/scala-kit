@@ -1,13 +1,12 @@
 package io.prismic
 
-import java.util.Date
-
-import io.prismic.Fragment.{Image, Number, StructuredText}
+import io.prismic.Fragment.{Number, StructuredText}
 import io.prismic.Fragment.StructuredText.Span
-import org.joda.time.{LocalDate, DateMidnight, DateTime}
-import org.specs2.matcher.MatchSuccess
+import org.joda.time.DateTime
 import org.specs2.mutable._
-import play.api.libs.json._
+
+import spray.json._
+import PrismicJsonProtocol._
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
@@ -227,7 +226,7 @@ class DocSpec extends Specification {
       url.mustEqual(Some("https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/f606ad513fcc2a73b909817119b84d6fd0d61a6d.png"))
     }
     "Group" in {
-      val json = Json.parse("""{
+      val json = JsonParser("""{
         "id": "abcd",
         "type": "article",
         "href": "",
@@ -276,7 +275,7 @@ class DocSpec extends Specification {
           }
         }
       }""")
-      val doc = json.as[Document]
+      val doc = json.convertTo[Document]
       val resolver = DocumentLinkResolver { link =>
         s"/testing_url/${link.id}/${link.slug}"
       }
@@ -293,7 +292,7 @@ class DocSpec extends Specification {
       }
     }
     "Link" in {
-      val json = Json.parse("""{
+      val json = JsonParser("""{
         "id": "abcd",
         "type": "article",
         "href": "",
@@ -316,7 +315,7 @@ class DocSpec extends Specification {
           }
         }
       }""")
-      val doc = json.as[Document]
+      val doc = json.convertTo[Document]
       // startgist:9d6cdaabf28c1f01cf25:prismic-link.scala
       val resolver = DocumentLinkResolver { link =>
         s"/testing_url/${link.id}/${link.slug}"
@@ -329,7 +328,7 @@ class DocSpec extends Specification {
       }
     }
     "Embed" in {
-      val doc = Json.parse("""{
+      val doc = JsonParser("""{
         "id": "abcd",
         "type": "article",
         "href": "",
@@ -360,7 +359,7 @@ class DocSpec extends Specification {
             }
           }
         }
-      }""").as[Document]
+      }""").convertTo[Document]
       // startgist:a93ae78003c42b000c3d:prismic-embed.scala
       val video: Option[Fragment.Embed] = doc.getEmbed("article.video")
       // Html is the code to include to embed the object, and depends on the embedded service
@@ -371,7 +370,7 @@ class DocSpec extends Specification {
       }
     }
     "Color" in {
-      val doc = Json.parse("""{
+      val doc = JsonParser("""{
         "id": "abcd",
         "type": "article",
         "href": "",
@@ -385,7 +384,7 @@ class DocSpec extends Specification {
             }
           }
         }
-      }""").as[Document]
+      }""").convertTo[Document]
       // startgist:18c56eaec43a23d4c760:prismic-color.scala
       val bgcolor: Option[Fragment.Color] = doc.getColor("article.background")
       val hexa: Option[String] = bgcolor.map(_.hex)
@@ -393,7 +392,7 @@ class DocSpec extends Specification {
       hexa.mustEqual(Some("#000000"))
     }
     "GeoPoint" in {
-      val doc = Json.parse("""{
+      val doc = JsonParser("""{
         "id": "abcd",
         "type": "article",
         "href": "",
@@ -410,7 +409,7 @@ class DocSpec extends Specification {
             }
           }
         }
-      }""").as[Document]
+      }""").convertTo[Document]
       // startgist:52d98c2aef26e5d8a459:prismic-geopoint.scala
       // "near" predicate for GeoPoint fragments
       val near = Predicate.near("my.store.location", 48.8768767, 2.3338802, 10)

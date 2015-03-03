@@ -58,35 +58,7 @@ object Fragment {
     override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
     override def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
   }
-/*
-  object DocumentLink {
 
-    implicit val reader = Reads[DocumentLink] { json: JsValue =>
-      val uid = (json \ "document" \ "uid").asOpt[String]
-      val tags = (json \ "document" \ "tags").asOpt[Seq[String]].getOrElse(Nil)
-      val isBroken = (json \ "isBroken").asOpt[Boolean].getOrElse(false)
-      for {
-        id <- (json \ "document" \ "id").validate[String]
-        slug <- (json \ "document" \ "slug").validate[String]
-        typ <- (json \ "document" \ "type").validate[String]
-        data = (json \ "document" \ "data" \ typ).validate[Map[String, Fragment]](Document.fragmentsReader(typ)).getOrElse(Map.empty)
-      } yield {
-        DocumentLink(id, uid, typ, tags, slug, data, isBroken)
-      }
-    }
-
-  }
-
-  object Link {
-    implicit val reader = Reads[Link] { jsvalue =>
-      (jsvalue \ "type").validate[String] flatMap {
-        case "Link.web" => Fragment.WebLink.reader.reads(jsvalue)
-        case "Link.document" => Fragment.DocumentLink.reader.reads(jsvalue)
-        case "Link.file" => Fragment.MediaLink.reader.reads(jsvalue)
-      }
-    }
-  }
-*/
   // ------------------
 
   case class Text(value: String) extends Fragment {
@@ -182,27 +154,7 @@ object Fragment {
       def ratio = width / height
       def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="$url" width="$width" height="$height" />"""
     }
-/*
-    implicit val viewReader: Reads[View] =
-      (
-        (__ \ 'url).read[String] and
-        (__ \ 'dimensions).read(
-          (__ \ 'width).read[Int] and
-            (__ \ 'height).read[Int] tupled
-        ) and
-        (__ \ 'alt).read[Option[String]]
-      ).tupled.map {
-            case (url, (width, height), alt) => View(url, width, height, alt)
-          }
 
-    implicit val reader: Reads[Image] =
-      (
-        (__ \ 'main).read[View] and
-        (__ \ 'views).read[Map[String, View]]
-      ).tupled.map {
-          case (main, views) => Image(main, views)
-        }
-*/
   }
 
   case class Group(docs: Seq[Group.Doc]) extends Fragment {
@@ -214,18 +166,7 @@ object Fragment {
   object Group {
 
     case class Doc(fragments: Map[String, Fragment]) extends WithFragments
-/*
-    private implicit val fragmentRead: Reads[Fragment] = Reads { value =>
-      value.asOpt[JsObject] flatMap Document.parse match {
-        case Some(f) => JsSuccess(f)
-        case None    => JsError(Nil)
-      }
-    }
 
-    implicit val reader: Reads[Group] =
-      Reads.seq(__.read[Map[String, Fragment]]).map { docs =>
-        Group(docs.map(Doc))
-      }*/
   }
 
   case class StructuredText(blocks: Seq[StructuredText.Block]) extends Fragment {
@@ -352,24 +293,7 @@ object Fragment {
       case class Strong(start: Int, end: Int) extends Span
       case class Hyperlink(start: Int, end: Int, link: Link) extends Span
       case class Label(start: Int, end: Int, label: String) extends Span
-/*
-      implicit val reader: Reads[Span] =
-        (
-          (__ \ 'type).read[String] and
-          (__ \ 'start).read[Int] and
-          (__ \ 'end).read[Int] and
-          (__ \ 'data).readNullable[JsObject].map(_.getOrElse(Json.obj()))
-        ).tupled.flatMap {
-            case (typ, start, end, data) => typ match {
-              case "strong" => Reads.pure(Strong(start, end))
-              case "em" => Reads.pure(Em(start, end))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.web") => (__ \ "data" \ "value").read(WebLink.reader).map(link => Hyperlink(start, end, link))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.document") => (__ \ "data" \ "value").read(DocumentLink.reader).map(link => Hyperlink(start, end, link))
-              case "hyperlink" if (data \ "type").asOpt[String].exists(_ == "Link.file") => (__ \ "data" \ "value").read(MediaLink.reader).map(link => Hyperlink(start, end, link))
-              case "label" => (__ \ "data" \ "label").read[String].map(label => Label(start, end, label))
-              case t => Reads(json => JsError(s"Unsupported span type $t"))
-            }
-          }*/
+
     }
 
     sealed trait Block extends Element {
@@ -418,97 +342,23 @@ object Fragment {
       }
 
       case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String], direction: Option[String]) extends Text
-/*
-      object Heading {
-        implicit def reader(level: Int): Reads[Heading] = (
-          (__ \ "text").read[String] and
-            (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] and
-            (__ \ "direction").readNullable[String] tupled
-        ).map {
-            case (content, spans, label, direction) => Heading(content, spans, level, label, direction)
-          }
-      }
-*/
+
       case class Paragraph(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-/*
-      object Paragraph {
-        implicit val reader: Reads[Paragraph] = (
-          (__ \ "text").read[String] and
-            (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] and
-            (__ \ "direction").readNullable[String] tupled
-        ).map {
-            case (content, spans, label, direction) => Paragraph(content, spans, label, direction)
-          }
-      }
-*/
+
       case class Preformatted(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-/*
-      object Preformatted {
-        implicit val reader: Reads[Preformatted] = (
-          (__ \ "text").read[String] and
-            (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] and
-            (__ \ "direction").readNullable[String] tupled
-        ).map {
-            case (content, spans, label, direction) => Preformatted(content, spans, label, direction)
-          }
-      }
-*/
+
       case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String], direction: Option[String]) extends Text
-/*
-      object ListItem {
-        implicit def reader(ordered: Boolean): Reads[ListItem] = (
-          (__ \ "text").read[String] and
-            (__ \ "spans").read(Reads.seq(Span.reader.map(Option.apply).orElse(Reads.pure(None))).map(_.collect { case Some(span) => span })) and
-            (__ \ "label").readNullable[String] and
-            (__ \ "direction").readNullable[String] tupled
-        ).map {
-            case (content, spans, label, direction) => ListItem(content, spans, ordered, label, direction)
-          }
-      }
-*/
+
       case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String], direction: Option[String]) extends Block {
         def url = view.url
         def width = view.width
         def height = view.height
       }
-/*
-      object Image {
-        implicit val reader: Reads[Image] = (
-          (__ \ "label").readNullable[String] and
-          (__ \ "direction").readNullable[String] and
-          (__ \ "linkTo").readNullable[Link] and
-          __.read[Fragment.Image.View] tupled).map {
-          case (label, direction, linkTo, view) => Image(view, linkTo, label, direction)
-        }
-      }
-*/
+
       case class Embed(obj: Fragment.Embed, label: Option[String], direction: Option[String]) extends Block
-/*
-      implicit val reader: Reads[Block] = (__ \ "type").read[String].flatMap[Block] {
-        case "heading1" => __.read(Heading.reader(1)).map(identity[Block])
-        case "heading2" => __.read(Heading.reader(2)).map(identity[Block])
-        case "heading3" => __.read(Heading.reader(3)).map(identity[Block])
-        case "heading4" => __.read(Heading.reader(4)).map(identity[Block])
-        case "paragraph" => __.read(Paragraph.reader).map(identity[Block])
-        case "preformatted" => __.read(Preformatted.reader).map(identity[Block])
-        case "list-item" => __.read(ListItem.reader(ordered = false)).map(identity[Block])
-        case "o-list-item" => __.read(ListItem.reader(ordered = true)).map(identity[Block])
-        case "image" => __.read(Image.reader).map(identity[Block])
-        case "embed" => ((__ \ "label").readNullable[String] and (__ \ "direction").readNullable[String] and __.read[Fragment.Embed] tupled).map {
-          case (label, direction, obj) => Embed(obj, label, direction): Block
-        }
-        case t => Reads(json => JsError(s"Unsupported block type $t"))
-      }
-*/
+
     }
-/*
-    implicit val reader: Reads[StructuredText] = __.read(Reads.seq(Block.reader.map(Option(_)).orElse(implicitly[Reads[JsValue]].map(_ => None)))).map(_.flatten).map {
-      case blocks => StructuredText(blocks)
-    }
-*/
+
   }
 
 }

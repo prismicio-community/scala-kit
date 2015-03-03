@@ -3,13 +3,13 @@ package io.prismic
 import io.netty.handler.codec.http.HttpResponseStatus
 import org.joda.time._
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-
 import scala.util.control.Exception._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
+
+import PrismicJson._
+import PrismicJsonProtocol._
 
 /**
  * High-level entry point for communications with prismic.io API
@@ -47,7 +47,7 @@ final class Api(
     try {
       (for {
         tokenJson <- HttpClient.getJson(token).map(_.json)
-        mainDocumentId = (tokenJson \ "mainDocument").as[String]
+        mainDocumentId = (tokenJson \ "mainDocument").convertTo[String]
         results <- forms("everything").query(Predicate.at("document.id", mainDocumentId)).ref(token).submit()
         document = results.results.head
       } yield {
@@ -142,7 +142,7 @@ object Api {
       HttpClient.getJson(url, proxy = proxy).map { resp =>
           resp.status match {
             case HttpResponseStatus.OK => resp.json
-            case HttpResponseStatus.UNAUTHORIZED => (resp.json \ "oauth_initiate").asOpt[String] match {
+            case HttpResponseStatus.UNAUTHORIZED => (resp.json \ "oauth_initiate").toOpt[String] match {
               case Some(u) if accessToken.isDefined =>
                 throw InvalidToken("The provided access token is either invalid or expired", u)
               case Some(u) =>
@@ -155,7 +155,8 @@ object Api {
         }
     }.map { json =>
       new Api(
-        ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: $json")),
+        json.convertTo[ApiData],
+        // ApiData.reader.reads(json).getOrElse(sys.error(s"Error while parsing API document: $json")),
         accessToken,
         proxy,
         cache,
