@@ -22,6 +22,7 @@ class FragmentSpec extends Specification {
     def query(q: Predicate) = await(api.forms("everything").ref(api.master).query(q).submit())
     val docChapter = query(Predicate.at("document.id", "UrDcEAEAAKUbpbND")).results.head
     "access fields" in {
+      docChapter.slug must_== "getting-started"
       docChapter getGroup "docchapter.docs" must beSome.like {
         case group => group.docs.headOption must beSome.like {
           case doc => doc.getLink("linktodoc") must beSome.like {

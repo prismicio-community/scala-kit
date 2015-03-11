@@ -12,12 +12,11 @@ You can find this library in our own Maven repository (hosted on Github).
 Then add, the library dependency:
 
 ```
-"io.prismic" %% "scala-kit" % "1.2.18"
+"io.prismic" %% "scala-kit" % "1.3.0"
 ```
 
  * *the kit requires **JDK 7** or above*
  * *you may need to adapt the version number*
- * *Play 2.2 users: use the 1.1.x branch for compatibility*
 
 #### Get started with prismic.io
 

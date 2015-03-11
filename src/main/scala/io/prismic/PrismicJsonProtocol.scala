@@ -267,7 +267,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case Seq(JsString(id), JsString(href), JsString(typ), data: JsObject) =>
           val uid: Option[String] = (json \ "uid").toOpt[String]
           val tags: Seq[String] = (json \ "tags").toOpt[Seq[String]].getOrElse(Nil)
-          val slugs: Seq[String] = (json \ "tags").toOpt[Seq[String]].map(decode).getOrElse(Nil)
+          val slugs: Seq[String] = (json \ "slugs").toOpt[Seq[String]].map(decode).getOrElse(Nil)
           val fragments: JsObject = (data \ typ).asJsObject
           Document(id, uid, typ, href, tags, slugs, parseFragments(fragments, typ))
         case _ => throw new DeserializationException("Expected id, href, type and data")
