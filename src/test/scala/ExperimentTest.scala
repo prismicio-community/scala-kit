@@ -1,7 +1,8 @@
 package io.prismic
 
 import org.specs2.mutable._
-import play.api.libs.json._
+import spray.json._
+import PrismicJsonProtocol._
 
 class ExperimentTest extends Specification {
 
@@ -46,7 +47,7 @@ class ExperimentTest extends Specification {
 }"""
 
   "Experiments" should {
-    val experiments = Json.parse(experimentsJson).as[Experiments]
+    val experiments = JsonParser(experimentsJson).convertTo[Experiments]
     "parse correctly" in {
       experiments must beLike {
         case Experiments(Seq(exp2), Seq(exp1)) =>

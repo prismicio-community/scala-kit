@@ -4,7 +4,7 @@ import java.util.Collections
 import org.apache.commons.collections4.map.LRUMap
 import scala.collection.convert.Wrappers.JMapWrapper
 
-import play.api.libs.json._
+import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 

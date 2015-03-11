@@ -11,7 +11,8 @@ import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitiali
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslContext
 import io.netty.util.CharsetUtil
-import play.api.libs.json.{JsValue, Json}
+
+import spray.json._
 
 import scala.collection.JavaConversions._
 import scala.concurrent.{Future, Promise}
@@ -23,7 +24,7 @@ case class ClientResponse(
   body: String,
   headers: HttpHeaders
 ) {
-  def json: JsValue = Json.parse(body)
+  def json: JsValue = JsonParser(body)
   def header(key: String): Seq[String] = headers.getAll(key)
 }
 

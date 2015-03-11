@@ -1,6 +1,6 @@
 package io.prismic
 
-import play.api.libs.json.JsNumber
+import spray.json._
 
 import org.specs2.mutable._
 
