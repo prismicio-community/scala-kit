@@ -106,17 +106,16 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   }
 
   implicit object EmbedFormat extends RootJsonFormat[Embed] {
-    override def read(json: JsValue): Embed = (json \ "oembed").asJsObject.getFields("type", "provider_name", "embed_url", "width", "height", "html") match {
-      case Seq(JsString(typ), provider:JsValue, JsString(url), width:JsValue, height:JsValue, html) =>
-        Embed(
-          typ,
-          provider.convertTo[Option[String]],
-          url, width.convertTo[Option[Int]],
-          height.convertTo[Option[Int]],
-          html.convertTo[Option[String]],
-          json \ "oembed"
-        )
-    }
+    override def read(json: JsValue): Embed = Embed(
+      (json \ "oembed" \ "type").convertTo[String],
+      (json \ "oembed" \ "provider_name").toOpt[String],
+      (json \ "oembed" \ "embed_url").convertTo[String],
+      (json \ "oembed" \ "width").toOpt[Int],
+      (json \ "oembed" \ "height").toOpt[Int],
+      (json \ "oembed" \ "html").toOpt[String],
+      json \ "oembed"
+    )
+
     override def write(obj: Embed): JsValue = throw new SerializationException("Not implemented")
   }
 
