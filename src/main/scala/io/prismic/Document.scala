@@ -2,8 +2,8 @@ package io.prismic
 
 import spray.json._
 
-import io.prismic.Fragment.DocumentLink
-import io.prismic.Fragment.StructuredText.Span.Hyperlink
+import io.prismic.fragments.{ DocumentLink, StructuredText },
+  StructuredText.Span.Hyperlink
 
 /**
  * A prismic.io document
@@ -21,7 +21,7 @@ case class Document(
 
   def isTagged(requiredTags: Seq[String]) = requiredTags.forall(tag => tags.contains(tag))
 
-  def asDocumentLink: DocumentLink = Fragment.DocumentLink(id, uid, typ, tags, slug, fragments, isBroken = false)
+  def asDocumentLink: DocumentLink = DocumentLink(id, uid, typ, tags, slug, fragments, isBroken = false)
 }
 
 private[prismic] object Document {

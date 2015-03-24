@@ -1,9 +1,7 @@
 package io.prismic
 
-import io.prismic.Fragment.Image.View
-import io.prismic.Fragment.StructuredText.Block
-import io.prismic.Fragment.StructuredText.Span._
-import io.prismic.Fragment._
+import io.prismic.fragments._, Image.View, StructuredText.Block, StructuredText.Span._
+
 import org.joda.time._
 import org.joda.time.format.ISODateTimeFormat
 import spray.json._
@@ -11,7 +9,6 @@ import spray.json._
 import PrismicJson._
 
 import scala.util.Try
-
 
 object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
 
@@ -191,7 +188,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       )
   }
 
-  implicit val imageFormat = jsonFormat2(Fragment.Image.apply)
+  implicit val imageFormat = jsonFormat2(Image.apply)
 
   implicit object StructuredTextEmbedFormat extends RootJsonFormat[StructuredText.Block.Embed] {
     override def read(json: JsValue) = StructuredText.Block.Embed(
@@ -230,20 +227,20 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
 
   implicit object FragmentFormat extends RootJsonFormat[Fragment] {
     override def read(json: JsValue): Fragment = json.asJsObject.getFields("type", "value") match {
-        case Seq(JsString("Image"), value) => value.convertTo[Fragment.Image]
-        case Seq(JsString("Number"), value) => value.convertTo[Fragment.Number]
-        case Seq(JsString("Date"), value) => value.convertTo[Fragment.Date]
-        case Seq(JsString("Timestamp"), value) => value.convertTo[Fragment.Timestamp]
-        case Seq(JsString("GeoPoint"), value) => value.convertTo[Fragment.GeoPoint]
-        case Seq(JsString("Text"), value) => value.convertTo[Fragment.Text]
-        case Seq(JsString("Select"), value) => value.convertTo[Fragment.Text]
-        case Seq(JsString("Embed"), value) => value.convertTo[Fragment.Embed]
-        case Seq(JsString("Link.web"), value) => value.convertTo[Fragment.WebLink]
-        case Seq(JsString("Link.document"), value) => value.convertTo[Fragment.DocumentLink]
-        case Seq(JsString("Link.file"), value) => value.convertTo[Fragment.MediaLink]
-        case Seq(JsString("StructuredText"), value) => value.convertTo[Fragment.StructuredText]
-        case Seq(JsString("Group"), value) => value.convertTo[Fragment.Group]
-        case Seq(JsString("Color"), value) => value.convertTo[Fragment.Color]
+        case Seq(JsString("Image"), value) => value.convertTo[Image]
+        case Seq(JsString("Number"), value) => value.convertTo[Number]
+        case Seq(JsString("Date"), value) => value.convertTo[Date]
+        case Seq(JsString("Timestamp"), value) => value.convertTo[Timestamp]
+        case Seq(JsString("GeoPoint"), value) => value.convertTo[GeoPoint]
+        case Seq(JsString("Text"), value) => value.convertTo[Text]
+        case Seq(JsString("Select"), value) => value.convertTo[Text]
+        case Seq(JsString("Embed"), value) => value.convertTo[Embed]
+        case Seq(JsString("Link.web"), value) => value.convertTo[WebLink]
+        case Seq(JsString("Link.document"), value) => value.convertTo[DocumentLink]
+        case Seq(JsString("Link.file"), value) => value.convertTo[MediaLink]
+        case Seq(JsString("StructuredText"), value) => value.convertTo[StructuredText]
+        case Seq(JsString("Group"), value) => value.convertTo[Group]
+        case Seq(JsString("Color"), value) => value.convertTo[Color]
         case Seq(JsString(t), _) => throw new DeserializationException(s"Unkown fragment type: $t")
         case _ => throw new DeserializationException("Expected JsObject with type and value, got " + json)
       }

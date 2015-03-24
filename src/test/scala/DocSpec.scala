@@ -1,7 +1,7 @@
 package io.prismic
 
-import io.prismic.Fragment.{Number, StructuredText}
-import io.prismic.Fragment.StructuredText.Span
+import io.prismic.fragments._, StructuredText.Span
+
 import org.joda.time.DateTime
 import org.specs2.mutable._
 
@@ -16,7 +16,6 @@ import scala.concurrent.{Await, Future}
  * ensure they're correct
  */
 class DocSpec extends Specification {
-
   private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(5).seconds)
 
   private def resolver = DocumentLinkResolver { link =>
@@ -164,7 +163,7 @@ class DocSpec extends Specification {
             val inRange = Predicate.inRange("my.product.price", 10, 20)
 
             // Accessing number fields
-            val price: Option[Fragment.Number] = doc.getNumber("product.price")
+            val price: Option[Number] = doc.getNumber("product.price")
             // endgist
             price
           }
@@ -197,9 +196,9 @@ class DocSpec extends Specification {
             val hourAfter = Predicate.hourAfter("my.product.releaseDate", 12)
 
             // Accessing Date and Timestamp fields
-            val date: Option[Fragment.Date] = doc.getDate("blog-post.date")
+            val date: Option[Date] = doc.getDate("blog-post.date")
             val postYear = date.map(_.value.getYear)
-            val updateTime: Option[Fragment.Timestamp] = doc.getTimestamp("blog-post.update")
+            val updateTime: Option[Timestamp] = doc.getTimestamp("blog-post.update")
             val postHour = updateTime.map(_.value.hourOfDay)
             // endgist
             postYear
@@ -215,7 +214,7 @@ class DocSpec extends Specification {
             val doc = response.results(0)
             // startgist:3e42661562dbc7d383a6:prismic-images.scala
             // Accessing image fields
-            val image: Option[Fragment.Image] = doc.getImage("product.image")
+            val image: Option[Image] = doc.getImage("product.image")
             // Most of the time you will be using the "main" view
             val url: Option[String] = image.map(_.main.url)
             // endgist
@@ -284,7 +283,7 @@ class DocSpec extends Specification {
       docs.map { doc =>
         // Desc and Link are Fragments, their type depending on what's declared in the Document Mask
         val desc: Option[StructuredText] = doc.getStructuredText("desc")
-        val link: Option[Fragment.Link] = doc.getLink("linktodoc")
+        val link: Option[Link] = doc.getLink("linktodoc")
       }
       // endgist
       docs(0).getStructuredText("desc").map(_.asHtml(resolver)) must beSome.like {
@@ -320,7 +319,7 @@ class DocSpec extends Specification {
       val resolver = DocumentLinkResolver { link =>
         s"/testing_url/${link.id}/${link.slug}"
       }
-      val source: Option[Fragment.Link] = doc.getLink("article.source")
+      val source: Option[Link] = doc.getLink("article.source")
       val url: Option[String] = source.map(_.getUrl(resolver))
       // endgist
       url must beSome.like {
@@ -361,7 +360,7 @@ class DocSpec extends Specification {
         }
       }""").convertTo[Document]
       // startgist:a93ae78003c42b000c3d:prismic-embed.scala
-      val video: Option[Fragment.Embed] = doc.getEmbed("article.video")
+      val video: Option[Embed] = doc.getEmbed("article.video")
       // Html is the code to include to embed the object, and depends on the embedded service
       val html: Option[String] = video.map(_.asHtml())
       // endgist
@@ -386,7 +385,7 @@ class DocSpec extends Specification {
         }
       }""").convertTo[Document]
       // startgist:18c56eaec43a23d4c760:prismic-color.scala
-      val bgcolor: Option[Fragment.Color] = doc.getColor("article.background")
+      val bgcolor: Option[Color] = doc.getColor("article.background")
       val hexa: Option[String] = bgcolor.map(_.hex)
       // endgist
       hexa.mustEqual(Some("#000000"))
@@ -415,7 +414,7 @@ class DocSpec extends Specification {
       val near = Predicate.near("my.store.location", 48.8768767, 2.3338802, 10)
 
       // Accessing GeoPoint fragments
-      val place: Option[Fragment.GeoPoint] = doc.getGeoPoint("article.location")
+      val place: Option[GeoPoint] = doc.getGeoPoint("article.location")
       val coordinates = place.map(gp => gp.latitude + "," + gp.longitude)
       // endgist
       coordinates.mustEqual(Some("48.877108,2.333879"))
