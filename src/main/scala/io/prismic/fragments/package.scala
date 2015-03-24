@@ -163,171 +163,170 @@ case class DocumentLink(id: String,
 
   }
 
-  // ------------------
+// ------------------
 
-  object StructuredText {
+object StructuredText {
 
-    def asHtml(blocks: Seq[Block], linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer): String = {
-      case class Group(htmlTag: Option[String], blocks: Seq[Block])
+  def asHtml(blocks: Seq[Block], linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer): String = {
+    case class Group(htmlTag: Option[String], blocks: Seq[Block])
 
-      val grouped: List[Group] = blocks.foldLeft(List.empty[Group]) {
-        case ((group@Group(Some("ul"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, false, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case ((group@Group(Some("ol"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, true, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
-        case (groups, block@StructuredText.Block.ListItem(_, _, false, _, _)) => Group(Some("ul"), Seq(block)) +: groups
-        case (groups, block@StructuredText.Block.ListItem(_, _, true, _, _)) => Group(Some("ol"), Seq(block)) +: groups
-        case (groups, block) => Group(None, Seq(block)) +: groups
-      }.reverse
+    val grouped: List[Group] = blocks.foldLeft(List.empty[Group]) {
+      case ((group@Group(Some("ul"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, false, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
+      case ((group@Group(Some("ol"), _)) :: rest, block@StructuredText.Block.ListItem(_, _, true, _, _)) => group.copy(blocks = group.blocks :+ block) +: rest
+      case (groups, block@StructuredText.Block.ListItem(_, _, false, _, _)) => Group(Some("ul"), Seq(block)) +: groups
+      case (groups, block@StructuredText.Block.ListItem(_, _, true, _, _)) => Group(Some("ol"), Seq(block)) +: groups
+      case (groups, block) => Group(None, Seq(block)) +: groups
+    }.reverse
 
-      grouped.flatMap {
-        case Group(Some(tag), bcks) => s"<$tag>" +: bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer)) :+ s"</$tag>"
-        case Group(None, bcks)      => bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer))
-      }.mkString("\n\n")
+    grouped.flatMap {
+      case Group(Some(tag), bcks) => s"<$tag>" +: bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer)) :+ s"</$tag>"
+      case Group(None, bcks)      => bcks.map(block => Block.asHtml(block, linkResolver, htmlSerializer))
+    }.mkString("\n\n")
+  }
+
+  private def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver, serializer: HtmlSerializer): String = {
+
+    def escape(character: String): String = {
+      character.replace("<", "&lt;").replace("\n", "<br>")
     }
 
-    private def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver, serializer: HtmlSerializer): String = {
-
-      def escape(character: String): String = {
-        character.replace("<", "&lt;").replace("\n", "<br>")
-      }
-
-      def serialize(element: Element, content: String): String = {
-        serializer(element, content).getOrElse {
-          element match {
-            case b: Block => Block.asHtml(b, linkResolver)
-            case _: Span.Em => s"<em>$content</em>"
-            case _: Span.Strong => s"<strong>$content</strong>"
-            case Span.Hyperlink(_, _, link: DocumentLink) => s"""<a href="${linkResolver(link)}">$content</a>"""
-            case Span.Hyperlink(_, _, link: MediaLink) => s"""<a href="${link.url}">$content</a>"""
-            case Span.Hyperlink(_, _, link: WebLink) => s"""<a href="${link.url}">$content</a>"""
-            case Span.Label(_, _, label) => s"""<span class="$label">$content</span>"""
-            case _ => s"<span>$content</span>"
-          }
+    def serialize(element: Element, content: String): String = {
+      serializer(element, content).getOrElse {
+        element match {
+          case b: Block => Block.asHtml(b, linkResolver)
+          case _: Span.Em => s"<em>$content</em>"
+          case _: Span.Strong => s"<strong>$content</strong>"
+          case Span.Hyperlink(_, _, link: DocumentLink) => s"""<a href="${linkResolver(link)}">$content</a>"""
+          case Span.Hyperlink(_, _, link: MediaLink) => s"""<a href="${link.url}">$content</a>"""
+          case Span.Hyperlink(_, _, link: WebLink) => s"""<a href="${link.url}">$content</a>"""
+          case Span.Label(_, _, label) => s"""<span class="$label">$content</span>"""
+          case _ => s"<span>$content</span>"
         }
       }
-
-      case class OpenSpan(span: Span, content: String)
-
-      @scala.annotation.tailrec
-      def step(in: Seq[(Char, Int)], spans: Seq[Span], stack: Seq[OpenSpan] = Nil, html: String = ""): String = {
-        in match {
-          case ((_, pos) :: tail) if stack.headOption.map(_.span.end) == Some(pos) => {
-            // Need to close a tag
-            val tagHtml = serialize(stack.head.span, stack.head.content)
-            stack.drop(1) match {
-              case Nil => step(in, spans, Nil, html + tagHtml)
-              case h :: t => step(in, spans, h.copy(content = h.content + tagHtml) :: t, html)
-            }
-          }
-          case ((_, pos) :: tail) if spans.headOption.map(_.start) == Some(pos) => {
-            // Need to open a tag
-            step(in, spans.drop(1), OpenSpan(spans.head, "") +: stack, html)
-          }
-          case (current, pos) :: tail => {
-            stack match {
-              case Nil =>
-                // Top level
-                step(tail, spans, stack, html + escape(current.toString))
-              case head :: t =>
-                // There is an open span, insert inside
-                step(tail, spans, head.copy(content = head.content + escape(current.toString)) :: t, html)
-            }
-          }
-          case Nil =>
-            stack match {
-              case Nil => html
-              case head :: Nil =>
-                // One last tag open, close it
-                html + serialize(head.span, head.content)
-              case head :: second :: tail =>
-                // At least 2 tags open, close the first and continue
-                step(Nil, spans, second.copy(content = second.content + serialize(head.span, head.content)) :: tail, html)
-            }
-        }
-      }
-      step(text.toList.zipWithIndex, spans.sortWith {
-        case (a, b) if a.start == b.start => (a.end - a.start) > (b.end - b.start)
-        case (a, b) => a.start < b.start
-      })
     }
 
-    sealed trait Element
+    case class OpenSpan(span: Span, content: String)
 
-    sealed trait Span extends Element {
-      def start: Int
-      def end: Int
-    }
-
-    object Span {
-
-      case class Em(start: Int, end: Int) extends Span
-      case class Strong(start: Int, end: Int) extends Span
-      case class Hyperlink(start: Int, end: Int, link: Link) extends Span
-      case class Label(start: Int, end: Int, label: String) extends Span
-
-    }
-
-    sealed trait Block extends Element {
-      def label: Option[String]
-      def direction: Option[String]
-    }
-
-    object Block {
-
-      sealed trait Text extends Block {
-        def text: String
-        def spans: Seq[Span]
-      }
-
-      object Text {
-        def unapply(t: Text): Option[(String, Seq[Span], Option[String])] = Some(t.text, t.spans, t.label)
-      }
-
-      def asHtml(block: Block, linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
-        val cls = (
-          block.label.map(l => s""" class="$l"""").toSeq ++
-          block.direction.map(d => s""" dir="$d"""").toSeq
-        ).mkString(" ")
-        val body = block match {
-          case StructuredText.Block.Text(text, spans, _) => StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)
-          case _ => ""
-        }
-        htmlSerializer(block, body).getOrElse {
-          block match {
-            case StructuredText.Block.Heading(text, spans, level, _, _) => s"""<h$level$cls>$body</h$level>"""
-            case StructuredText.Block.Paragraph(text, spans, _, _) => s"""<p$cls>$body</p>"""
-            case StructuredText.Block.Preformatted(text, spans, _, _) => s"""<pre$cls>$body</pre>"""
-            case StructuredText.Block.ListItem(text, spans, _, _, _) => s"""<li$cls>$body</li>"""
-            case StructuredText.Block.Image(view, hyperlink, label, dir) => {
-              val linkbody = hyperlink match {
-                case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
-                case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-                case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-                case _ => view.asHtml
-              }
-              s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
-            }
-            case StructuredText.Block.Embed(obj, label, direction) => obj.asHtml(label, direction)
+    @scala.annotation.tailrec
+    def step(in: Seq[(Char, Int)], spans: Seq[Span], stack: Seq[OpenSpan] = Nil, html: String = ""): String = {
+      in match {
+        case ((_, pos) :: tail) if stack.headOption.map(_.span.end) == Some(pos) => {
+          // Need to close a tag
+          val tagHtml = serialize(stack.head.span, stack.head.content)
+          stack.drop(1) match {
+            case Nil => step(in, spans, Nil, html + tagHtml)
+            case h :: t => step(in, spans, h.copy(content = h.content + tagHtml) :: t, html)
           }
         }
+        case ((_, pos) :: tail) if spans.headOption.map(_.start) == Some(pos) => {
+          // Need to open a tag
+          step(in, spans.drop(1), OpenSpan(spans.head, "") +: stack, html)
+        }
+        case (current, pos) :: tail => {
+          stack match {
+            case Nil =>
+              // Top level
+              step(tail, spans, stack, html + escape(current.toString))
+            case head :: t =>
+              // There is an open span, insert inside
+              step(tail, spans, head.copy(content = head.content + escape(current.toString)) :: t, html)
+          }
+        }
+        case Nil =>
+          stack match {
+            case Nil => html
+            case head :: Nil =>
+              // One last tag open, close it
+              html + serialize(head.span, head.content)
+            case head :: second :: tail =>
+              // At least 2 tags open, close the first and continue
+              step(Nil, spans, second.copy(content = second.content + serialize(head.span, head.content)) :: tail, html)
+          }
       }
-
-      case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String], direction: Option[String]) extends Text
-
-      case class Paragraph(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-
-      case class Preformatted(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
-
-      case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String], direction: Option[String]) extends Text
-
-      case class Image(view: Fragment.Image.View, linkTo: Option[Link], label: Option[String], direction: Option[String]) extends Block {
-        def url = view.url
-        def width = view.width
-        def height = view.height
-      }
-
-      case class Embed(obj: Fragment.Embed, label: Option[String], direction: Option[String]) extends Block
-
     }
+    step(text.toList.zipWithIndex, spans.sortWith {
+      case (a, b) if a.start == b.start => (a.end - a.start) > (b.end - b.start)
+      case (a, b) => a.start < b.start
+    })
+  }
+
+  sealed trait Element
+
+  sealed trait Span extends Element {
+    def start: Int
+    def end: Int
+  }
+
+  object Span {
+
+    case class Em(start: Int, end: Int) extends Span
+    case class Strong(start: Int, end: Int) extends Span
+    case class Hyperlink(start: Int, end: Int, link: Link) extends Span
+    case class Label(start: Int, end: Int, label: String) extends Span
 
   }
 
+  sealed trait Block extends Element {
+    def label: Option[String]
+    def direction: Option[String]
+  }
+
+  object Block {
+
+    sealed trait Text extends Block {
+      def text: String
+      def spans: Seq[Span]
+    }
+
+    object Text {
+      def unapply(t: Text): Option[(String, Seq[Span], Option[String])] = Some(t.text, t.spans, t.label)
+    }
+
+    def asHtml(block: Block, linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String = {
+      val cls = (
+        block.label.map(l => s""" class="$l"""").toSeq ++
+          block.direction.map(d => s""" dir="$d"""").toSeq
+      ).mkString(" ")
+      val body = block match {
+        case StructuredText.Block.Text(text, spans, _) => StructuredText.asHtml(text, spans, linkResolver, htmlSerializer)
+        case _ => ""
+      }
+      htmlSerializer(block, body).getOrElse {
+        block match {
+          case StructuredText.Block.Heading(text, spans, level, _, _) => s"""<h$level$cls>$body</h$level>"""
+          case StructuredText.Block.Paragraph(text, spans, _, _) => s"""<p$cls>$body</p>"""
+          case StructuredText.Block.Preformatted(text, spans, _, _) => s"""<pre$cls>$body</pre>"""
+          case StructuredText.Block.ListItem(text, spans, _, _, _) => s"""<li$cls>$body</li>"""
+          case StructuredText.Block.Image(view, hyperlink, label, dir) => {
+            val linkbody = hyperlink match {
+              case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
+              case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case _ => view.asHtml
+            }
+            s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
+          }
+          case StructuredText.Block.Embed(obj, label, direction) => obj.asHtml(label, direction)
+        }
+      }
+    }
+
+    case class Heading(text: String, spans: Seq[Span], level: Int, label: Option[String], direction: Option[String]) extends Text
+
+    case class Paragraph(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
+
+    case class Preformatted(text: String, spans: Seq[Span], label: Option[String], direction: Option[String]) extends Text
+
+    case class ListItem(text: String, spans: Seq[Span], ordered: Boolean, label: Option[String], direction: Option[String]) extends Text
+
+    case class Image(view: fragments.Image.View, linkTo: Option[Link], label: Option[String], direction: Option[String]) extends Block {
+      def url = view.url
+      def width = view.width
+      def height = view.height
+    }
+
+    case class Embed(obj: fragments.Embed, label: Option[String], direction: Option[String]) extends Block
+
+  }
+
+}

@@ -1,8 +1,7 @@
 package io.prismic
 
-import _root_.io.prismic.Fragment.{Timestamp, StructuredText}
-import _root_.io.prismic.Fragment.StructuredText.{Block, Element, Span}
-import org.joda.time.{DateTimeZone, DateTime}
+import io.prismic.fragments._, StructuredText.{ Block, Element, Span }
+import org.joda.time.{ DateTimeZone, DateTime }
 import org.specs2.mutable._
 import spray.json._
 import PrismicJsonProtocol._
