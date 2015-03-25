@@ -16,14 +16,9 @@ trait Cache {
   def get(key: String): Option[JsValue]
   def getOrSet(key: String, ttl: Long)(f: => Future[JsValue]): Future[JsValue]
   def isExpired(key: String): Boolean
-  def isPending(key: String): Boolean
 }
 
-sealed trait State
-case object Pending extends State
-
 object Cache {
-
   lazy val defaultCache = BuiltInCache(999)
 }
 
@@ -35,7 +30,6 @@ object NoCache extends Cache {
   def get(key: String): Option[JsValue] = None
   def getOrSet(key: String, ttl: Long)(f: => Future[JsValue]) = f
   def isExpired(key: String): Boolean = true
-  def isPending(key: String): Boolean = false
 }
 
 /**
@@ -44,7 +38,6 @@ object NoCache extends Cache {
 case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
 
   private val cache = JMapWrapper(Collections.synchronizedMap(new LRUMap[String, (Long, JsValue)](maxDocuments)))
-  private val states = new java.util.concurrent.ConcurrentHashMap[String, State]()
 
   def set(key: String, data: (Long, JsValue)) {
     val (ttl, json) = data
@@ -55,16 +48,14 @@ case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
   def get(key: String): Option[JsValue] = {
     val expired = isExpired(key)
     cache.get(key).collect {
-      case (expiration: Long, json: JsValue) if !expired || (expired && isPending(key)) => json
+      case (expiration: Long, json: JsValue) if !expired  => json
     }
   }
 
   def getOrSet(key: String, ttl: Long)(f: => Future[JsValue]): Future[JsValue] = {
     get(key).map(json => Future.successful(json)).getOrElse {
-      states.put(key, Pending)
       f.map { json =>
         set(key, (ttl, json))
-        states.remove(key)
         json
       }
     }
@@ -78,5 +69,4 @@ case class BuiltInCache(maxDocuments: Int = 100) extends Cache {
     }
   }
 
-  def isPending(key: String): Boolean = states.get(key) == Pending
 }
