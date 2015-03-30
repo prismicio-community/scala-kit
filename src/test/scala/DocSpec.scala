@@ -27,7 +27,7 @@ class DocSpec extends Specification {
   "API" should {
     "fetch" in {
       val api = await {
-        // startgist:f5c7c0a59790bed0b3b7:prismic-api.scala
+        // startgist:037fcc5efbaa6a545c72:prismic-api.scala
         val apiFuture: Future[io.prismic.Api] = Api.get("https://lesbonneschoses.cdn.prismic.io/api")
         apiFuture.map { api =>
           println("References: " + api.refs)
@@ -39,7 +39,7 @@ class DocSpec extends Specification {
     }
     "private" in {
       await {
-        // startgist:56fb341dba38843df8d4:prismic-apiPrivate.scala
+        // startgist:5feb68432d425517484a:prismic-apiPrivate.scala
         // This will fail because the token is invalid, but this is how to access a private API
         val apiFuture = Api.get("https://lesbonneschoses.cdn.prismic.io/api", Some("MC5-XXXXXXX-vRfvv70"))
         // endgist
@@ -48,7 +48,7 @@ class DocSpec extends Specification {
     }
     "references" in {
       val resp: Response = await {
-        // startgist:d16a75579a556e248090:prismic-references.scala
+        // startgist:dda8e85afb4f861ec502:prismic-references.scala
         val previewToken = "MC5VbDdXQmtuTTB6Z0hNWHF3.c--_vVbvv73vv73vv73vv71EA--_vS_vv73vv70T77-9Ke-_ve-_vWfvv70ebO-_ve-_ve-_vQN377-9ce-_vRfvv70"
         Api.get("https://lesbonneschoses.cdn.prismic.io/api", Some(previewToken)).flatMap { api =>
           val stPatrickRef = api.refs("St-Patrick specials")
@@ -69,7 +69,7 @@ class DocSpec extends Specification {
   "Queries" should {
     "simple query" in {
       val resp: Response = await {
-        // startgist:ae4378398935f89045bd:prismic-simplequery.scala
+        // startgist:3b399e926ab1c03e24b3:prismic-simplequery.scala
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything")
             .ref(api.master)
@@ -85,7 +85,7 @@ class DocSpec extends Specification {
     }
     "orderings" in {
       val resp: Response = await {
-        // startgist:5195395288473e69fbf3:prismic-orderings.scala
+        // startgist:f732e88dfa3e507a15e3:prismic-orderings.scala
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything")
             .ref(api.master)
@@ -104,7 +104,7 @@ class DocSpec extends Specification {
     }
     "predicates" in {
       val resp = await {
-        // startgist:f1cca71970ad71a4c6ef:prismic-predicates.scala
+        // startgist:4256ffb9b12ff2359774:prismic-predicates.scala
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything").ref(api.master).query(
             Predicate.at("document.type", "blog-post"),
@@ -119,7 +119,7 @@ class DocSpec extends Specification {
       resp.resultsSize.mustEqual(0)
     }
     "all predicates" in {
-      // startgist:5e033a4689c67bff8209:prismic-allPredicates.scala
+      // startgist:3c6295555d8016a42f27:prismic-allPredicates.scala
       // "at" predicate: equality of a fragment to a value.
       val at = Predicate.at("document.type", "article")
       // "any" predicate: equality of a fragment to a value.
@@ -142,7 +142,7 @@ class DocSpec extends Specification {
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
             val doc = response.results(0)
-            // startgist:eebd75b2cee2bd8a73fa:prismic-getText.scala
+            // startgist:5bc658c9b3948dd3b5e5:prismic-getText.scala
             val author = doc.getText("blog-post.author").getOrElse("Anonymous")
             // endgist
             author // gisthide
@@ -156,7 +156,7 @@ class DocSpec extends Specification {
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
             val doc = response.results(0)
-            // startgist:cbc57eb295c1e56b5137:prismic-getNumber.scala
+            // startgist:6e68d547ce40a028db67:prismic-getNumber.scala
             // Number predicates
             val gt = Predicate.gt("my.product.price", 10)
             val lt = Predicate.lt("my.product.price", 20)
@@ -176,7 +176,7 @@ class DocSpec extends Specification {
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbl")).ref(api.master).submit().map { response =>
             val doc = response.results(0)
-            // startgist:f223bdb33992634608f4:prismic-dateTimestamp.scala
+            // startgist:69610ebb00ef037fb224:prismic-dateTimestamp.scala
             // Date and Timestamp predicates
             var dateBefore = Predicate.dateBefore("my.product.releaseDate", new DateTime(2014, 6, 1, 0, 0, 0))
             val dateAfter = Predicate.dateAfter("my.product.releaseDate", new DateTime(2014, 1, 1, 0, 0, 0))
@@ -212,7 +212,7 @@ class DocSpec extends Specification {
         Api.get("https://lesbonneschoses.cdn.prismic.io/api").flatMap { api =>
           api.forms("everything").query(Predicate.at("document.id", "UlfoxUnM0wkXYXbO")).ref(api.master).submit().map { response =>
             val doc = response.results(0)
-            // startgist:3e42661562dbc7d383a6:prismic-images.scala
+            // startgist:edf3406d589a1dce0341:prismic-images.scala
             // Accessing image fields
             val image: Option[Image] = doc.getImage("product.image")
             // Most of the time you will be using the "main" view
@@ -278,7 +278,7 @@ class DocSpec extends Specification {
       val resolver = DocumentLinkResolver { link =>
         s"/testing_url/${link.id}/${link.slug}"
       }
-      // startgist:eb66ad3482f273d3b865:prismic-group.scala
+      // startgist:676008d69c0a77206fbb:prismic-group.scala
       val docs = doc.getGroup("article.documents").map(_.docs).getOrElse(Nil)
       docs.map { doc =>
         // Desc and Link are Fragments, their type depending on what's declared in the Document Mask
@@ -315,7 +315,7 @@ class DocSpec extends Specification {
         }
       }""")
       val doc = json.convertTo[Document]
-      // startgist:9d6cdaabf28c1f01cf25:prismic-link.scala
+      // startgist:47e4da16c4673cb59744:prismic-link.scala
       val resolver = DocumentLinkResolver { link =>
         s"/testing_url/${link.id}/${link.slug}"
       }
@@ -359,7 +359,7 @@ class DocSpec extends Specification {
           }
         }
       }""").convertTo[Document]
-      // startgist:a93ae78003c42b000c3d:prismic-embed.scala
+      // startgist:b28c4149b42d401efa37:prismic-embed.scala
       val video: Option[Embed] = doc.getEmbed("article.video")
       // Html is the code to include to embed the object, and depends on the embedded service
       val html: Option[String] = video.map(_.asHtml())
@@ -384,7 +384,7 @@ class DocSpec extends Specification {
           }
         }
       }""").convertTo[Document]
-      // startgist:18c56eaec43a23d4c760:prismic-color.scala
+      // startgist:45a02c692668443ded38:prismic-color.scala
       val bgcolor: Option[Color] = doc.getColor("article.background")
       val hexa: Option[String] = bgcolor.map(_.hex)
       // endgist
@@ -409,7 +409,7 @@ class DocSpec extends Specification {
           }
         }
       }""").convertTo[Document]
-      // startgist:52d98c2aef26e5d8a459:prismic-geopoint.scala
+      // startgist:9447709d0157de4b4433:prismic-geopoint.scala
       // "near" predicate for GeoPoint fragments
       val near = Predicate.near("my.store.location", 48.8768767, 2.3338802, 10)
 
@@ -428,7 +428,7 @@ class DocSpec extends Specification {
             .query(Predicate.at("document.id", "UlfoxUnM0wkXYXbX"))
             .submit()
             .map { response: Response =>
-            // startgist:7da680aff5aaf5e61ba5:prismic-asHtml.scala
+            // startgist:9a7f6f55bdbf52234e37:prismic-asHtml.scala
             val doc = response.results.head
             val resolver = DocumentLinkResolver { link =>
               s"/testing_url/${link.id}/${link.slug}"
@@ -486,7 +486,7 @@ class DocSpec extends Specification {
             .submit()
             .map { response: Response =>
             val doc: Document = response.results.head
-            // startgist:a3924848b9b5f5d4e482:prismic-htmlSerializer.scala
+            // startgist:ccf10e569488d50220c5:prismic-htmlSerializer.scala
             val htmlSerializer = HtmlSerializer {
               // Don't wrap images in a <p> tag
               case (StructuredText.Block.Image(view, _, _, _), _) => s"${view.asHtml}"
@@ -519,7 +519,7 @@ class DocSpec extends Specification {
 
   "Cache" should {
     "support custom implementation" in {
-      // startgist:2d2815ed423a84302634:prismic-cache.scala
+      // startgist:dc474bd27961baf20361:prismic-cache.scala
       val noopCache = new Cache {
         def set(key: String, data: (Long, JsValue)) = ()
         def get(key: String) = None
