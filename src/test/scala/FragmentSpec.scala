@@ -68,7 +68,7 @@ class FragmentSpec extends Specification {
     val doc = query("""[[:d = at(document.id, "VVIOPCYAACgAyINK")]]""").results.head
     "support image media" in {
       doc getLink "article.icon" must beSome.like {
-        case l: Fragment.MediaLink => l.filename must_== "python-logo.png"
+        case l: ImageLink => l.filename must_== "python-logo.png"
       }
     }
   }

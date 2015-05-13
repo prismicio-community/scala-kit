@@ -18,6 +18,11 @@ case class MediaLink(url: String, kind: String, size: Long, filename: String) ex
   def asHtml: String = s"""<a href="$url">$filename</a>"""
 }
 
+case class ImageLink(url: String, kind: String, size: Long, filename: String) extends Link {
+  override def getUrl(linkResolver: DocumentLinkResolver) = url
+  def asHtml: String = s"""<img src="$url" alt="$filename"/>"""
+}
+
 case class DocumentLink(id: String,
                         uid: Option[String],
                         typ: String,
