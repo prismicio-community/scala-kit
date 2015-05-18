@@ -77,6 +77,8 @@ object Predicate {
 
   def at(fragment: String, value: String) = apply("at", fragment, value)
 
+  def at(fragment: String, value: Seq[String]) = apply("at", fragment, value)
+
   def any(fragment: String, values: Seq[String]) = apply("any", fragment, values)
 
   def in(fragment: String, values: Seq[String]) = apply("in", fragment, values)
