@@ -37,7 +37,8 @@ trait WithFragments {
     case a: WebLink      => Some(a)
     case a: MediaLink    => Some(a)
     case a: DocumentLink => Some(a)
-    case _                        => None
+    case a: ImageLink    => Some(a)
+    case _               => None
   }
 
   def getImage(field: String): Option[Image] = get(field).flatMap {

@@ -62,6 +62,16 @@ class FragmentSpec extends Specification {
       }
     }
   }
+  "Link" should {
+    val api = await(Api.get("https://lesbonneschoses-vtjchiyaacyasekj.prismic.io/api"))
+    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
+    val doc = query("""[[:d = at(document.id, "VVIOPCYAACgAyINK")]]""").results.head
+    "support image media" in {
+      doc getLink "article.icon" must beSome.like {
+        case l: ImageLink => l.filename must_== "python-logo.png"
+      }
+    }
+  }
   "Timestamp" should {
     val json = JsObject(
       "type" -> JsString("Timestamp"),
