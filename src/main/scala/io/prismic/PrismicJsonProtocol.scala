@@ -22,13 +22,13 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
     override def write(obj: WebLink): JsValue = throw new SerializationException("Not implemented")
   }
 
-  implicit object MediaLinkFormat extends RootJsonFormat[MediaLink] {
-    override def read(json: JsValue): MediaLink = (json \ "file").asJsObject.getFields("url", "kind", "size", "name") match {
-      case Seq(JsString(url), JsString(kind), JsString(size), JsString(name)) => MediaLink(url, kind, size.toLong, name)
+  implicit object FileLinkFormat extends RootJsonFormat[FileLink] {
+    override def read(json: JsValue): FileLink = (json \ "file").asJsObject.getFields("url", "kind", "size", "name") match {
+      case Seq(JsString(url), JsString(kind), JsString(size), JsString(name)) => FileLink(url, kind, size.toLong, name)
       case _ => throw new DeserializationException("Missing field")
     }
 
-    override def write(obj: MediaLink): JsValue = throw new SerializationException("Not implemented")
+    override def write(obj: FileLink): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object ImageLinkFormat extends RootJsonFormat[ImageLink] {
@@ -65,7 +65,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
     override def read(json: JsValue): Link = (json \ "type").convertTo[String] match {
       case "Link.web" => json.convertTo[WebLink]
       case "Link.document" => json.convertTo[DocumentLink]
-      case "Link.file" => json.convertTo[MediaLink]
+      case "Link.file" => json.convertTo[FileLink]
       case "Link.image" => json.convertTo[ImageLink]
       case t => throw new DeserializationException(s"Unkown link type $t")
     }
@@ -143,7 +143,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       case Seq(JsString("hyperlink"), JsNumber(start), JsNumber(end), data) => data.asJsObject.getFields("type", "value") match {
         case Seq(JsString("Link.web"), link) => Hyperlink(start.toInt, end.toInt, link.convertTo[WebLink])
         case Seq(JsString("Link.document"), link) => Hyperlink(start.toInt, end.toInt, link.convertTo[DocumentLink])
-        case Seq(JsString("Link.file"), link) => Hyperlink(start.toInt, end.toInt, link.convertTo[MediaLink])
+        case Seq(JsString("Link.file"), link) => Hyperlink(start.toInt, end.toInt, link.convertTo[FileLink])
         case Seq(JsString("Link.image"), link) => Hyperlink(start.toInt, end.toInt, link.convertTo[ImageLink])
       }
       case Seq(JsString("label"), JsNumber(start), JsNumber(end), data) => StructuredText.Span.Label(start.toInt, end.toInt, (data \ "label").convertTo[String])
@@ -249,7 +249,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case Seq(JsString("Embed"), value) => value.convertTo[Embed]
         case Seq(JsString("Link.web"), value) => value.convertTo[WebLink]
         case Seq(JsString("Link.document"), value) => value.convertTo[DocumentLink]
-        case Seq(JsString("Link.file"), value) => value.convertTo[MediaLink]
+        case Seq(JsString("Link.file"), value) => value.convertTo[FileLink]
         case Seq(JsString("Link.image"), value) => value.convertTo[ImageLink]
         case Seq(JsString("StructuredText"), value) => value.convertTo[StructuredText]
         case Seq(JsString("Group"), value) => value.convertTo[Group]

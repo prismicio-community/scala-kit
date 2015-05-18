@@ -45,7 +45,7 @@ class FragmentSpec extends Specification {
     val doc = query(Predicate.at("document.id", "U9pZMDQAADEAYj_n")).results.head
     "get latitude & longitude" in {
       doc getGeoPoint "product.location" must beSome.like {
-        case p: Fragment.GeoPoint =>
+        case p: GeoPoint =>
           p.latitude must_== 48.87687670000001
           p.longitude must_== 2.3338801999999825
           p.asHtml must_== """<div class="geopoint"><span class="latitude">48.87687670000001</span><span class="longitude">2.3338801999999825</span></div>"""
@@ -58,17 +58,18 @@ class FragmentSpec extends Specification {
     val doc = query("""[[:d = at(document.id, "Uyr9_wEAAKYARDMV")]]""").results.head
     "support media" in {
       doc getLink "test-link.related" must beSome.like {
-        case l: Fragment.MediaLink => l.filename must_== "baastad.pdf"
+        case l: FileLink => l.filename must_== "baastad.pdf"
       }
     }
   }
   "Link" should {
-    val api = await(Api.get("https://lesbonneschoses-vtjchiyaacyasekj.prismic.io/api"))
+    val api = await(Api.get("https://test-public.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val doc = query("""[[:d = at(document.id, "VVIOPCYAACgAyINK")]]""").results.head
+    val doc = query("""[[:d = at(document.id, "VFfjTSgAACYA86Zn")]]""").results.head
+    println(doc.getLink("product.gallery"))
     "support image media" in {
-      doc getLink "article.icon" must beSome.like {
-        case l: ImageLink => l.filename must_== "python-logo.png"
+      doc getLink "product.link" must beSome.like {
+        case l: ImageLink => l.filename must_== "20130209_152532.jpg"
       }
     }
   }

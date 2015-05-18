@@ -35,7 +35,7 @@ trait WithFragments {
 
   def getLink(field: String): Option[Link] = get(field).flatMap {
     case a: WebLink      => Some(a)
-    case a: MediaLink    => Some(a)
+    case a: FileLink    => Some(a)
     case a: DocumentLink => Some(a)
     case a: ImageLink    => Some(a)
     case _               => None
@@ -80,7 +80,7 @@ trait WithFragments {
     case a: Embed          => Some(a.asHtml())
     case a: Image          => Some(a.asHtml)
     case a: WebLink        => Some(a.asHtml)
-    case a: MediaLink      => Some(a.asHtml)
+    case a: FileLink       => Some(a.asHtml)
     case a: GeoPoint       => Some(a.asHtml)
     case a: DocumentLink   => Some(a.asHtml(linkResolver))
     case a: Group          => Some(a asHtml linkResolver)

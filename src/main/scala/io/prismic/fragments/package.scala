@@ -13,7 +13,7 @@ case class WebLink(url: String, contentType: Option[String] = None) extends Link
   def asHtml(): String = s"""<a href="$url">$url</a>"""
 }
 
-case class MediaLink(url: String, kind: String, size: Long, filename: String) extends Link {
+case class FileLink(url: String, kind: String, size: Long, filename: String) extends Link {
   override def getUrl(linkResolver: DocumentLinkResolver) = url
   def asHtml: String = s"""<a href="$url">$filename</a>"""
 }
@@ -202,7 +202,7 @@ object StructuredText {
           case _: Span.Em => s"<em>$content</em>"
           case _: Span.Strong => s"<strong>$content</strong>"
           case Span.Hyperlink(_, _, link: DocumentLink) => s"""<a href="${linkResolver(link)}">$content</a>"""
-          case Span.Hyperlink(_, _, link: MediaLink) => s"""<a href="${link.url}">$content</a>"""
+          case Span.Hyperlink(_, _, link: FileLink) => s"""<a href="${link.url}">$content</a>"""
           case Span.Hyperlink(_, _, link: WebLink) => s"""<a href="${link.url}">$content</a>"""
           case Span.Label(_, _, label) => s"""<span class="$label">$content</span>"""
           case _ => s"<span>$content</span>"
@@ -306,7 +306,7 @@ object StructuredText {
             val linkbody = hyperlink match {
               case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
               case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-              case Some(link: MediaLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: FileLink) => """<a href="${link.url}">${view.asHtml}</a>"""
               case _ => view.asHtml
             }
             s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""

@@ -41,10 +41,10 @@ object Fragment {
   @deprecated("Use io.prismic.fragments.WebLink", "1.3.3")
   val WebLink = io.prismic.fragments.WebLink
 
-  @deprecated("Use io.prismic.fragments.MediaLink", "1.3.3")
-  type MediaLink = io.prismic.fragments.MediaLink
-  @deprecated("Use io.prismic.fragments.MediaLink", "1.3.3")
-  val MediaLink = io.prismic.fragments.MediaLink
+  @deprecated("Use io.prismic.fragments.FileLink", "1.3.3")
+  type MediaLink = io.prismic.fragments.FileLink
+  @deprecated("Use io.prismic.fragments.FileLink", "1.3.3")
+  val MediaLink = io.prismic.fragments.FileLink
 
   @deprecated("Use io.prismic.fragments.DocumentLink", "1.3.3")
   type DocumentLink = io.prismic.fragments.DocumentLink
