@@ -125,6 +125,12 @@ class DocSpec extends Specification {
       // "any" predicate: equality of a fragment to a value.
       val any = Predicate.any("document.type", Seq("article", "blog-post"))
 
+      // "missing" predicate: document doesn't have fragment
+      val missing = Predicate.missing("my.article.author")
+
+      // "has" predicate: document has fragment
+      val has = Predicate.has("my.article.author")
+
       // "fulltext" predicate: fulltext search in a fragment.
       val fulltext = Predicate.fulltext("my.article.body", "sausage")
 

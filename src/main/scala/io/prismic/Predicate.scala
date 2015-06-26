@@ -63,6 +63,10 @@ object Predicate {
 
   import QuerySerializer._
 
+  def apply(operator: String, fragment: String) = new Predicate {
+    override def q = s"""[:d = $operator($fragment)]"""
+  }
+
   def apply[T](operator: String, fragment: String, v1: T)(implicit ps: QuerySerializer[T]) = new Predicate {
     override def q = s"""[:d = $operator($fragment, ${ps.serialize(v1)})]"""
   }
@@ -82,6 +86,10 @@ object Predicate {
   def any(fragment: String, values: Seq[String]) = apply("any", fragment, values)
 
   def in(fragment: String, values: Seq[String]) = apply("in", fragment, values)
+
+  def has(fragment: String) = apply("has", fragment)
+
+  def missing(fragment: String) = apply("missing", fragment)
 
   def fulltext(fragment: String, value: String) = apply("fulltext", fragment, value)
 
