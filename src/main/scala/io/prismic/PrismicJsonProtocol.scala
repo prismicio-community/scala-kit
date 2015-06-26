@@ -218,6 +218,8 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case JsString("heading2") => json.convertTo[StructuredText.Block.Heading](headingFormat(2))
         case JsString("heading3") => json.convertTo[StructuredText.Block.Heading](headingFormat(3))
         case JsString("heading4") => json.convertTo[StructuredText.Block.Heading](headingFormat(4))
+        case JsString("heading5") => json.convertTo[StructuredText.Block.Heading](headingFormat(5))
+        case JsString("heading6") => json.convertTo[StructuredText.Block.Heading](headingFormat(6))
         case JsString("paragraph") => json.convertTo[StructuredText.Block.Paragraph]
         case JsString("preformatted") => json.convertTo[StructuredText.Block.Preformatted]
         case JsString("list-item") => json.convertTo[StructuredText.Block.ListItem](listItemFormat(ordered = false))
