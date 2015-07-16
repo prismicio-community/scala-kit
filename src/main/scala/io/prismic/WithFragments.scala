@@ -70,21 +70,7 @@ trait WithFragments {
     case _                          => None
   }
 
-  def getHtml(field: String, linkResolver: DocumentLinkResolver): Option[String] = get(field).flatMap {
-    case a: StructuredText => Some(a.asHtml(linkResolver))
-    case a: Number         => Some(a.asHtml)
-    case a: Color          => Some(a.asHtml)
-    case a: Text           => Some(a.asHtml)
-    case a: Date           => Some(a.asHtml)
-    case a: Timestamp      => Some(a.asHtml)
-    case a: Embed          => Some(a.asHtml())
-    case a: Image          => Some(a.asHtml)
-    case a: WebLink        => Some(a.asHtml)
-    case a: FileLink       => Some(a.asHtml)
-    case a: GeoPoint       => Some(a.asHtml)
-    case a: DocumentLink   => Some(a.asHtml(linkResolver))
-    case a: Group          => Some(a asHtml linkResolver)
-  }
+  def getHtml(field: String, linkResolver: DocumentLinkResolver): Option[String] = get(field).map { f => Fragment.getHtml(f, linkResolver) }
 
   def getText(field: String): Option[String] = get(field).flatMap {
     case a: StructuredText => Some(a.blocks.collect { case b: StructuredText.Block.Text => b.text }.mkString("\n")).filterNot(_.isEmpty)
@@ -143,6 +129,11 @@ trait WithFragments {
   def getGroup(field: String): Option[Group] = get(field).flatMap {
     case g: Group => Some(g)
     case _                 => None
+  }
+
+  def getSliceZone(field: String): Option[SliceZone] = get(field).flatMap {
+    case s: SliceZone => Some(s)
+    case _ => None
   }
 
   def asHtml(linkResolver: DocumentLinkResolver): String = fragments.keys.map { field =>

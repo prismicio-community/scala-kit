@@ -255,6 +255,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case Seq(JsString("Link.image"), value) => value.convertTo[ImageLink]
         case Seq(JsString("StructuredText"), value) => value.convertTo[StructuredText]
         case Seq(JsString("Group"), value) => value.convertTo[Group]
+        case Seq(JsString("SliceZone"), value) => value.convertTo[SliceZone]
         case Seq(JsString("Color"), value) => value.convertTo[Color]
         case Seq(JsString(t), _) => throw new DeserializationException(s"Unkown fragment type: $t")
         case _ => throw new DeserializationException("Expected JsObject with type and value, got " + json)
@@ -268,6 +269,28 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       Group(json.convertTo[Seq[Map[String, Fragment]]].map(Group.Doc))
 
     override def write(obj: Group): JsValue = throw new SerializationException("Not implemented")
+  }
+
+  implicit object SliceFormat extends RootJsonFormat[Slice] {
+    override def read(jsValue: JsValue): Slice = {
+      val json = jsValue.asJsObject
+      json.getFields("slice_type", "value") match {
+        case Seq(JsString(sliceType), data: JsObject) =>
+          val label = (json \ "label").toOpt[String]
+          val fragment = data.convertTo[Fragment]
+          Slice(sliceType, label, fragment)
+        case _ => throw new DeserializationException("Expected slice_type and value")
+      }
+    }
+
+    override def write(obj: Slice): JsValue = throw new SerializationException("Not implemented")
+  }
+
+  implicit object SliceZoneFormat extends RootJsonFormat[SliceZone] {
+    override def read(json: JsValue): SliceZone =
+      SliceZone(json.convertTo[Seq[Slice]])
+
+    override def write(obj: SliceZone): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object DocumentFormat extends RootJsonFormat[Document] {
@@ -373,5 +396,3 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   }
 
 }
-
-

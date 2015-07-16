@@ -168,6 +168,22 @@ case class DocumentLink(id: String,
 
   }
 
+  case class Slice(sliceType: String, label: Option[String], value: Fragment) {
+
+    def asHtml(linkResolver: DocumentLinkResolver): String = {
+      var className = (Seq("slice") ++ label.toSeq).mkString(" ")
+      s"""<div data-slicetype="$sliceType" class="$className">${Fragment.getHtml(value, linkResolver)}</div>"""
+    }
+
+  }
+
+  case class SliceZone(slices: Seq[Slice]) extends Fragment {
+
+    def asHtml(linkResolver: DocumentLinkResolver, htmlSerializer: HtmlSerializer = HtmlSerializer.empty): String =
+      slices map (_ asHtml linkResolver) mkString "\n"
+
+  }
+
 // ------------------
 
 object StructuredText {

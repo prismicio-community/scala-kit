@@ -115,4 +115,22 @@ object Fragment {
   @deprecated("Use io.prismic.fragments.StructuredText", "1.3.3")
   val StructuredText = io.prismic.fragments.StructuredText
 
+
+  def getHtml(fragment: Fragment, linkResolver: DocumentLinkResolver): String = fragment match {
+    case a: StructuredText => a.asHtml(linkResolver)
+    case a: Number         => a.asHtml
+    case a: Color          => a.asHtml
+    case a: Text           => a.asHtml
+    case a: Date           => a.asHtml
+    case a: Timestamp      => a.asHtml
+    case a: Embed          => a.asHtml()
+    case a: Image          => a.asHtml
+    case a: WebLink        => a.asHtml
+    case a: FileLink       => a.asHtml
+    case a: GeoPoint       => a.asHtml
+    case a: DocumentLink   => a.asHtml(linkResolver)
+    case a: Group          => a asHtml linkResolver
+    case a: SliceZone      => a asHtml(linkResolver)
+  }
+
 }

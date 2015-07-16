@@ -106,6 +106,72 @@ class FragmentSpec extends Specification {
       }
     }
   }
+  "Slices" should {
+      val json = JsonParser(
+        """
+          |{
+          |      "id":"VQ_hV31Za5EAy02H",
+          |      "uid":null,
+          |      "type":"article",
+          |      "href":"http://toto.wroom.dev/api/documents/search?ref=VQ_uWX1Za0oCy46m&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VQ_hV31Za5EAy02H%22%29+%5D%5D",
+          |      "tags":[],
+          |      "slugs":["une-activite"],
+          |       "linked_documents":[],
+          |       "data":{
+          |           "article":{
+          |               "blocks":{
+          |                   "type":"SliceZone",
+          |                   "value":[{
+          |                       "type":"Slice",
+          |                       "slice_type": "features",
+          |                       "value":{
+          |                           "type":"Group",
+          |                           "value":[{
+          |                               "illustration":{
+          |                                   "type":"Image",
+          |                                   "value":{
+          |                                       "main":{
+          |                                           "url":"https://wroomdev.s3.amazonaws.com/toto/db3775edb44f9818c54baa72bbfc8d3d6394b6ef_hsf_evilsquall.jpg",
+          |                                           "alt":"",
+          |                                           "copyright":"",
+          |                                           "dimensions":{"width":4285,"height":709}
+          |                                       },
+          |                                       "views":{}
+          |                                   }
+          |                               },
+          |                               "title":{
+          |                                   "type":"Text",
+          |                                   "value":"c'est un bloc features"
+          |                               }
+          |                           }]
+          |                       }
+          |                   },{
+          |                       "type":"Slice",
+          |                       "slice_type":"text",
+          |                       "value":{
+          |                           "type":"StructuredText",
+          |                           "value":[{
+          |                               "type":"paragraph",
+          |                               "text":"C'est un bloc content",
+          |                               "spans":[]
+          |                           }]
+          |                       }
+          |                   }]
+          |               }
+          |           }
+          |       }
+          |   }
+        """.stripMargin)
+      val struct = json.convertTo[Document].getSliceZone("article.blocks")
+      "serialize to html" in {
+        struct must beSome.like { case blocks: SliceZone =>
+          blocks.asHtml(resolver) mustEqual
+            """<div data-slicetype="features" class="slice"><section data-field="illustration"><img alt="" src="https://wroomdev.s3.amazonaws.com/toto/db3775edb44f9818c54baa72bbfc8d3d6394b6ef_hsf_evilsquall.jpg" width="4285" height="709" /></section>
+              |<section data-field="title"><span class="text">c'est un bloc features</span></section></div>
+              |<div data-slicetype="text" class="slice"><p>C'est un bloc content</p></div>""".stripMargin
+        }
+      }
+  }
   "StructuredText" should {
     val api = await(Api.get("https://lesbonneschoses.cdn.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
