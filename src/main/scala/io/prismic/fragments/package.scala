@@ -168,10 +168,10 @@ case class DocumentLink(id: String,
 
   }
 
-  case class Slice(sliceType: String, label: Option[String], value: Fragment) {
+  case class Slice(sliceType: String, sliceLabel: Option[String], value: Fragment) {
 
     def asHtml(linkResolver: DocumentLinkResolver): String = {
-      var className = (Seq("slice") ++ label.toSeq).mkString(" ")
+      var className = (Seq("slice") ++ sliceLabel.toSeq).mkString(" ")
       s"""<div data-slicetype="$sliceType" class="$className">${Fragment.getHtml(value, linkResolver)}</div>"""
     }
 

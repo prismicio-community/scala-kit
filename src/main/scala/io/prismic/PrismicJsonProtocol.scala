@@ -276,9 +276,9 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       val json = jsValue.asJsObject
       json.getFields("slice_type", "value") match {
         case Seq(JsString(sliceType), data: JsObject) =>
-          val label = (json \ "label").toOpt[String]
+          val sliceLabel = (json \ "slice_label").toOpt[String]
           val fragment = data.convertTo[Fragment]
-          Slice(sliceType, label, fragment)
+          Slice(sliceType, sliceLabel, fragment)
         case _ => throw new DeserializationException("Expected slice_type and value")
       }
     }
