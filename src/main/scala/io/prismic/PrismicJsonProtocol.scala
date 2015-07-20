@@ -287,8 +287,12 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   }
 
   implicit object SliceZoneFormat extends RootJsonFormat[SliceZone] {
-    override def read(json: JsValue): SliceZone =
-      SliceZone(json.convertTo[Seq[Slice]])
+    override def read(json: JsValue) = SliceZone(json match {
+      case JsArray(elements) => elements.collect {
+        case jsElt if jsElt.toOpt[Slice].isDefined => jsElt.convertTo[Slice]
+      }
+      case _ => throw new DeserializationException("Expected JsArray")
+    })
 
     override def write(obj: SliceZone): JsValue = throw new SerializationException("Not implemented")
   }
