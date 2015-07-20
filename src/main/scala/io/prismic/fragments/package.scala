@@ -4,6 +4,10 @@ import org.joda.time._
 import spray.json._
 import io.prismic._
 
+case object Separator extends Fragment {
+  def asHtml = "<hr/>"
+}
+
 sealed trait Link extends Fragment {
   def getUrl(linkResolver: DocumentLinkResolver): String
 }

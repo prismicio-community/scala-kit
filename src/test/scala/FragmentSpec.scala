@@ -172,6 +172,64 @@ class FragmentSpec extends Specification {
         }
       }
   }
+  "Slice Separator" should {
+    val json = JsonParser(
+      """
+        | {
+        |   "id":"VR1QBCcAACkArL-K",
+        |   "uid":"website-starter-sample-page",
+        |   "type":"page",
+        |   "href":"https://blogtemplate.prismic.io/api/documents/search?ref=VakunBwAADkAnujS&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VR1QBCcAACkArL-K%22%29+%5D%5D",
+        |   "tags":[],
+        |   "slugs":["website-starter-sample-page","sample-website-starter-page","a-sample-website-starter-page"],
+        |   "linked_documents":[],
+        |   "data":{
+        |     "page":{
+        |       "body":{
+        |         "type":"SliceZone",
+        |         "value":[{
+        |           "type":"Slice",
+        |           "slice_type":"slides",
+        |           "slice_label":null,
+        |           "value":{
+        |             "type":"Group","value":[{"illustration":{"type":"Image","value":{"main":{"url":"https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png","alt":"","copyright":"","dimensions":{"width":3760,"height":1918}},"views":{}}},"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Website Starter Sample Page","spans":[]}]},"summary":{"type":"StructuredText","value":[{"type":"paragraph","text":"Lorem ipsum dolor sit amet, consectetur adipiscing elit.","spans":[]}]},"read-more-label":{"type":"StructuredText","value":[{"type":"paragraph","text":"button","spans":[]}]}},{"illustration":{"type":"Image","value":{"main":{"url":"https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png","alt":"","copyright":"","dimensions":{"width":3760,"height":1918}},"views":{}}},"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Slide 2","spans":[]}]},"summary":{"type":"StructuredText","value":[{"type":"paragraph","text":"Sed ut perspiciatis, unde omnis iste natus error sit voluptatem.","spans":[]}]},"read-more-label":{"type":"StructuredText","value":[{"type":"paragraph","text":"button","spans":[]}]}},{"illustration":{"type":"Image","value":{"main":{"url":"https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png","alt":"","copyright":"","dimensions":{"width":3760,"height":1918}},"views":{}}},"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Slide 3","spans":[]}]},"summary":{"type":"StructuredText","value":[{"type":"paragraph","text":"Itaque earum rerum hic tenetur a sapiente delectus.","spans":[]}]},"read-more-label":{"type":"StructuredText","value":[{"type":"paragraph","text":"button","spans":[]}]}}]
+        |           }
+        |         },{
+        |           "type":"Slice",
+        |           "slice_type":"separator",
+        |           "slice_label":null,
+        |           "value":{
+        |             "type":"Group","value":[{"sep":{"type":"Separator"}}]
+        |           }
+        |         }]
+        |       }
+        |     }
+        |   }
+      }""".stripMargin
+    )
+    val struct = json.convertTo[Document].getSliceZone("page.body")
+    "serialize to html" in {
+      struct must beSome.like { case blocks: SliceZone =>
+        println("")
+        println(blocks.asHtml(resolver))
+        println("")
+        blocks.asHtml(resolver) mustEqual
+          """<div data-slicetype="slides" class="slice"><section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          |<section data-field="title"><h1>Website Starter Sample Page</h1></section>
+          |<section data-field="summary"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></section>
+          |<section data-field="read-more-label"><p>button</p></section>
+          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          |<section data-field="title"><h1>Slide 2</h1></section>
+          |<section data-field="summary"><p>Sed ut perspiciatis, unde omnis iste natus error sit voluptatem.</p></section>
+          |<section data-field="read-more-label"><p>button</p></section>
+          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          |<section data-field="title"><h1>Slide 3</h1></section>
+          |<section data-field="summary"><p>Itaque earum rerum hic tenetur a sapiente delectus.</p></section>
+          |<section data-field="read-more-label"><p>button</p></section></div>
+          |<div data-slicetype="separator" class="slice"><section data-field="sep"><hr/></section></div>""".stripMargin
+        }
+      }
+  }
   "StructuredText" should {
     val api = await(Api.get("https://lesbonneschoses.cdn.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())

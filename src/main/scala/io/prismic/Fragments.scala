@@ -131,6 +131,7 @@ object Fragment {
     case a: DocumentLink   => a.asHtml(linkResolver)
     case a: Group          => a asHtml linkResolver
     case a: SliceZone      => a asHtml(linkResolver)
+    case Separator         => Separator.asHtml
   }
 
 }

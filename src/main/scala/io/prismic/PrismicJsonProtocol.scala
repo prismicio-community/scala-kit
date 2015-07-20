@@ -257,6 +257,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case Seq(JsString("Group"), value) => value.convertTo[Group]
         case Seq(JsString("SliceZone"), value) => value.convertTo[SliceZone]
         case Seq(JsString("Color"), value) => value.convertTo[Color]
+        case Seq(JsString("Separator")) => Separator
         case Seq(JsString(t), _) => throw new DeserializationException(s"Unkown fragment type: $t")
         case _ => throw new DeserializationException("Expected JsObject with type and value, got " + json)
       }
