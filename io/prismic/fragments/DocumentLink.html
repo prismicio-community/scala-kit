@@ -1,0 +1,995 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>DocumentLink - io.prismic.fragments.DocumentLink</title>
+          <meta name="description" content="DocumentLink - io.prismic.fragments.DocumentLink" />
+          <meta name="keywords" content="DocumentLink io.prismic.fragments.DocumentLink" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.prismic.fragments.DocumentLink';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <img src="../../../lib/class_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.prismic">prismic</a>.<a href="package.html" class="extype" name="io.prismic.fragments">fragments</a></p>
+        <h1>DocumentLink</h1> <span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DocumentLink</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="uid">uid: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slug">slug: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>, <span name="isBroken">isBroken: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a> with <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a>, <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a>, <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="io.prismic.fragments.DocumentLink"><span>DocumentLink</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="io.prismic.WithFragments"><span>WithFragments</span></li><li class="in" name="io.prismic.fragments.Link"><span>Link</span></li><li class="in" name="io.prismic.Fragment"><span>Fragment</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="io.prismic.fragments.DocumentLink#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(id:String,uid:Option[String],typ:String,tags:Seq[String],slug:String,fragments:Map[String,io.prismic.Fragment],isBroken:Boolean):io.prismic.fragments.DocumentLink"></a>
+      <a id="&lt;init&gt;:DocumentLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">DocumentLink</span><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="uid">uid: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slug">slug: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>, <span name="isBroken">isBroken: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@&lt;init&gt;(id:String,uid:Option[String],typ:String,tags:Seq[String],slug:String,fragments:Map[String,io.prismic.Fragment],isBroken:Boolean):io.prismic.fragments.DocumentLink" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@##():Int" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#asHtml" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asHtml(linkResolver:io.prismic.DocumentLinkResolver):String"></a>
+      <a id="asHtml(DocumentLinkResolver):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asHtml</span><span class="params">(<span name="linkResolver">linkResolver: <a href="../DocumentLinkResolver.html" class="extype" name="io.prismic.DocumentLinkResolver">DocumentLinkResolver</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@asHtml(linkResolver:io.prismic.DocumentLinkResolver):String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.prismic.fragments.DocumentLink">DocumentLink</a> → <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@clone():Object" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@finalize():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../../../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#fragments" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fragments:Map[String,io.prismic.Fragment]"></a>
+      <a id="fragments:Map[String,Fragment]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fragments</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@fragments:Map[String,io.prismic.Fragment]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.prismic.fragments.DocumentLink">DocumentLink</a> → <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#get" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="get(field:String):Option[io.prismic.Fragment]"></a>
+      <a id="get(String):Option[Fragment]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">get</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@get(field:String):Option[io.prismic.Fragment]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Access any fragment by name
+</p><div class="fullcomment"><div class="comment cmt"><p>Access any fragment by name
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getAll(field:String):Seq[io.prismic.Fragment]"></a>
+      <a id="getAll(String):Seq[Fragment]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAll</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getAll(field:String):Seq[io.prismic.Fragment]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Access any fragment sequence by name
+</p><div class="fullcomment"><div class="comment cmt"><p>Access any fragment sequence by name
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getAllImages" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getAllImages(field:String,view:String):Seq[io.prismic.fragments.Image.View]"></a>
+      <a id="getAllImages(String,String):Seq[View]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAllImages</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="view">view: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Image$$View.html" class="extype" name="io.prismic.fragments.Image.View">View</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getAllImages(field:String,view:String):Seq[io.prismic.fragments.Image.View]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getAllImages" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getAllImages(field:String):Seq[io.prismic.fragments.Image]"></a>
+      <a id="getAllImages(String):Seq[Image]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getAllImages</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Image.html" class="extype" name="io.prismic.fragments.Image">Image</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getAllImages(field:String):Seq[io.prismic.fragments.Image]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getBoolean" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getBoolean(field:String):Boolean"></a>
+      <a id="getBoolean(String):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getBoolean</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getBoolean(field:String):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getColor" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getColor(field:String):Option[io.prismic.fragments.Color]"></a>
+      <a id="getColor(String):Option[Color]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getColor</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Color.html" class="extype" name="io.prismic.fragments.Color">Color</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getColor(field:String):Option[io.prismic.fragments.Color]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getDate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDate(field:String,pattern:String):Option[String]"></a>
+      <a id="getDate(String,String):Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDate</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getDate(field:String,pattern:String):Option[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getDate" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getDate(field:String):Option[io.prismic.fragments.Date]"></a>
+      <a id="getDate(String):Option[Date]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getDate</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Date.html" class="extype" name="io.prismic.fragments.Date">Date</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getDate(field:String):Option[io.prismic.fragments.Date]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getEmbed" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getEmbed(field:String):Option[io.prismic.fragments.Embed]"></a>
+      <a id="getEmbed(String):Option[Embed]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getEmbed</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Embed.html" class="extype" name="io.prismic.fragments.Embed">Embed</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getEmbed(field:String):Option[io.prismic.fragments.Embed]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getGeoPoint" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getGeoPoint(field:String):Option[io.prismic.fragments.GeoPoint]"></a>
+      <a id="getGeoPoint(String):Option[GeoPoint]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getGeoPoint</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="GeoPoint.html" class="extype" name="io.prismic.fragments.GeoPoint">GeoPoint</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getGeoPoint(field:String):Option[io.prismic.fragments.GeoPoint]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getGroup" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getGroup(field:String):Option[io.prismic.fragments.Group]"></a>
+      <a id="getGroup(String):Option[Group]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getGroup</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Group.html" class="extype" name="io.prismic.fragments.Group">Group</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getGroup(field:String):Option[io.prismic.fragments.Group]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getHtml" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getHtml(field:String,linkResolver:io.prismic.DocumentLinkResolver):Option[String]"></a>
+      <a id="getHtml(String,DocumentLinkResolver):Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getHtml</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="linkResolver">linkResolver: <a href="../DocumentLinkResolver.html" class="extype" name="io.prismic.DocumentLinkResolver">DocumentLinkResolver</a></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getHtml(field:String,linkResolver:io.prismic.DocumentLinkResolver):Option[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getImage(field:String,view:String):Option[io.prismic.fragments.Image.View]"></a>
+      <a id="getImage(String,String):Option[View]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getImage</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="view">view: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Image$$View.html" class="extype" name="io.prismic.fragments.Image.View">View</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getImage(field:String,view:String):Option[io.prismic.fragments.Image.View]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getImage" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getImage(field:String):Option[io.prismic.fragments.Image]"></a>
+      <a id="getImage(String):Option[Image]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getImage</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Image.html" class="extype" name="io.prismic.fragments.Image">Image</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getImage(field:String):Option[io.prismic.fragments.Image]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getLink" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getLink(field:String):Option[io.prismic.fragments.Link]"></a>
+      <a id="getLink(String):Option[Link]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getLink</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getLink(field:String):Option[io.prismic.fragments.Link]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getNumber" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getNumber(field:String,pattern:String):Option[String]"></a>
+      <a id="getNumber(String,String):Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNumber</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="pattern">pattern: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getNumber(field:String,pattern:String):Option[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getNumber" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getNumber(field:String):Option[io.prismic.fragments.Number]"></a>
+      <a id="getNumber(String):Option[Number]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getNumber</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Number.html" class="extype" name="io.prismic.fragments.Number">Number</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getNumber(field:String):Option[io.prismic.fragments.Number]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getSliceZone" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getSliceZone(field:String):Option[io.prismic.fragments.SliceZone]"></a>
+      <a id="getSliceZone(String):Option[SliceZone]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getSliceZone</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="SliceZone.html" class="extype" name="io.prismic.fragments.SliceZone">SliceZone</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getSliceZone(field:String):Option[io.prismic.fragments.SliceZone]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getStructuredText" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getStructuredText(field:String):Option[io.prismic.fragments.StructuredText]"></a>
+      <a id="getStructuredText(String):Option[StructuredText]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getStructuredText</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="StructuredText.html" class="extype" name="io.prismic.fragments.StructuredText">StructuredText</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getStructuredText(field:String):Option[io.prismic.fragments.StructuredText]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getText" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getText(field:String):Option[String]"></a>
+      <a id="getText(String):Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getText</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getText(field:String):Option[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.WithFragments#getTimestamp" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getTimestamp(field:String):Option[io.prismic.fragments.Timestamp]"></a>
+      <a id="getTimestamp(String):Option[Timestamp]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getTimestamp</span><span class="params">(<span name="field">field: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<a href="Timestamp.html" class="extype" name="io.prismic.fragments.Timestamp">Timestamp</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getTimestamp(field:String):Option[io.prismic.fragments.Timestamp]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#getUrl" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getUrl(linkResolver:io.prismic.DocumentLinkResolver):String"></a>
+      <a id="getUrl(DocumentLinkResolver):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getUrl</span><span class="params">(<span name="linkResolver">linkResolver: <a href="../DocumentLinkResolver.html" class="extype" name="io.prismic.DocumentLinkResolver">DocumentLinkResolver</a></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@getUrl(linkResolver:io.prismic.DocumentLinkResolver):String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="io.prismic.fragments.DocumentLink">DocumentLink</a> → <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a></dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#id" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="id:String"></a>
+      <a id="id:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">id</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@id:String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.DocumentLink#isBroken" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isBroken:Boolean"></a>
+      <a id="isBroken:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isBroken</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@isBroken:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="io.prismic.WithFragments#linkedDocuments" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="linkedDocuments:Iterable[io.prismic.fragments.DocumentLink]"></a>
+      <a id="linkedDocuments:Iterable[DocumentLink]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">linkedDocuments</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<a href="" class="extype" name="io.prismic.fragments.DocumentLink">DocumentLink</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@linkedDocuments:Iterable[io.prismic.fragments.DocumentLink]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@notify():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#slug" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="slug:String"></a>
+      <a id="slug:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">slug</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@slug:String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="io.prismic.fragments.DocumentLink#tags" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="tags:Seq[String]"></a>
+      <a id="tags:Seq[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">tags</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@tags:Seq[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.DocumentLink#typ" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="typ:String"></a>
+      <a id="typ:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">typ</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@typ:String" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.DocumentLink#uid" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="uid:Option[String]"></a>
+      <a id="uid:Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">uid</span><span class="result">: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@uid:Option[String]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@wait():Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.DocumentLink@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
+            </div><div class="parent" name="io.prismic.WithFragments">
+              <h3>Inherited from <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a></h3>
+            </div><div class="parent" name="io.prismic.fragments.Link">
+              <h3>Inherited from <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a></h3>
+            </div><div class="parent" name="io.prismic.Fragment">
+              <h3>Inherited from <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

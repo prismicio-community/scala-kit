@@ -1,0 +1,478 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>fragments - io.prismic.fragments</title>
+          <meta name="description" content="fragments - io.prismic.fragments" />
+          <meta name="keywords" content="fragments io.prismic.fragments" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'io.prismic.fragments.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="io">io</a>.<a href="../package.html" class="extype" name="io.prismic">prismic</a></p>
+        <h1>fragments</h1> <span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fragments</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="io.prismic.fragments.Color" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ColorextendsFragmentwithProductwithSerializable"></a>
+      <a id="Color:Color"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Color.html"><span class="name">Color</span></a><span class="params">(<span name="hex">hex: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@ColorextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Date" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DateextendsFragmentwithProductwithSerializable"></a>
+      <a id="Date:Date"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Date.html"><span class="name">Date</span></a><span class="params">(<span name="value">value: <span class="extype" name="org.joda.time.LocalDate">LocalDate</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@DateextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.DocumentLink" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DocumentLinkextendsLinkwithWithFragmentswithProductwithSerializable"></a>
+      <a id="DocumentLink:DocumentLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="DocumentLink.html"><span class="name">DocumentLink</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="uid">uid: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="tags">tags: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="slug">slug: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="fragments">fragments: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a>]</span>, <span name="isBroken">isBroken: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a> with <a href="../WithFragments.html" class="extype" name="io.prismic.WithFragments">WithFragments</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@DocumentLinkextendsLinkwithWithFragmentswithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Embed" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="EmbedextendsFragmentwithProductwithSerializable"></a>
+      <a id="Embed:Embed"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Embed.html"><span class="name">Embed</span></a><span class="params">(<span name="typ">typ: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="provider">provider: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="width">width: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="height">height: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Int">Int</span>]</span>, <span name="html">html: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="oembedJson">oembedJson: <span class="extype" name="spray.json.JsValue">JsValue</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@EmbedextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.FileLink" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="FileLinkextendsLinkwithProductwithSerializable"></a>
+      <a id="FileLink:FileLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="FileLink.html"><span class="name">FileLink</span></a><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="kind">kind: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="size">size: <span class="extype" name="scala.Long">Long</span></span>, <span name="filename">filename: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@FileLinkextendsLinkwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.GeoPoint" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GeoPointextendsFragmentwithProductwithSerializable"></a>
+      <a id="GeoPoint:GeoPoint"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GeoPoint.html"><span class="name">GeoPoint</span></a><span class="params">(<span name="latitude">latitude: <span class="extype" name="scala.Double">Double</span></span>, <span name="longitude">longitude: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@GeoPointextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Group" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GroupextendsFragmentwithProductwithSerializable"></a>
+      <a id="Group:Group"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Group.html"><span class="name">Group</span></a><span class="params">(<span name="docs">docs: <span class="extype" name="scala.Seq">Seq</span>[<a href="Group$$Doc.html" class="extype" name="io.prismic.fragments.Group.Doc">Doc</a>]</span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@GroupextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Image" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ImageextendsFragmentwithProductwithSerializable"></a>
+      <a id="Image:Image"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Image.html"><span class="name">Image</span></a><span class="params">(<span name="main">main: <a href="Image$$View.html" class="extype" name="io.prismic.fragments.Image.View">View</a></span>, <span name="views">views: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, <a href="Image$$View.html" class="extype" name="io.prismic.fragments.Image.View">View</a>] = <span class="symbol">Map.empty</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@ImageextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.ImageLink" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ImageLinkextendsLinkwithProductwithSerializable"></a>
+      <a id="ImageLink:ImageLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ImageLink.html"><span class="name">ImageLink</span></a><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="kind">kind: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="size">size: <span class="extype" name="scala.Long">Long</span></span>, <span name="filename">filename: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@ImageLinkextendsLinkwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Link" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LinkextendsFragment"></a>
+      <a id="Link:Link"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Link.html"><span class="name">Link</span></a><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@LinkextendsFragment" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Number" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="NumberextendsFragmentwithProductwithSerializable"></a>
+      <a id="Number:Number"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Number.html"><span class="name">Number</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@NumberextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Slice" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SliceextendsProductwithSerializable"></a>
+      <a id="Slice:Slice"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Slice.html"><span class="name">Slice</span></a><span class="params">(<span name="sliceType">sliceType: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="sliceLabel">sliceLabel: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>]</span>, <span name="value">value: <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@SliceextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.SliceZone" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="SliceZoneextendsFragmentwithProductwithSerializable"></a>
+      <a id="SliceZone:SliceZone"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="SliceZone.html"><span class="name">SliceZone</span></a><span class="params">(<span name="slices">slices: <span class="extype" name="scala.Seq">Seq</span>[<a href="Slice.html" class="extype" name="io.prismic.fragments.Slice">Slice</a>]</span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@SliceZoneextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.StructuredText" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StructuredTextextendsFragmentwithProductwithSerializable"></a>
+      <a id="StructuredText:StructuredText"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="StructuredText.html"><span class="name">StructuredText</span></a><span class="params">(<span name="blocks">blocks: <span class="extype" name="scala.Seq">Seq</span>[<a href="StructuredText$$Block.html" class="extype" name="io.prismic.fragments.StructuredText.Block">Block</a>]</span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@StructuredTextextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Text" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TextextendsFragmentwithProductwithSerializable"></a>
+      <a id="Text:Text"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Text.html"><span class="name">Text</span></a><span class="params">(<span name="value">value: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@TextextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Timestamp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TimestampextendsFragmentwithProductwithSerializable"></a>
+      <a id="Timestamp:Timestamp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Timestamp.html"><span class="name">Timestamp</span></a><span class="params">(<span name="value">value: <span class="extype" name="org.joda.time.DateTime">DateTime</span></span>)</span><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@TimestampextendsFragmentwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.WebLink" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="WebLinkextendsLinkwithProductwithSerializable"></a>
+      <a id="WebLink:WebLink"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="WebLink.html"><span class="name">WebLink</span></a><span class="params">(<span name="url">url: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="contentType">contentType: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="Link.html" class="extype" name="io.prismic.fragments.Link">Link</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@WebLinkextendsLinkwithProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="io.prismic.fragments.Color" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Color"></a>
+      <a id="Color:Color"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Color$.html"><span class="name">Color</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@Color" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Group" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Group"></a>
+      <a id="Group:Group"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Group$.html"><span class="name">Group</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@Group" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Image" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Image"></a>
+      <a id="Image:Image"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Image$.html"><span class="name">Image</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@Image" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.Separator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Separator"></a>
+      <a id="Separator:Separator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Separator$.html"><span class="name">Separator</span></a><span class="result"> extends <a href="../Fragment.html" class="extype" name="io.prismic.Fragment">Fragment</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@Separator" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="io.prismic.fragments.StructuredText" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StructuredText"></a>
+      <a id="StructuredText:StructuredText"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StructuredText$.html"><span class="name">StructuredText</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#io.prismic.fragments.package@StructuredText" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
