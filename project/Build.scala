@@ -74,10 +74,10 @@ object KitBuild extends Build {
       libraryDependencies ++= Seq(
         "org.fluentd" % "fluent-logger" % "0.2.10",
         "org.joda" % "joda-convert" % "1.2",
-        "joda-time" % "joda-time" % "2.6",
+        "joda-time" % "joda-time" % "2.8.2",
         "io.spray" %% "spray-json" % "1.3.2",
         "com.jcraft" % "jzlib" %  "1.1.2",
-        "io.netty" % "netty-all" % "4.0.24.Final",
+        "io.netty" % "netty-all" % "4.0.31.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.13" % "test"
       )
