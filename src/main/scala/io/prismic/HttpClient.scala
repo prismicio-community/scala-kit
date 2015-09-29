@@ -4,6 +4,7 @@ import java.net.{InetSocketAddress, URI}
 import java.util.concurrent.Executors
 
 import io.netty.bootstrap.Bootstrap
+import io.netty.channel.{ ChannelFuture, ChannelFutureListener }
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
@@ -121,25 +122,23 @@ object HttpClient {
       }
     })
 
-    // Make the connection attempt.
-    val ch = b.connect(host, port).sync().channel()
+    b.connect(host, port).addListener(new ChannelFutureListener {
+      override def operationComplete(chF: ChannelFuture) {
+        val ch = chF.channel()
 
-    // Prepare the HTTP request.
-    val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
-    (headers ++ Map(
-      HttpHeaders.Names.USER_AGENT -> UserAgent,
-      HttpHeaders.Names.HOST -> host,
-      HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
-      HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
-    )).map { case (key, value) =>
-      request.headers().set(key, value)
-    }
+        val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
+                                                (headers ++ Map(
+                                                   HttpHeaders.Names.USER_AGENT -> UserAgent,
+                                                   HttpHeaders.Names.HOST -> host,
+                                                   HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
+                                                   HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
+                                                 )).map { case (key, value) =>
+                                                    request.headers().set(key, value)
+                                                }
 
-    // Send the HTTP request.
-    ch.writeAndFlush(request)
-
-    // Wait for the server to close the connection.
-    ch.closeFuture().sync()
+        ch.writeAndFlush(request)
+      }
+    })
 
     result.future
   }
