@@ -228,7 +228,7 @@ class DocSpec extends Specification {
           }
         }
       }
-      url.mustEqual(Some("https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/f606ad513fcc2a73b909817119b84d6fd0d61a6d.png"))
+      url.mustEqual(Some("https://d2aw36oac6sa9o.cloudfront.net/lesbonneschoses/f606ad513fcc2a73b909817119b84d6fd0d61a6d.png"))
     }
     "Group" in {
       val json = JsonParser("""{
@@ -455,7 +455,7 @@ class DocSpec extends Specification {
             |
             |<h2>How to approach ganache</h2>
             |
-            |<p class="block-img"><img alt="" src="https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/ee7b984b98db4516aba2eabd54ab498293913c6c.jpg" width="640" height="425" /></p>
+            |<p class="block-img"><img alt="" src="https://d2aw36oac6sa9o.cloudfront.net/lesbonneschoses/ee7b984b98db4516aba2eabd54ab498293913c6c.jpg" width="640" height="425" /></p>
             |
             |<p>Apart from the taste balance, which is always a challenge when it comes to pastry, the tough part about ganache is about thickness. It is even harder to predict through all the phases the ganache gets to meet (how long will it get melted? how long will it remain in the fridge?). Things get a hell of a lot easier to get once you consider that there are two main ways to get the perfect ganache:</p>
             |
@@ -509,7 +509,7 @@ class DocSpec extends Specification {
         case s: String => s mustEqual
           """<h1>The end of a chapter the beginning of a new one</h1>
             |
-            |<img alt="" src="https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" />
+            |<img alt="" src="https://d2aw36oac6sa9o.cloudfront.net/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" />
             |
             |<p>Jean-Michel Pastranova, the founder of <em class='italic'>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em class='italic'>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
             |
