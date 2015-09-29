@@ -103,7 +103,7 @@ class FragmentSpec extends Specification {
         body.asHtml(resolver) mustEqual
         """<h1>The end of a chapter the beginning of a new one</h1>
           |
-          |<p class="block-img"><img alt="" src="https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
+          |<p class="block-img"><img alt="" src="https://d2aw36oac6sa9o.cloudfront.net/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" /></p>
           |
           |<p>Jean-Michel Pastranova, the founder of <em>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
           |
@@ -123,7 +123,7 @@ class FragmentSpec extends Specification {
         }) mustEqual
         """<h1>The end of a chapter the beginning of a new one</h1>
           |
-          |<img alt="" src="https://lesbonneschoses.cdn.prismic.io/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" />
+          |<img alt="" src="https://d2aw36oac6sa9o.cloudfront.net/lesbonneschoses/8181933ff2f5032daff7d732e33a3beb6f57e09f.jpg" width="640" height="960" />
           |
           |<p>Jean-Michel Pastranova, the founder of <em class='italic'>Les Bonnes Choses</em>, and creator of the whole concept of modern fine pastry, has decided to step down as the CEO and the Director of Workshops of <em class='italic'>Les Bonnes Choses</em>, to focus on other projects, among which his now best-selling pastry cook books, but also to take on a primary role in a culinary television show to be announced later this year.</p>
           |
