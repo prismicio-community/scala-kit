@@ -4,15 +4,15 @@ import java.net.{InetSocketAddress, URI}
 import java.util.concurrent.Executors
 
 import io.netty.bootstrap.Bootstrap
-import io.netty.channel.{ ChannelFuture, ChannelFutureListener }
+import io.netty.channel.{ChannelFuture, ChannelFutureListener}
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioSocketChannel
-import io.netty.channel.{ChannelPipeline, ChannelHandlerContext, ChannelInitializer, SimpleChannelInboundHandler}
+import io.netty.channel.{ChannelHandlerContext, ChannelInitializer, ChannelPipeline, SimpleChannelInboundHandler}
 import io.netty.handler.codec.http._
-import io.netty.handler.ssl.SslContext
+import io.netty.handler.proxy.HttpProxyHandler
+import io.netty.handler.ssl.{SslContext, SslContextBuilder}
 import io.netty.util.CharsetUtil
-
 import spray.json._
 
 import scala.collection.JavaConversions._
@@ -71,7 +71,6 @@ object HttpClient {
       override def initChannel(ch: SocketChannel) = {
         val p: ChannelPipeline = ch.pipeline()
 
-        /** Proxy support disabled until stable release of Netty 4.1
         proxy match {
           case Some(ProxyServer(phost, pport, _, Some(username), Some(password), _, _, _)) =>
             p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport), username, password))
@@ -79,10 +78,9 @@ object HttpClient {
             p.addLast(new HttpProxyHandler(new InetSocketAddress(phost, pport)))
           case _ => ()
         }
-          */
 
         if (scheme == "https") {
-          val sslCtx = SslContext.newClientContext(SslContext.defaultClientProvider())
+          val sslCtx = SslContextBuilder.forClient().sslProvider(SslContext.defaultClientProvider()).build()
           p.addLast("ssl", sslCtx.newHandler(ch.alloc(), host, port))
         }
 
@@ -95,13 +93,13 @@ object HttpClient {
             msg match {
               case response: FullHttpResponse =>
                 result.success(ClientResponse(
-                  response.getStatus,
+                  response.status(),
                   response.content().toString(CharsetUtil.UTF_8),
                   response.headers())
                 )
                 ctx.close()
               case response: HttpResponse =>
-                status = response.getStatus
+                status = response.status()
                 responseHeaders = response.headers()
               case content: LastHttpContent =>
                 body += content.content().toString(CharsetUtil.UTF_8)
