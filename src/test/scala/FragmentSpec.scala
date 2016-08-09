@@ -86,7 +86,7 @@ class FragmentSpec extends Specification {
         }
     }
   }
-  "Multiple document link" should {
+/*  "Multiple document link" should {
     val api = await(Api.get("https://lesbonneschoses.cdn.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
     val doc = query("""[[:d = at(document.id, "UlfoxUnM0wkXYXbs")]]""").results.head
@@ -105,7 +105,7 @@ class FragmentSpec extends Specification {
         case l: Fragment.DocumentLink => l.slug must_== "tokyo-roppongi-hills"
       }
     }
-  }
+  }*/
   "Slices" should {
       val json = JsonParser(
         """
@@ -230,6 +230,7 @@ class FragmentSpec extends Specification {
         }
       }
   }
+  /*
   "StructuredText" should {
     val api = await(Api.get("https://lesbonneschoses.cdn.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
@@ -273,7 +274,7 @@ class FragmentSpec extends Specification {
       }
     }
   }
-
+   */
   "Nested spans" should {
     val text = "abcdefghijklmnopqrstuvwxyz"
     "correctly serialize with the same starting point" in {

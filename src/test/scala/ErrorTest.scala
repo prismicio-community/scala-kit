@@ -13,8 +13,8 @@ class ErrorSpec extends Specification {
   "Query the API" should {
     "without a ref" in {
       await {
-        val qs = s"""[[:id = at(my.job-offer.pouet, "ABCDEF12345")]]"""
-        Api.get("https://lesbonneschoses.cdn.prismic.io/api") flatMap {
+        val qs = s"""[[:id = at(document.id, "ABCDEF12345")]]"""
+        Api.get("https://micro.prismic.io/api") flatMap {
           _.forms("everything").query(qs).submit()
         }
       } must throwA[RuntimeException].like {
@@ -24,7 +24,7 @@ class ErrorSpec extends Specification {
     "with an invalid key" in {
       await {
         val qs = s"""[[:id = at(my.job-offer.pouet, "ABCDEF12345")]]"""
-        Api.get("https://lesbonneschoses.cdn.prismic.io/api") flatMap { api =>
+        Api.get("https://micro.prismic.io/api") flatMap { api =>
           api.forms("everything").query(qs).ref(api.master).submit()
         }
       } must throwA[RuntimeException].like {

@@ -10,7 +10,7 @@ class ApiSpec extends Specification {
 
   private def await[A](fua: Future[A]) = Await.result(fua, DurationInt(5).seconds)
 
-  def lbc = Api.get("https://lesbonneschoses.cdn.prismic.io/api")
+//  def lbc = Api.get("https://lesbonneschoses.cdn.prismic.io/api")
 
   "private API without authorization" should {
     "without token" in {
@@ -28,7 +28,7 @@ class ApiSpec extends Specification {
       }
     }
   }
-
+/*
   "queries on the repo" should {
     "with ordering" in {
       val api = await(lbc)
@@ -69,5 +69,5 @@ class ApiSpec extends Specification {
       }
     }
   }
-
+ */
 }
