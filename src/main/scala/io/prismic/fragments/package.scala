@@ -324,9 +324,9 @@ object StructuredText {
           case StructuredText.Block.ListItem(text, spans, _, _, _) => s"""<li$cls>$body</li>"""
           case StructuredText.Block.Image(view, hyperlink, label, dir) => {
             val linkbody = hyperlink match {
-              case Some(link: DocumentLink) => """<a href="$linkResolver(link)">${view.asHtml}</a>"""
-              case Some(link: WebLink) => """<a href="${link.url}">${view.asHtml}</a>"""
-              case Some(link: FileLink) => """<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: DocumentLink) => s"""<a href="$linkResolver(link)">${view.asHtml}</a>"""
+              case Some(link: WebLink) => s"""<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: FileLink) => s"""<a href="${link.url}">${view.asHtml}</a>"""
               case _ => view.asHtml
             }
             s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""
