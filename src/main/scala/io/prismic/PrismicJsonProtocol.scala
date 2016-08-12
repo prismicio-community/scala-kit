@@ -63,10 +63,10 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
 
   implicit object LinkFormat extends RootJsonFormat[Link] {
     override def read(json: JsValue): Link = (json \ "type").convertTo[String] match {
-      case "Link.web" => json.convertTo[WebLink]
-      case "Link.document" => json.convertTo[DocumentLink]
-      case "Link.file" => json.convertTo[FileLink]
-      case "Link.image" => json.convertTo[ImageLink]
+      case "Link.web" => (json \ "value").convertTo[WebLink]
+      case "Link.document" => (json \ "value").convertTo[DocumentLink]
+      case "Link.file" => (json \ "value").convertTo[FileLink]
+      case "Link.image" => (json \ "value").convertTo[ImageLink]
       case t => throw new DeserializationException(s"Unkown link type $t")
     }
     override def write(obj: Link): JsValue = throw new SerializationException("Not implemented")
