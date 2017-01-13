@@ -1,5 +1,6 @@
 package io.prismic
 
+import org.joda.time.DateTime
 import spray.json._
 
 import io.prismic.fragments.{ DocumentLink, StructuredText },
@@ -15,7 +16,9 @@ case class Document(
     href: String,
     tags: Seq[String],
     slugs: Seq[String],
-    fragments: Map[String, Fragment]) extends WithFragments {
+    fragments: Map[String, Fragment],
+    firstPublicationDate: Option[DateTime],
+    lastPublicationDate: Option[DateTime]) extends WithFragments {
 
   def slug: String = slugs.headOption.getOrElse("-")
 
