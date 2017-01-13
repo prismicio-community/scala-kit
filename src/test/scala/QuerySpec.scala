@@ -13,6 +13,10 @@ class QuerySpec extends Specification {
       Predicate.at("document.type", "blog-post").q must_== """[:d = at(document.type, "blog-post")]"""
     }
 
+    "not predicate" in {
+      Predicate.not("document.type", "blog-post").q must_== """[:d = not(document.type, "blog-post")]"""
+    }
+
     "any predicate" in {
       Predicate.any("document.tags", Seq("Macaron", "Cupcakes")).q must_== """[:d = any(document.tags, ["Macaron","Cupcakes"])]"""
     }
