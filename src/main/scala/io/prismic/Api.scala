@@ -112,12 +112,13 @@ final class Api(
    * @return
    */
   def findByUid(value: String,
+               customType: String,
                form: String = "everything",
                ref: Ref = master,
                page: Int = 1,
                pageSize: Int = 20
                 ): Future[Option[Document]] =
-    findBy("document.uid", value, form, ref, page, pageSize).map(_.headOption)
+    findBy(s"my.${customType}.uid", value, form, ref, page, pageSize).map(_.headOption)
 
 }
 
