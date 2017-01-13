@@ -29,6 +29,10 @@ class QuerySpec extends Specification {
       Predicate.lt("my.product.price", 4.2).q must_== """[:d = number.lt(my.product.price, 4.2)]"""
     }
 
+    "number gt" in {
+      Predicate.gt("my.product.price", 4.2).q must_== """[:d = number.gt(my.product.price, 4.2)]"""
+    }
+
     "number in range" in {
       Predicate.inRange("my.product.price", 2, 4).q must_== """[:d = number.inRange(my.product.price, 2, 4)]"""
     }
