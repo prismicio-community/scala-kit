@@ -129,6 +129,10 @@ final class Api(
   def getByUid(value: String, customType: String, ref: Ref = master) =
     findByUid(value, customType, form = "everything", ref, page = 1, pageSize = 1)
 
+  def findSingle(customType: String, ref: Ref = master): Future[Option[Document]] =
+    findBy(s"document.type", customType, form = "everything", ref, page = 1, pageSize = 1).map(_.headOption)
+  val getSingle = findSingle _
+
 }
 
 
