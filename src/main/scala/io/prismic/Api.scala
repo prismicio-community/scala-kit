@@ -92,6 +92,11 @@ final class Api(
                 pageSize: Int = 20
                  ): Future[Seq[Document]] =
     forms(form).ref(ref).page(page).pageSize(pageSize).query(Predicate.any("document.id", values)).submit().map(_.results)
+  def getByIds(values: Seq[String],
+              ref: Ref = master,
+              page: Int = 1,
+              pageSize: Int = 20): Future[Seq[Document]] =
+    findByIds(values, form = "everything", ref, page, pageSize)
 
   /**
    * Retrieve the document with the corresponding id
@@ -102,9 +107,11 @@ final class Api(
                form: String = "everything",
                ref: Ref = master,
                page: Int = 1,
-               pageSize: Int = 20
+               pageSize: Int = 1
                 ): Future[Option[Document]] =
     findBy("document.id", value, form, ref, page, pageSize).map(_.headOption)
+  def getById(value: String, ref: Ref = master) =
+    findById(value, form = "everything", ref, page = 1, pageSize = 1)
 
   /**
    * Retrieve the document with the corresponding uid
@@ -116,9 +123,11 @@ final class Api(
                form: String = "everything",
                ref: Ref = master,
                page: Int = 1,
-               pageSize: Int = 20
+               pageSize: Int = 1
                 ): Future[Option[Document]] =
     findBy(s"my.${customType}.uid", value, form, ref, page, pageSize).map(_.headOption)
+  def getByUid(value: String, customType: String, ref: Ref = master) =
+    findByUid(value, customType, form = "everything", ref, page = 1, pageSize = 1)
 
 }
 
