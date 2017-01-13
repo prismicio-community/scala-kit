@@ -137,9 +137,10 @@ object Api {
           accessToken: Option[String] = None,
           proxy: Option[ProxyServer] = None,
           cache: Cache = Cache.defaultCache,
-          logger: (Symbol, String) => Unit = { (_, _) => () }): Future[Api] = {
+          logger: (Symbol, String) => Unit = { (_, _) => () },
+          ttl: Long = 5000L): Future[Api] = {
     val url = accessToken.map(token => s"$endpoint?access_token=$token").getOrElse(endpoint)
-    cache.getOrSet(url, 5000L) {
+    cache.getOrSet(url, ttl) {
       HttpClient.getJson(url, proxy = proxy).map { resp =>
           resp.status match {
             case HttpResponseStatus.OK => resp.json
