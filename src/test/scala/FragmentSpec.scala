@@ -380,33 +380,33 @@ class FragmentSpec extends Specification {
     }
   }
 
-	"Image as link" should {
-		val json = JsonParser(
-			"""
-				|{
-				|    "copyright": null,
-				|    "url": "http://cdn.sentione.com/season-logo/logo.png",
-				|    "linkTo": {
-				|      "type": "Link.web",
-				|      "value": {
-				|        "url": "http://sentione.com"
-				|      }
-				|    },
-				|    "alt": "logo",
-				|    "copyright": "Sentione",
-				|    "dimensions": {
-				|      "width": 180,
-				|      "height": 82
-				|    },
-				|    "type": "image"
-				|}
-			""".stripMargin)
-		"deserialize to image block with linkTo value set" in {
-			json.convertTo[Block].asInstanceOf[Block.Image].linkTo.isDefined mustEqual true
-		}
-		"render as image as link" in {
-			StructuredText(Seq(json.convertTo[Block])).asHtml(DocumentLinkResolver(_ => "")) mustEqual
-				"""<p class="block-img"><a href="http://sentione.com"><img alt="logo" src="http://cdn.sentione.com/season-logo/logo.png" width="180" height="82" copyright="Sentione" /></a></p>"""
-		}
-	}
+  "Image as link" should {
+    val json = JsonParser(
+      """
+        |{
+        |    "copyright": null,
+        |    "url": "http://cdn.sentione.com/season-logo/logo.png",
+        |    "linkTo": {
+        |      "type": "Link.web",
+        |      "value": {
+        |        "url": "http://sentione.com"
+        |      }
+        |    },
+        |    "alt": "logo",
+        |    "copyright": "Sentione",
+        |    "dimensions": {
+        |      "width": 180,
+        |      "height": 82
+        |    },
+        |    "type": "image"
+        |}
+      """.stripMargin)
+    "deserialize to image block with linkTo value set" in {
+      json.convertTo[Block].asInstanceOf[Block.Image].linkTo.isDefined mustEqual true
+    }
+    "render as image as link" in {
+      StructuredText(Seq(json.convertTo[Block])).asHtml(DocumentLinkResolver(_ => "")) mustEqual
+        """<p class="block-img"><a href="http://sentione.com"><img alt="logo" src="http://cdn.sentione.com/season-logo/logo.png" width="180" height="82" copyright="Sentione" /></a></p>"""
+    }
+  }
 }
