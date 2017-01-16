@@ -66,7 +66,6 @@ class FragmentSpec extends Specification {
     val api = await(Api.get("https://test-public.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
     val doc = query("""[[:d = at(document.id, "VFfjTSgAACYA86Zn")]]""").results.head
-    println(doc.getLink("product.gallery"))
     "support image media" in {
       doc getLink "product.link" must beSome.like {
         case l: ImageLink => l.filename must_== "20130209_152532.jpg"
@@ -210,9 +209,6 @@ class FragmentSpec extends Specification {
     val struct = json.convertTo[Document].getSliceZone("page.body")
     "serialize to html" in {
       struct must beSome.like { case blocks: SliceZone =>
-        println("")
-        println(blocks.asHtml(resolver))
-        println("")
         blocks.asHtml(resolver) mustEqual
           """<div data-slicetype="slides" class="slice"><section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
           |<section data-field="title"><h1>Website Starter Sample Page</h1></section>
