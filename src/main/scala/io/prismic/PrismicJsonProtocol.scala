@@ -184,7 +184,8 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       (json \ "url").convertTo[String],
       (json \ "dimensions" \ "width").convertTo[Int],
       (json \ "dimensions" \ "height").convertTo[Int],
-      (json \ "alt").toOpt[String]
+      (json \ "alt").toOpt[String],
+      (json \ "copyright").toOpt[String]
     )
   }
 

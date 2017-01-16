@@ -129,9 +129,9 @@ case class DocumentLink(id: String,
 
   object Image {
 
-    case class View(url: String, width: Int, height: Int, alt: Option[String]) {
+    case class View(url: String, width: Int, height: Int, alt: Option[String], copyright: Option[String]) {
       def ratio = width / height
-      def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="$url" width="$width" height="$height" />"""
+      def asHtml: String = s"""<img alt="${alt.getOrElse("")}" src="$url" width="$width" height="$height" copyright="${copyright.getOrElse("")}" />"""
     }
 
   }
