@@ -275,11 +275,18 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   implicit object SliceFormat extends RootJsonFormat[Slice] {
     override def read(jsValue: JsValue): Slice = {
       val json = jsValue.asJsObject
-      json.getFields("slice_type", "value") match {
+      json.getFields("slice_type", "value", "non-repeat", "repeat") match {
         case Seq(JsString(sliceType), data: JsObject) =>
           val sliceLabel = (json \ "slice_label").toOpt[String]
           val fragment = data.convertTo[Fragment]
-          Slice(sliceType, sliceLabel, fragment)
+          SimpleSlice(sliceType, sliceLabel, fragment)
+
+        case Seq(JsString(sliceType), nonRepeat: JsObject, repeat: JsArray) =>
+          val sliceLabel = (json \ "slice_label").toOpt[String]
+          val nr = JsArray(nonRepeat).convertTo[Group].docs.headOption.getOrElse(Group.Doc(Map()))
+          val r = repeat.convertTo[Group]
+          CompositeSlice(sliceType, sliceLabel, nr, r)
+
         case _ => throw new DeserializationException("Expected slice_type and value")
       }
     }

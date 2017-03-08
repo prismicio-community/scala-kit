@@ -10,7 +10,7 @@ case class ProxyServer(
   /** The port of the proxy server. */
   port: Int,
 
-  @deprecated("Ignored")
+  @deprecated("Ignored", "1.3.4")
   protocol: Option[String] = None,
 
   /** The principal (aka username) of the credentials for the proxy server. */
@@ -19,13 +19,13 @@ case class ProxyServer(
   /** The password for the credentials for the proxy server. */
   password: Option[String] = None,
 
-  @deprecated("Ignored")
+  @deprecated("Ignored", "1.3.4")
   ntlmDomain: Option[String] = None,
 
-  @deprecated("Ignored")
+  @deprecated("Ignored", "1.3.4")
   encoding: Option[String] = None,
 
-  @deprecated("Ignored")
+  @deprecated("Ignored", "1.3.4")
   nonProxyHosts: Option[Seq[String]] = None) {
 
 }
