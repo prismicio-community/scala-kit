@@ -12,7 +12,7 @@ You can find this library in our own Maven repository (hosted on Github).
 Then add, the library dependency:
 
 ```
-"io.prismic" %% "scala-kit" % "1.3.4"
+"io.prismic" %% "scala-kit" % "2.0.0"
 ```
 
  * *the kit requires **JDK 7** or above*
