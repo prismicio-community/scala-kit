@@ -172,7 +172,26 @@ case class DocumentLink(id: String,
 
   }
 
-  case class Slice(sliceType: String, sliceLabel: Option[String], value: Fragment) {
+  trait Slice {
+    def sliceType: String
+    def sliceLabel: Option[String]
+    def asHtml(linkResolver: DocumentLinkResolver): String
+  }
+
+  case class CompositeSlice(sliceType: String, sliceLabel: Option[String], nonRepeat: Group.Doc, repeat: Group) extends Slice {
+
+    def asHtml(linkResolver: DocumentLinkResolver): String = {
+      var className = (Seq("slice") ++ sliceLabel.toSeq).mkString(" ")
+      s"""<div data-slicetype="$sliceType" class="$className">
+        <div class="non-repeat">
+          ${nonRepeat.fragments.toSeq.map{case (key, value) => Fragment.getHtml(value, linkResolver)}}
+        </div>
+        ${repeat.asHtml(linkResolver)}
+      </div>"""
+    }
+  }
+
+  case class SimpleSlice(sliceType: String, sliceLabel: Option[String], value: Fragment) extends Slice {
 
     def asHtml(linkResolver: DocumentLinkResolver): String = {
       var className = (Seq("slice") ++ sliceLabel.toSeq).mkString(" ")
