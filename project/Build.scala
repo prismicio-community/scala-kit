@@ -77,7 +77,7 @@ object KitBuild extends Build {
         "joda-time" % "joda-time" % "2.8.2",
         "io.spray" %% "spray-json" % "1.3.2",
         "com.jcraft" % "jzlib" %  "1.1.2",
-        "io.netty" % "netty-all" % "4.0.31.Final",
+        "io.netty" % "netty-all" % "4.1.4.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
         "org.specs2" %% "specs2" % "2.3.13" % "test"
       )

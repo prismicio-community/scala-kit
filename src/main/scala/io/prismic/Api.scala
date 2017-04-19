@@ -43,10 +43,10 @@ final class Api(
    *                (usually the home page of your site)
    * @return a Future corresponding to the URL you should redirect the user to preview the requested change
    */
-  def previewSession(token: String, linkResolver: DocumentLinkResolver, defaultUrl: String): Future[String] = {
+  def previewSession(token: String, linkResolver: DocumentLinkResolver, defaultUrl: String, proxy: Option[ProxyServer] = None): Future[String] = {
     try {
       (for {
-        tokenJson <- HttpClient.getJson(token).map(_.json)
+        tokenJson <- HttpClient.getJson(token, proxy = proxy).map(_.json)
         mainDocumentId = (tokenJson \ "mainDocument").convertTo[String]
         results <- forms("everything").query(Predicate.at("document.id", mainDocumentId)).ref(token).submit()
         document = results.results.head
