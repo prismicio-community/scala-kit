@@ -54,7 +54,7 @@ object KitBuild extends Build {
 
   lazy val ScalaKit = Project(
     BuildSettings.buildName, file("."),
-    settings = BuildSettings.buildSettings ++ net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq(
+    settings = BuildSettings.buildSettings ++ Seq(
       scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"),
       scalacOptions in (Compile, doc) ++= Seq("-doc-root-content", baseDirectory.value + "/root-doc.txt"),
 
