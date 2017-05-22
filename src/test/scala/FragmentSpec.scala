@@ -66,7 +66,6 @@ class FragmentSpec extends Specification {
     val api = await(Api.get("https://test-public.prismic.io/api"))
     def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
     val doc = query("""[[:d = at(document.id, "VFfjTSgAACYA86Zn")]]""").results.head
-    println(doc.getLink("product.gallery"))
     "support image media" in {
       doc getLink "product.link" must beSome.like {
         case l: ImageLink => l.filename must_== "20130209_152532.jpg"
@@ -166,7 +165,7 @@ class FragmentSpec extends Specification {
       "serialize to html" in {
         struct must beSome.like { case blocks: SliceZone =>
           blocks.asHtml(resolver) mustEqual
-            """<div data-slicetype="features" class="slice"><section data-field="illustration"><img alt="" src="https://wroomdev.s3.amazonaws.com/toto/db3775edb44f9818c54baa72bbfc8d3d6394b6ef_hsf_evilsquall.jpg" width="4285" height="709" /></section>
+            """<div data-slicetype="features" class="slice"><section data-field="illustration"><img alt="" src="https://wroomdev.s3.amazonaws.com/toto/db3775edb44f9818c54baa72bbfc8d3d6394b6ef_hsf_evilsquall.jpg" width="4285" height="709" copyright="" /></section>
               |<section data-field="title"><span class="text">c'est un bloc features</span></section></div>
               |<div data-slicetype="text" class="slice"><p>C'est un bloc content</p></div>""".stripMargin
         }
@@ -210,19 +209,16 @@ class FragmentSpec extends Specification {
     val struct = json.convertTo[Document].getSliceZone("page.body")
     "serialize to html" in {
       struct must beSome.like { case blocks: SliceZone =>
-        println("")
-        println(blocks.asHtml(resolver))
-        println("")
         blocks.asHtml(resolver) mustEqual
-          """<div data-slicetype="slides" class="slice"><section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          """<div data-slicetype="slides" class="slice"><section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" copyright="" /></section>
           |<section data-field="title"><h1>Website Starter Sample Page</h1></section>
           |<section data-field="summary"><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p></section>
           |<section data-field="read-more-label"><p>button</p></section>
-          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" copyright="" /></section>
           |<section data-field="title"><h1>Slide 2</h1></section>
           |<section data-field="summary"><p>Sed ut perspiciatis, unde omnis iste natus error sit voluptatem.</p></section>
           |<section data-field="read-more-label"><p>button</p></section>
-          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" /></section>
+          |<section data-field="illustration"><img alt="" src="https://prismic-io.s3.amazonaws.com/blogtemplate/05f6ddc9efed8bf3b03e3847124b2015367d2ae3_slide.png" width="3760" height="1918" copyright="" /></section>
           |<section data-field="title"><h1>Slide 3</h1></section>
           |<section data-field="summary"><p>Itaque earum rerum hic tenetur a sapiente delectus.</p></section>
           |<section data-field="read-more-label"><p>button</p></section></div>
@@ -379,37 +375,38 @@ class FragmentSpec extends Specification {
     val url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
     "find first" in {
       img must beSome.like {
-        case v: Fragment.Image.View => v.asHtml must_== s"""<img alt="some alt text" src="$url" width="100" height="100" />"""
+        case v: Fragment.Image.View => v.asHtml must_== s"""<img alt="some alt text" src="$url" width="100" height="100" copyright="" />"""
       }
     }
   }
 
-	"Image as link" should {
-		val json = JsonParser(
-			"""
-				|{
-				|    "copyright": null,
-				|    "url": "http://cdn.sentione.com/season-logo/logo.png",
-				|    "linkTo": {
-				|      "type": "Link.web",
-				|      "value": {
-				|        "url": "http://sentione.com"
-				|      }
-				|    },
-				|    "alt": null,
-				|    "dimensions": {
-				|      "width": 180,
-				|      "height": 82
-				|    },
-				|    "type": "image"
-				|}
-			""".stripMargin)
-		"deserialize to image block with linkTo value set" in {
-			json.convertTo[Block].asInstanceOf[Block.Image].linkTo.isDefined mustEqual true
-		}
-		"render as image as link" in {
-			StructuredText(Seq(json.convertTo[Block])).asHtml(DocumentLinkResolver(_ => "")) mustEqual
-				"<p class=\"block-img\"><a href=\"http://sentione.com\"><img alt=\"\" src=\"http://cdn.sentione.com/season-logo/logo.png\" width=\"180\" height=\"82\" /></a></p>"
-		}
-	}
+  "Image as link" should {
+    val json = JsonParser(
+      """
+        |{
+        |    "copyright": null,
+        |    "url": "http://cdn.sentione.com/season-logo/logo.png",
+        |    "linkTo": {
+        |      "type": "Link.web",
+        |      "value": {
+        |        "url": "http://sentione.com"
+        |      }
+        |    },
+        |    "alt": "logo",
+        |    "copyright": "Sentione",
+        |    "dimensions": {
+        |      "width": 180,
+        |      "height": 82
+        |    },
+        |    "type": "image"
+        |}
+      """.stripMargin)
+    "deserialize to image block with linkTo value set" in {
+      json.convertTo[Block].asInstanceOf[Block.Image].linkTo.isDefined mustEqual true
+    }
+    "render as image as link" in {
+      StructuredText(Seq(json.convertTo[Block])).asHtml(DocumentLinkResolver(_ => "")) mustEqual
+        """<p class="block-img"><a href="http://sentione.com"><img alt="logo" src="http://cdn.sentione.com/season-logo/logo.png" width="180" height="82" copyright="Sentione" /></a></p>"""
+    }
+  }
 }

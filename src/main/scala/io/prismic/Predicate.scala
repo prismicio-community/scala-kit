@@ -81,7 +81,11 @@ object Predicate {
 
   def at(fragment: String, value: String) = apply("at", fragment, value)
 
+  def not(fragment: String, value: String) = apply("not", fragment, value)
+
   def at(fragment: String, value: Seq[String]) = apply("at", fragment, value)
+
+  def not(fragment: String, value: Seq[String]) = apply("not", fragment, value)
 
   def any(fragment: String, values: Seq[String]) = apply("any", fragment, values)
 

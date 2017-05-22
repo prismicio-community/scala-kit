@@ -13,6 +13,10 @@ class QuerySpec extends Specification {
       Predicate.at("document.type", "blog-post").q must_== """[:d = at(document.type, "blog-post")]"""
     }
 
+    "not predicate" in {
+      Predicate.not("document.type", "blog-post").q must_== """[:d = not(document.type, "blog-post")]"""
+    }
+
     "any predicate" in {
       Predicate.any("document.tags", Seq("Macaron", "Cupcakes")).q must_== """[:d = any(document.tags, ["Macaron","Cupcakes"])]"""
     }
@@ -23,6 +27,10 @@ class QuerySpec extends Specification {
 
     "number lt" in {
       Predicate.lt("my.product.price", 4.2).q must_== """[:d = number.lt(my.product.price, 4.2)]"""
+    }
+
+    "number gt" in {
+      Predicate.gt("my.product.price", 4.2).q must_== """[:d = number.gt(my.product.price, 4.2)]"""
     }
 
     "number in range" in {
