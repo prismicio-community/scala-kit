@@ -314,8 +314,10 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
           val uid: Option[String] = (json \ "uid").toOpt[String]
           val tags: Seq[String] = (json \ "tags").toOpt[Seq[String]].getOrElse(Nil)
           val slugs: Seq[String] = (json \ "slugs").toOpt[Seq[String]].map(decode).getOrElse(Nil)
+          val firstPublicationDate: Option[DateTime] = (json \ "first_publication_date").toOpt[String].map(new DateTime(_).withZone(DateTimeZone.UTC))
+          val lastPublicationDate: Option[DateTime] = (json \ "last_publication_date").toOpt[String].map(new DateTime(_).withZone(DateTimeZone.UTC))
           val fragments: JsObject = (data \ typ).asJsObject
-          Document(id, uid, typ, href, tags, slugs, parseFragments(fragments, typ))
+          Document(id, uid, typ, href, tags, slugs, firstPublicationDate, lastPublicationDate, parseFragments(fragments, typ))
         case _ => throw new DeserializationException("Expected id, href, type and data")
       }
     }

@@ -24,12 +24,12 @@ class PaginationSpec extends Specification {
     "first page" in {
       val res = query(1)
       res.page must_== 1
-      res.results.head.id must_== "WHx-gSYAAMkyXYX_"
+      res.results.head.id must_== "U0w8OwEAACoAQEvB"
       res.results.size must_== 20
       res.resultsPerPage must_== 20
       res.resultsSize must_== 20
       res.totalPages must_== 2
-      res.nextPage must_== Some("https://micro.prismic.io/api/documents/search?ref=WH8MzyoAAGoSGJwT&page=2&pageSize=20")
+      res.nextPage must_== Some("https://micro.prismic.io/api/v1/documents/search?ref=WH8MzyoAAGoSGJwT&page=2&pageSize=20")
       res.prevPage must_== None
     }
     "second page" in {
@@ -40,7 +40,7 @@ class PaginationSpec extends Specification {
       res.resultsSize must_== 4
       res.totalPages must_== 2
       res.nextPage must_== None
-      res.prevPage must_== Some(s"https://micro.prismic.io/api/documents/search?ref=WH8MzyoAAGoSGJwT&page=1&pageSize=20")
+      res.prevPage must_== Some(s"https://micro.prismic.io/api/v1/documents/search?ref=WH8MzyoAAGoSGJwT&page=1&pageSize=20")
     }
     "setting page size" in {
       val res = query(1, 7)
@@ -49,7 +49,7 @@ class PaginationSpec extends Specification {
       res.resultsPerPage must_== 7
       res.resultsSize must_== 7
       res.totalPages must_== 4
-      res.nextPage must_== Some(s"https://micro.prismic.io/api/documents/search?ref=WH8MzyoAAGoSGJwT&page=2&pageSize=7")
+      res.nextPage must_== Some(s"https://micro.prismic.io/api/v1/documents/search?ref=WH8MzyoAAGoSGJwT&page=2&pageSize=7")
       res.prevPage must_== None
     }
   }
