@@ -1,0 +1,124 @@
+{
+    "id": "UlfoxUnM0wkXYXbb", "type": "store", "href": "https://lesbonneschoses.prismic.io/api/documents/search?ref=UlfoxUnM08QWYXdl&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22UlfoxUnM0wkXYXbb%22%29+%5D%5D", "tags": [], "slugs": ["paris-saint-lazare"], "lang": "fr-fr", "alternate_languages":[], "first_publication_date": "2017-01-13T11:45:21.000Z", "last_publication_date": "2017-02-21T16:05:19.000Z", "linked_documents": [], "data": {
+    "store": {
+        "name": {
+            "type": "StructuredText",
+            "value": [
+                {
+                    "type": "heading1",
+                    "text": "Paris Saint-Lazare",
+                    "spans": []
+                }
+            ]
+        },
+        "address": {
+            "type": "Text",
+            "value": "56 rue Saint-Lazare"
+        },
+        "city": {
+            "type": "Text",
+            "value": "PARIS"
+        },
+        "zipcode": {
+            "type": "Text",
+            "value": "75009"
+        },
+        "country": {
+            "type": "Select",
+            "value": "France"
+        },
+        "coordinates": {
+            "type": "GeoPoint",
+            "value": {
+                "latitude": 48.877108,
+                "longitude": 2.3338790
+            }
+        },
+        "description": {
+            "type": "StructuredText",
+            "value": [
+                {
+                    "type": "paragraph",
+                    "text": "Our headquarters are also the setting of our oldest shop, where our pastries are highlighted by a traditional Parisian-bakery style.",
+                    "spans": []
+                }
+            ]
+        },
+        "image": {
+            "type": "Image",
+            "value": {
+                "main": {
+                    "url": "https://prismic-io.s3.amazonaws.com/lesbonneschoses/becaf8a6343465b04bcfb0fe1807d6607231ec7a.jpg",
+                    "alt": "",
+                    "copyright": "",
+                    "dimensions": {
+                        "width": 1500,
+                        "height": 500
+                    }
+                },
+                "views": {
+                    "medium": {
+                        "url": "https://prismic-io.s3.amazonaws.com/lesbonneschoses/ed23b65bf3ace612924487d09718806df74bc48f.jpg",
+                        "alt": "",
+                        "copyright": "",
+                        "dimensions": {
+                            "width": 800,
+                            "height": 250
+                        }
+                    },
+                    "icon": {
+                        "url": "https://prismic-io.s3.amazonaws.com/lesbonneschoses/dab1e5fc3e85f71dd6f2d3c01cc6a0c08fcf12f6.jpg",
+                        "alt": "",
+                        "copyright": "",
+                        "dimensions": {
+                            "width": 250,
+                            "height": 250
+                        }
+                    }
+                }
+            }
+        },
+        "monday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "tuesday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "wednesday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "thursday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "friday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "saturday": [
+            {
+                "type": "Text",
+                "value": "2pm - 10pm"
+            }
+        ],
+        "sunday": [
+            {
+                "type": "Text",
+                "value": "Closed"
+            }
+        ]
+    }
+}}
