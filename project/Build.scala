@@ -12,7 +12,7 @@ object BuildSettings {
   val buildName = "scala-kit"
   val buildOrganization = "io.prismic"
   val buildVersion = Option(System.getProperty("version")).map(_.trim).getOrElse("1.0-SNAPSHOT")
-  val buildScalaVersion = "2.11.1"
+  val buildScalaVersion = "2.12.2"
 
   val buildSettings = xerial.sbt.Sonatype.sonatypeSettings ++
       site.settings ++
@@ -22,7 +22,7 @@ object BuildSettings {
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
-    crossScalaVersions := Seq("2.10.4", "2.11.1"),
+    crossScalaVersions := Seq("2.10.4", "2.11.1", "2.12.2"),
     scalacOptions := Seq("-deprecation", "-unchecked", "-feature"),
     gitRemoteRepo := "git@github.com:prismicio/scala-kit.git",
     pomExtra := {
@@ -79,7 +79,7 @@ object KitBuild extends Build {
         "com.jcraft" % "jzlib" %  "1.1.2",
         "io.netty" % "netty-all" % "4.0.31.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
-        "org.specs2" %% "specs2" % "2.3.13" % "test"
+        "org.specs2" %% "specs2-core" % "3.9.4" % "test" // See https://github.com/etorreborre/specs2/issues/579
       )
     )
   )
