@@ -63,14 +63,13 @@ class FragmentSpec extends Specification {
     }
   }
   "Link" should {
-    val api = await(Api.get("https://test-public.prismic.io/api"))
-    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val doc = query("""[[:d = at(document.id, "VFfjTSgAACYA86Zn")]]""").results.head
-    println(doc.getLink("product.gallery"))
-    "support image media" in {
-      doc getLink "product.link" must beSome.like {
-        case l: ImageLink => l.filename must_== "20130209_152532.jpg"
-      }
+    lazy val document = Fixtures.document
+    document.getLink("store.link") must beSome.like {
+      case d: DocumentLink => 
+        d.fragments.get("timestamp.text") must beSome.like {
+          case s: StructuredText =>
+            s.asHtml(resolver) must_== "<p>This is text</p>"
+        }
     }
   }
   "Timestamp" should {

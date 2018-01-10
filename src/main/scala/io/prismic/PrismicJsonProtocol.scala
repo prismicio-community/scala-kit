@@ -254,8 +254,8 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         case Seq(JsString("Link.file"), value) => value.convertTo[FileLink]
         case Seq(JsString("Link.image"), value) => value.convertTo[ImageLink]
         case Seq(JsString("StructuredText"), value) => value.convertTo[StructuredText]
-        case Seq(JsString("Group"), value) => value.convertTo[Group]
-        case Seq(JsString("SliceZone"), value) => value.convertTo[SliceZone]
+        case Seq(JsString("Group"), value) => value.convertTo[Group](GroupFormat)
+        case Seq(JsString("SliceZone"), value) => value.convertTo[SliceZone](SliceZoneFormat)
         case Seq(JsString("Color"), value) => value.convertTo[Color]
         case Seq(JsString("Separator")) => Separator
         case Seq(JsString(t), _) => throw new DeserializationException(s"Unkown fragment type: $t")
@@ -327,10 +327,18 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
     def parseFragments(json: JsObject, typ: String): Map[String, Fragment] = {
       val fields = json.fields.map {
         case (key, jsobj: JsObject) => jsobj.toOpt[Fragment].toList.map(fragment => (s"$typ.$key", fragment))
-        case (key, jsons: JsArray) => jsons.elements.zipWithIndex.collect {
-          case (json: JsObject, i) => json.toOpt[Fragment].toList.map(fragment => (s"$typ.$key[$i]", fragment))
-          case (jsval, i) => Nil
-        }.flatten
+        case (key, jsons: JsArray) =>
+          jsons.toOpt[StructuredText] match {
+            case Some(structuredText) =>
+              Seq(s"$typ.$key" -> structuredText)
+
+            case None => 
+              jsons.elements.zipWithIndex.collect {
+                case (json: JsObject, i) => json.toOpt[Fragment].toList.map(fragment => (s"$typ.$key[$i]", fragment))
+                case (jsval, i) => Nil
+              }.flatten
+          }
+
         case (key, jsval) => Nil
       }.flatten.toSeq
       collection.immutable.ListMap(fields:_*)

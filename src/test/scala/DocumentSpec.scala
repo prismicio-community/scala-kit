@@ -2,17 +2,11 @@ package io.prismic
 
 import org.joda.time.{ DateTime, DateTimeZone }
 import org.specs2.mutable._
-import spray.json._
 import io.prismic.PrismicJsonProtocol._
 
 class DocumentSpec extends Specification {
 
-  def fixture(file: String): JsValue = {
-    val content = scala.io.Source.fromFile(s"src/test/scala/fixtures/$file").mkString
-    JsonParser(content)
-  }
-
-  lazy val document = fixture("document_store.json").convertTo[Document]
+  lazy val document = Fixtures.document
 
   "Document" should {
     "have first publication" in {
