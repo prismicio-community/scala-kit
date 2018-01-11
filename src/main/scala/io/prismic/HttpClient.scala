@@ -127,14 +127,14 @@ object HttpClient {
         val ch = chF.channel()
 
         val request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, fullPath)
-                                                (headers ++ Map(
-                                                   HttpHeaders.Names.USER_AGENT -> UserAgent,
-                                                   HttpHeaders.Names.HOST -> host,
-                                                   HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
-                                                   HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
-                                                 )).map { case (key, value) =>
-                                                    request.headers().set(key, value)
-                                                }
+          (headers ++ Map(
+            HttpHeaders.Names.USER_AGENT -> UserAgent,
+            HttpHeaders.Names.HOST -> host,
+            HttpHeaders.Names.CONNECTION -> HttpHeaders.Values.CLOSE,
+            HttpHeaders.Names.ACCEPT_ENCODING -> HttpHeaders.Values.GZIP
+          )).map { case (key, value) =>
+              request.headers().set(key, value)
+          }
 
         ch.writeAndFlush(request)
       }
