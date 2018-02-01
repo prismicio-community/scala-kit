@@ -54,6 +54,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         typ,
         (json \ "document" \ "tags").toOpt[Seq[String]].getOrElse(Nil),
         (json \ "document" \ "slug").convertTo[String],
+        (json \ "document" \ "lang").convertTo[String],
         fragments,
         (json \ "isBroken").toOpt[Boolean].getOrElse(false)
       )
@@ -70,6 +71,17 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
       case t => throw new DeserializationException(s"Unkown link type $t")
     }
     override def write(obj: Link): JsValue = throw new SerializationException("Not implemented")
+  }
+
+  implicit object AlternateLanguageFormat extends RootJsonFormat[AlternateLanguage] {
+    override def read(json: JsValue): AlternateLanguage = AlternateLanguage(
+      (json \ "id").convertTo[String],
+      (json \ "uid").toOpt[String],
+      (json \ "type").convertTo[String],
+      (json \ "lang").convertTo[String]
+    )
+
+    override def write(obj: AlternateLanguage): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object DateFormat extends RootJsonFormat[Date] {
@@ -309,16 +321,17 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
 
     override def read(jsValue: JsValue): Document = {
       val json = jsValue.asJsObject
-      json.getFields("id", "href", "type", "data") match {
-        case Seq(JsString(id), JsString(href), JsString(typ), data: JsObject) =>
+      json.getFields("id", "href", "type", "lang", "data") match {
+        case Seq(JsString(id), JsString(href), JsString(typ), JsString(lang), data: JsObject) =>
           val uid: Option[String] = (json \ "uid").toOpt[String]
           val tags: Seq[String] = (json \ "tags").toOpt[Seq[String]].getOrElse(Nil)
           val slugs: Seq[String] = (json \ "slugs").toOpt[Seq[String]].map(decode).getOrElse(Nil)
           val firstPublicationDate: Option[DateTime] = (json \ "first_publication_date").toOpt[String].map(new DateTime(_).withZone(DateTimeZone.UTC))
           val lastPublicationDate: Option[DateTime] = (json \ "last_publication_date").toOpt[String].map(new DateTime(_).withZone(DateTimeZone.UTC))
+          val alternateLanguages: Seq[AlternateLanguage] = (json \ "alternate_languages").toOpt[Seq[AlternateLanguage]].getOrElse(Nil)
           val fragments: JsObject = (data \ typ).asJsObject
-          Document(id, uid, typ, href, tags, slugs, firstPublicationDate, lastPublicationDate, parseFragments(fragments, typ))
-        case _ => throw new DeserializationException("Expected id, href, type and data")
+          Document(id, uid, typ, href, tags, slugs, firstPublicationDate, lastPublicationDate, lang, alternateLanguages, parseFragments(fragments, typ))
+        case _ => throw new DeserializationException("Expected id, href, type lang and data")
       }
     }
 

@@ -6,11 +6,17 @@
   "slugs": [
     "paris-saint-lazare"
   ],
-  "lang": "fr-fr",
-  "alternate_languages": [],
   "first_publication_date": "2017-01-13T11:45:21.000Z",
   "last_publication_date": "2017-02-21T16:05:19.000Z",
   "linked_documents": [],
+  "lang": "fr-fr",
+  "alternate_languages": [
+    {
+      "id": "WmWkEyQAABvqGKrj",
+      "type": "store",
+      "lang": "de-de"
+    }
+  ],
   "data": {
     "store": {
       "name": {
