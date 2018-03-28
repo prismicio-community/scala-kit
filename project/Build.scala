@@ -71,6 +71,7 @@ object KitBuild extends Build {
                          |""".stripMargin.format(v, sv, n))
         Seq(file)
       },
+      crossScalaVersions := Seq("2.11.11", "2.12.2"),
       libraryDependencies ++= Seq(
         "org.fluentd" % "fluent-logger" % "0.2.10",
         "org.joda" % "joda-convert" % "1.2",
@@ -79,6 +80,7 @@ object KitBuild extends Build {
         "com.jcraft" % "jzlib" %  "1.1.2",
         "io.netty" % "netty-all" % "4.0.31.Final",
         "org.apache.commons" % "commons-collections4" % "4.0",
+        "org.apache.commons" % "commons-lang3" % "3.7",
         "org.specs2" %% "specs2-core" % "3.9.4" % "test" // See https://github.com/etorreborre/specs2/issues/579
       )
     )

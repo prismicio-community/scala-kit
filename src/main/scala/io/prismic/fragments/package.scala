@@ -1,5 +1,6 @@
 package io.prismic.fragments
 
+import org.apache.commons.lang3.StringEscapeUtils
 import org.joda.time._
 import spray.json._
 import io.prismic._
@@ -41,7 +42,7 @@ case class DocumentLink(id: String,
   // ------------------
 
   case class Text(value: String) extends Fragment {
-    def asHtml: String = s"""<span class="text">$value</span>"""
+    def asHtml: String = s"""<span class="text">${StringEscapeUtils.escapeHtml4(value)}</span>"""
   }
 
   // ------------------
@@ -230,10 +231,6 @@ object StructuredText {
 
   private def asHtml(text: String, spans: Seq[Span], linkResolver: DocumentLinkResolver, serializer: HtmlSerializer): String = {
 
-    def escape(character: String): String = {
-      character.replace("<", "&lt;").replace("\n", "<br>")
-    }
-
     def serialize(element: Element, content: String): String = {
       serializer(element, content).getOrElse {
         element match {
@@ -254,15 +251,15 @@ object StructuredText {
     @scala.annotation.tailrec
     def step(in: Seq[(Char, Int)], spans: Seq[Span], stack: Seq[OpenSpan] = Nil, html: String = ""): String = {
       in match {
-        case ((_, pos) :: tail) if stack.headOption.map(_.span.end) == Some(pos) => {
+        case ((_, pos) :: tail) if stack.headOption.exists(_.span.end == pos) => {
           // Need to close a tag
-          val tagHtml = serialize(stack.head.span, stack.head.content)
+          val tagHtml = serialize(stack.head.span, StringEscapeUtils.escapeHtml4(stack.head.content))
           stack.drop(1) match {
             case Nil => step(in, spans, Nil, html + tagHtml)
             case h :: t => step(in, spans, h.copy(content = h.content + tagHtml) :: t, html)
           }
         }
-        case ((_, pos) :: tail) if spans.headOption.map(_.start) == Some(pos) => {
+        case ((_, pos) :: tail) if spans.headOption.exists(_.start == pos) => {
           // Need to open a tag
           step(in, spans.drop(1), OpenSpan(spans.head, "") +: stack, html)
         }
@@ -270,10 +267,10 @@ object StructuredText {
           stack match {
             case Nil =>
               // Top level
-              step(tail, spans, stack, html + escape(current.toString))
+              step(tail, spans, stack, html + StringEscapeUtils.escapeHtml4(current.toString))
             case head :: t =>
               // There is an open span, insert inside
-              step(tail, spans, head.copy(content = head.content + escape(current.toString)) :: t, html)
+              step(tail, spans, head.copy(content = head.content + StringEscapeUtils.escapeHtml4(current.toString)) :: t, html)
           }
         }
         case Nil =>
@@ -281,10 +278,10 @@ object StructuredText {
             case Nil => html
             case head :: Nil =>
               // One last tag open, close it
-              html + serialize(head.span, head.content)
+              html + serialize(head.span, StringEscapeUtils.escapeHtml4(head.content))
             case head :: second :: tail =>
               // At least 2 tags open, close the first and continue
-              step(Nil, spans, second.copy(content = second.content + serialize(head.span, head.content)) :: tail, html)
+              step(Nil, spans, second.copy(content = second.content + serialize(head.span, StringEscapeUtils.escapeHtml4(head.content))) :: tail, html)
           }
       }
     }
