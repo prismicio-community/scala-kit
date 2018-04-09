@@ -96,7 +96,8 @@ class FragmentSpec extends Specification {
           |      "href":"http://toto.wroom.dev/api/documents/search?ref=VQ_uWX1Za0oCy46m&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VQ_hV31Za5EAy02H%22%29+%5D%5D",
           |      "tags":[],
           |      "slugs":["une-activite"],
-          |       "linked_documents":[],
+          |      "linked_documents":[],
+          |      "lang": "fr-fr",
           |       "data":{
           |           "article":{
           |               "blocks":{
@@ -163,6 +164,7 @@ class FragmentSpec extends Specification {
         |   "tags":[],
         |   "slugs":["website-starter-sample-page","sample-website-starter-page","a-sample-website-starter-page"],
         |   "linked_documents":[],
+        |   "lang": "fr-fr",
         |   "data":{
         |     "page":{
         |       "body":{
@@ -248,7 +250,7 @@ class FragmentSpec extends Specification {
 
   "Block spans" should {
     "serialize labels within <li> tags" in {
-      val json = JsonParser( """{"page":1,"results_per_page":20,"results_size":1,"total_results_size":1,"total_pages":1,"next_page":null,"prev_page":null,"results":[{"id":"VBgfNTYAANcgz2bT","type":"doc","href":"https://wroom.prismic.io/api/documents/search?ref=VDaF_jIAADMA7e5N&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VBgfNTYAANcgz2bT%22%29+%5D%5D","tags":["doc-developers"],"slugs":["querying-a-repository"],"linked_documents":[{"id":"UkTD57O53-4AY1EF","tags":["api"],"type":"doc","slug":"api-documentation"},{"id":"UmlghEnM00YhgHUB","tags":["api"],"type":"doc","slug":"orderings"}],"data":{"doc":{"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Querying a Repository","spans":[]}]},"content":{"type":"StructuredText","value":[{"type":"paragraph","direction":"rtl","text":"To query your API, you will need to specify a form and a reference in addition to your query.","spans":[{"start":46,"end":50,"type":"strong"},{"start":57,"end":67,"type":"strong"},{"start":78,"end":92,"type":"strong"}]},{"type":"list-item","text":"The operator: this is the function you call to build the predicate, for example Predicate.at.","spans":[{"start":4,"end":12,"type":"em"},{"start":80,"end":93,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The fragment: the first argument you pass, for example \"document.id\".","spans":[{"start":4,"end":12,"type":"em"},{"start":55,"end":68,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The values: the other arguments you pass, usually one but it can be more for some predicates. For example \"product\".","spans":[{"start":4,"end":10,"type":"em"},{"start":106,"end":115,"type":"label","data":{"label":"codespan"}}]}]}}}}],"version":"e5752a1","license":"All Rights Reserved"}""")
+      val json = JsonParser( """{"page":1,"results_per_page":20,"results_size":1,"total_results_size":1,"total_pages":1,"next_page":null,"prev_page":null,"results":[{"id":"VBgfNTYAANcgz2bT","type":"doc","href":"https://wroom.prismic.io/api/documents/search?ref=VDaF_jIAADMA7e5N&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VBgfNTYAANcgz2bT%22%29+%5D%5D","tags":["doc-developers"],"slugs":["querying-a-repository"],"linked_documents":[{"id":"UkTD57O53-4AY1EF","tags":["api"],"type":"doc","slug":"api-documentation","lang":"en-en"},{"id":"UmlghEnM00YhgHUB","tags":["api"],"type":"doc","slug":"orderings","lang":"en-en"}],"lang": "fr-fr", "data":{"doc":{"title":{"type":"StructuredText","value":[{"type":"heading1","text":"Querying a Repository","spans":[]}]},"content":{"type":"StructuredText","value":[{"type":"paragraph","direction":"rtl","text":"To query your API, you will need to specify a form and a reference in addition to your query.","spans":[{"start":46,"end":50,"type":"strong"},{"start":57,"end":67,"type":"strong"},{"start":78,"end":92,"type":"strong"}]},{"type":"list-item","text":"The operator: this is the function you call to build the predicate, for example Predicate.at.","spans":[{"start":4,"end":12,"type":"em"},{"start":80,"end":93,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The fragment: the first argument you pass, for example \"document.id\".","spans":[{"start":4,"end":12,"type":"em"},{"start":55,"end":68,"type":"label","data":{"label":"codespan"}}]},{"type":"list-item","text":"The values: the other arguments you pass, usually one but it can be more for some predicates. For example \"product\".","spans":[{"start":4,"end":10,"type":"em"},{"start":106,"end":115,"type":"label","data":{"label":"codespan"}}]}]}}}}],"version":"e5752a1","license":"All Rights Reserved"}""")
       val response = json.convertTo[Response]
       val text = response.results.head.getStructuredText("doc.content")
       text.map(_.asHtml(resolver)) must beSome.like {
@@ -287,7 +289,8 @@ class FragmentSpec extends Specification {
           |          "id": "VBgeDDYAADMAz2Rw",
           |          "type": "documentation-categoy",
           |          "tags": ["doc-developers"],
-          |          "slug": "developers-manual"
+          |          "slug": "developers-manual",
+          |          "lang": "en-en"
           |        },
           |        "isBroken": false
           |      }

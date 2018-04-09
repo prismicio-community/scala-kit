@@ -89,6 +89,12 @@ case class SearchForm(api: Api, form: Form, data: Map[String, Seq[String]]) {
     }
   }
 
+  /**
+    * @param lang the language to query for
+    * @return the SearchForm instance for chaining
+    */
+  def lang(lang: String): SearchForm = set("lang", lang)
+
   def submit(): Future[Response] = {
 
     (form.method, form.enctype, form.action) match {

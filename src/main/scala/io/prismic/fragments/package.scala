@@ -32,11 +32,14 @@ case class DocumentLink(id: String,
                         typ: String,
                         tags: Seq[String],
                         slug: String,
+                        lang: String,
                         fragments: Map[String, Fragment],
                         isBroken: Boolean) extends Link with WithFragments {
   override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
   override def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
 }
+
+case class AlternateLanguage(id: String, uid: Option[String], typ: String, lang: String)
 
   // ------------------
 

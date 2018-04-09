@@ -1,8 +1,9 @@
 package io.prismic
 
-import org.joda.time.{ DateTime, DateTimeZone }
+import org.joda.time.{DateTime, DateTimeZone}
 import org.specs2.mutable._
 import io.prismic.PrismicJsonProtocol._
+import io.prismic.fragments.AlternateLanguage
 
 class DocumentSpec extends Specification {
 
@@ -31,6 +32,16 @@ class DocumentSpec extends Specification {
         .withMinuteOfHour(5)
         .withSecondOfMinute(19)
         .withMillisOfSecond(0)) must_==(document.lastPublicationDate)
+    }
+
+    "should have lang" in {
+      "fr-fr" must_== document.lang
+    }
+
+    "should have alternative languages" in {
+      document.alternateLanguages must
+        have size 1 and
+        contain(AlternateLanguage("WmWkEyQAABvqGKrj", None, "store", "de-de"))
     }
   }
 }
