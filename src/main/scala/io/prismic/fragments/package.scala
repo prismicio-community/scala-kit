@@ -12,9 +12,12 @@ sealed trait Link extends Fragment {
   def getUrl(linkResolver: DocumentLinkResolver): String
 }
 
-case class WebLink(url: String, contentType: Option[String] = None) extends Link {
+case class WebLink(url: String, target: Option[String] = None) extends Link {
   override def getUrl(linkResolver: DocumentLinkResolver) = url
-  def asHtml(): String = s"""<a href="$url">$url</a>"""
+  def asHtml(): String = {
+    val renderTarget = target.map { t => s""" target="$t"""" }.getOrElse("")
+    s"""<a href="$url"$renderTarget>$url</a>"""
+  }
 }
 
 case class FileLink(url: String, kind: String, size: Long, filename: String) extends Link {

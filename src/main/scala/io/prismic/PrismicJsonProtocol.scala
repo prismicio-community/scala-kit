@@ -15,10 +15,10 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   // Fragments
 
   implicit object WeblinkFormat extends RootJsonFormat[WebLink] {
-    override def read(json: JsValue): WebLink = json.asJsObject.getFields("url") match {
-      case Seq(JsString(url)) => WebLink(url)
-      case _ => throw new DeserializationException("Expected url field")
-    }
+    override def read(json: JsValue): WebLink = WebLink(
+      (json \ "url").convertTo[String],
+      (json \ "target").toOpt[String]
+    )
     override def write(obj: WebLink): JsValue = throw new SerializationException("Not implemented")
   }
 
@@ -345,7 +345,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
             case Some(structuredText) =>
               Seq(s"$typ.$key" -> structuredText)
 
-            case None => 
+            case None =>
               jsons.elements.zipWithIndex.collect {
                 case (json: JsObject, i) => json.toOpt[Fragment].toList.map(fragment => (s"$typ.$key[$i]", fragment))
                 case (jsval, i) => Nil

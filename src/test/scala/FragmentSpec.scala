@@ -65,7 +65,7 @@ class FragmentSpec extends Specification {
   "Link" should {
     lazy val document = Fixtures.document
     document.getLink("store.link") must beSome.like {
-      case d: DocumentLink => 
+      case d: DocumentLink =>
         d.fragments.get("timestamp.text") must beSome.like {
           case s: StructuredText =>
             s.asHtml(resolver) must_== "<p>This is text</p>"
@@ -351,4 +351,30 @@ class FragmentSpec extends Specification {
 				"<p class=\"block-img\"><a href=\"http://sentione.com\"><img alt=\"\" src=\"http://cdn.sentione.com/season-logo/logo.png\" width=\"180\" height=\"82\" /></a></p>"
 		}
 	}
+
+  "WebLink" should {
+
+    "deserialize to weblink without target" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "url": "https://google.fr"
+        |}
+			""".stripMargin)
+
+			json.convertTo[WebLink].asHtml() mustEqual """<a href="https://google.fr">https://google.fr</a>"""
+		}
+
+    "deserialize to weblink with target blank" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "url": "https://google.fr",
+        |  "target": "_blank"
+        |}
+			""".stripMargin)
+
+			json.convertTo[WebLink].asHtml() mustEqual """<a href="https://google.fr" target="_blank">https://google.fr</a>"""
+		}
+  }
 }
