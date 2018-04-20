@@ -14,20 +14,35 @@ sealed trait Link extends Fragment {
 
 case class WebLink(url: String, target: Option[String] = None) extends Link {
   override def getUrl(linkResolver: DocumentLinkResolver) = url
-  def asHtml(): String = {
-    val renderTarget = target.map { t => s""" target="$t"""" }.getOrElse("")
-    s"""<a href="$url"$renderTarget>$url</a>"""
+  def asHtml(content: Option[String] = None): String = {
+    val linkContent = content.getOrElse(url)
+    val renderTarget = target.map { t => s""" target="$t" rel="noopener"""" }.getOrElse("")
+    s"""<a href="$url"$renderTarget>$linkContent</a>"""
   }
 }
 
-case class FileLink(url: String, kind: String, size: Long, filename: String) extends Link {
+case class FileLink(url: String, kind: String, size: Long, filename: String, target: Option[String] = None) extends Link {
   override def getUrl(linkResolver: DocumentLinkResolver) = url
-  def asHtml: String = s"""<a href="$url">$filename</a>"""
+  def asHtml(content: Option[String] = None): String = {
+    val linkContent = content.getOrElse(filename)
+    val renderTarget = target.map { t => s""" target="$t" rel="noopener"""" }.getOrElse("")
+    s"""<a href="$url"$renderTarget>$linkContent</a>"""
+  }
 }
 
-case class ImageLink(url: String, kind: String, size: Long, filename: String) extends Link {
+case class ImageLink(url: String, kind: String, size: Long, filename: String, target: Option[String] = None) extends Link {
   override def getUrl(linkResolver: DocumentLinkResolver) = url
-  def asHtml: String = s"""<img src="$url" alt="$filename"/>"""
+  def asHtml(content: Option[String] = None): String = {
+    val linkContent = content.getOrElse(filename)
+    val renderTarget = target.map { t => s""" target="$t" rel="noopener"""" }.getOrElse("")
+
+    val img = s"""<img src="$url" alt="$linkContent"/>"""
+
+    target match {
+      case Some(t) => s"""<a href="$url" target="$t">$img</a>"""
+      case None => img
+    }
+  }
 }
 
 case class DocumentLink(id: String,
@@ -37,9 +52,14 @@ case class DocumentLink(id: String,
                         slug: String,
                         lang: String,
                         fragments: Map[String, Fragment],
-                        isBroken: Boolean) extends Link with WithFragments {
+                        isBroken: Boolean,
+                        target: Option[String] = None) extends Link with WithFragments {
   override def getUrl(linkResolver: DocumentLinkResolver) = linkResolver(this)
-  override def asHtml(linkResolver: DocumentLinkResolver): String = s"""<a href="${linkResolver(this)}">$slug</a>"""
+  override def asHtml(linkResolver: DocumentLinkResolver, content: Option[String] = None): String = {
+    val linkContent = content.getOrElse(slug)
+    val renderTarget = target.map { t => s""" target="$t" rel="noopener"""" }.getOrElse("")
+    s"""<a href="${linkResolver(this)}"$renderTarget>$linkContent</a>"""
+  }
 }
 
 case class AlternateLanguage(id: String, uid: Option[String], typ: String, lang: String)
@@ -246,9 +266,9 @@ object StructuredText {
           case b: Block => Block.asHtml(b, linkResolver)
           case _: Span.Em => s"<em>$content</em>"
           case _: Span.Strong => s"<strong>$content</strong>"
-          case Span.Hyperlink(_, _, link: DocumentLink) => s"""<a href="${linkResolver(link)}">$content</a>"""
-          case Span.Hyperlink(_, _, link: FileLink) => s"""<a href="${link.url}">$content</a>"""
-          case Span.Hyperlink(_, _, link: WebLink) => s"""<a href="${link.url}">$content</a>"""
+          case Span.Hyperlink(_, _, link: DocumentLink) => link.asHtml(linkResolver, Some(content))
+          case Span.Hyperlink(_, _, link: FileLink) => link.asHtml(Some(content))
+          case Span.Hyperlink(_, _, link: WebLink) => link.asHtml(Some(content))
           case Span.Label(_, _, label) => s"""<span class="$label">$content</span>"""
           case _ => s"<span>$content</span>"
         }
@@ -349,9 +369,9 @@ object StructuredText {
           case StructuredText.Block.ListItem(text, spans, _, _, _) => s"""<li$cls>$body</li>"""
           case StructuredText.Block.Image(view, hyperlink, label, dir) => {
             val linkbody = hyperlink match {
-              case Some(link: DocumentLink) => s"""<a href="$linkResolver(link)">${view.asHtml}</a>"""
-              case Some(link: WebLink) => s"""<a href="${link.url}">${view.asHtml}</a>"""
-              case Some(link: FileLink) => s"""<a href="${link.url}">${view.asHtml}</a>"""
+              case Some(link: DocumentLink) => link.asHtml(linkResolver, Some(view.asHtml))
+              case Some(link: WebLink) => link.asHtml(Some(view.asHtml))
+              case Some(link: FileLink) => link.asHtml(Some(view.asHtml))
               case _ => view.asHtml
             }
             s"""<p${dir.map(d => s""" dir="$d"""").getOrElse("")} class="${(label.toSeq :+ "block-img").mkString(" ")}">$linkbody</p>"""

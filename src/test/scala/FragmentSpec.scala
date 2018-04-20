@@ -53,16 +53,6 @@ class FragmentSpec extends Specification {
     }
   }
   "Link" should {
-    val api = await(Api.get("https://test-public.prismic.io/api"))
-    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val doc = query("""[[:d = at(document.id, "Uyr9_wEAAKYARDMV")]]""").results.head
-    "support media" in {
-      doc getLink "test-link.related" must beSome.like {
-        case l: FileLink => l.filename must_== "baastad.pdf"
-      }
-    }
-  }
-  "Link" should {
     lazy val document = Fixtures.document
     document.getLink("store.link") must beSome.like {
       case d: DocumentLink =>
@@ -310,19 +300,6 @@ class FragmentSpec extends Specification {
     }
   }
 
-  "Image" should {
-    val api = await(Api.get("https://test-public.prismic.io/api"))
-    def query(q: String) = await(api.forms("everything").ref(api.master).query(q).submit())
-    val doc = query("""[[:d = at(document.id, "Uyr9sgEAAGVHNoFZ")]]""").results.head
-    val img = doc.getImage("article.illustration", "icon")
-    val url = "https://prismic-io.s3.amazonaws.com/test-public/9f5f4e8a5d95c7259108e9cfdde953b5e60dcbb6.jpg"
-    "find first" in {
-      img must beSome.like {
-        case v: Fragment.Image.View => v.asHtml must_== s"""<img alt="some alt text" src="$url" width="100" height="100" />"""
-      }
-    }
-  }
-
 	"Image as link" should {
 		val json = JsonParser(
 			"""
@@ -374,7 +351,7 @@ class FragmentSpec extends Specification {
         |}
 			""".stripMargin)
 
-			json.convertTo[WebLink].asHtml() mustEqual """<a href="https://google.fr" target="_blank">https://google.fr</a>"""
+			json.convertTo[WebLink].asHtml() mustEqual """<a href="https://google.fr" target="_blank" rel="noopener">https://google.fr</a>"""
 		}
   }
 }
