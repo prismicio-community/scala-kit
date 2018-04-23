@@ -136,7 +136,7 @@ trait WithFragments {
     case _ => None
   }
 
-  def asHtml(linkResolver: DocumentLinkResolver, content: Option[String] = None): String = fragments.keys.map { field =>
+  def asHtml(linkResolver: DocumentLinkResolver): String = fragments.keys.map { field =>
     s"""<section data-field="$field">${getHtml(field, linkResolver).getOrElse("")}</section>"""
   }.mkString("\n")
 
