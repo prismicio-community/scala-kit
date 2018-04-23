@@ -15,27 +15,32 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
   // Fragments
 
   implicit object WeblinkFormat extends RootJsonFormat[WebLink] {
-    override def read(json: JsValue): WebLink = json.asJsObject.getFields("url") match {
-      case Seq(JsString(url)) => WebLink(url)
-      case _ => throw new DeserializationException("Expected url field")
-    }
+    override def read(json: JsValue): WebLink = WebLink(
+      (json \ "url").convertTo[String],
+      (json \ "target").toOpt[String]
+    )
     override def write(obj: WebLink): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object FileLinkFormat extends RootJsonFormat[FileLink] {
-    override def read(json: JsValue): FileLink = (json \ "file").asJsObject.getFields("url", "kind", "size", "name") match {
-      case Seq(JsString(url), JsString(kind), JsString(size), JsString(name)) => FileLink(url, kind, size.toLong, name)
-      case _ => throw new DeserializationException("Missing field")
-    }
-
+    override def read(json: JsValue): FileLink = FileLink(
+      (json \ "url").convertTo[String],
+      (json \ "kind").convertTo[String],
+      (json \ "size").convertTo[String].toLong,
+      (json \ "name").convertTo[String],
+      (json \ "target").toOpt[String]
+    )
     override def write(obj: FileLink): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object ImageLinkFormat extends RootJsonFormat[ImageLink] {
-    override def read(json: JsValue): ImageLink = (json \ "image").asJsObject.getFields("url", "kind", "size", "name") match {
-      case Seq(JsString(url), JsString(kind), JsString(size), JsString(name)) => ImageLink(url, kind, size.toLong, name)
-      case _ => throw new DeserializationException("Missing field")
-    }
+    override def read(json: JsValue): ImageLink = ImageLink(
+      (json \ "url").convertTo[String],
+      (json \ "kind").convertTo[String],
+      (json \ "size").convertTo[String].toLong,
+      (json \ "name").convertTo[String],
+      (json \ "target").toOpt[String]
+    )
 
     override def write(obj: ImageLink): JsValue = throw new SerializationException("Not implemented")
   }
@@ -56,7 +61,8 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         (json \ "document" \ "slug").convertTo[String],
         (json \ "document" \ "lang").convertTo[String],
         fragments,
-        (json \ "isBroken").toOpt[Boolean].getOrElse(false)
+        (json \ "isBroken").toOpt[Boolean].getOrElse(false),
+        (json \ "target").toOpt[String]
       )
     }
     override def write(obj: DocumentLink): JsValue = throw new SerializationException("Not implemented")
@@ -345,7 +351,7 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
             case Some(structuredText) =>
               Seq(s"$typ.$key" -> structuredText)
 
-            case None => 
+            case None =>
               jsons.elements.zipWithIndex.collect {
                 case (json: JsObject, i) => json.toOpt[Fragment].toList.map(fragment => (s"$typ.$key[$i]", fragment))
                 case (jsval, i) => Nil

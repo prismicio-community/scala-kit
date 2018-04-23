@@ -125,8 +125,8 @@ object Fragment {
     case a: Timestamp      => a.asHtml
     case a: Embed          => a.asHtml()
     case a: Image          => a.asHtml
-    case a: WebLink        => a.asHtml
-    case a: FileLink       => a.asHtml
+    case a: WebLink        => a.asHtml()
+    case a: FileLink       => a.asHtml()
     case a: GeoPoint       => a.asHtml
     case a: DocumentLink   => a.asHtml(linkResolver)
     case a: Group          => a asHtml linkResolver
