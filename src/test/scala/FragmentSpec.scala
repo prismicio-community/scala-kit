@@ -354,4 +354,74 @@ class FragmentSpec extends Specification {
 			json.convertTo[WebLink].asHtml() mustEqual """<a href="https://google.fr" target="_blank" rel="noopener">https://google.fr</a>"""
 		}
   }
+
+  "FileLink" should {
+    "deserialize to fileLink without target" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "file": {
+        |    "url": "https://mondoc.com",
+        |    "kind": "media",
+        |    "size": "10",
+        |    "name": "mondoc"
+        |  }
+        |}
+			""".stripMargin)
+
+			json.convertTo[FileLink].asHtml() mustEqual """<a href="https://mondoc.com">mondoc</a>"""
+		}
+
+    "deserialize to fileLink with target" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "file": {
+        |    "url": "https://mondoc.com",
+        |    "kind": "media",
+        |    "size": "10",
+        |    "name": "mondoc",
+        |    "target": "_blank"
+        |  }
+        |}
+			""".stripMargin)
+
+			json.convertTo[FileLink].asHtml() mustEqual """<a href="https://mondoc.com" target="_blank" rel="noopener">mondoc</a>"""
+		}
+  }
+
+  "ImageLink" should {
+    "deserialize to ImageLink without target" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "image": {
+        |    "url": "https://monmedia.com",
+        |    "kind": "media",
+        |    "size": "10",
+        |    "name": "monmedia"
+        |  }
+        |}
+			""".stripMargin)
+
+			json.convertTo[ImageLink].asHtml() mustEqual """<img src="https://monmedia.com" alt="monmedia"/>"""
+		}
+
+    "deserialize to ImageLink with target" in {
+      val json = JsonParser(
+			"""
+				|{
+        |  "image": {
+        |    "url": "https://monmedia.com",
+        |    "kind": "media",
+        |    "size": "10",
+        |    "name": "monmedia",
+        |    "target": "_blank"
+        |  }
+        |}
+			""".stripMargin)
+
+			json.convertTo[ImageLink].asHtml() mustEqual """<a href="https://monmedia.com" target="_blank" rel="noopener"><img src="https://monmedia.com" alt="monmedia"/></a>"""
+		}
+  }
 }
