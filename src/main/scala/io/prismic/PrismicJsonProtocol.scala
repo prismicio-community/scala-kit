@@ -24,22 +24,22 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
 
   implicit object FileLinkFormat extends RootJsonFormat[FileLink] {
     override def read(json: JsValue): FileLink = FileLink(
-      (json \ "url").convertTo[String],
-      (json \ "kind").convertTo[String],
-      (json \ "size").convertTo[String].toLong,
-      (json \ "name").convertTo[String],
-      (json \ "target").toOpt[String]
+      (json \ "file" \ "url").convertTo[String],
+      (json \ "file" \ "kind").convertTo[String],
+      (json \ "file" \ "size").convertTo[String].toLong,
+      (json \ "file" \ "name").convertTo[String],
+      (json \ "file" \ "target").toOpt[String]
     )
     override def write(obj: FileLink): JsValue = throw new SerializationException("Not implemented")
   }
 
   implicit object ImageLinkFormat extends RootJsonFormat[ImageLink] {
     override def read(json: JsValue): ImageLink = ImageLink(
-      (json \ "url").convertTo[String],
-      (json \ "kind").convertTo[String],
-      (json \ "size").convertTo[String].toLong,
-      (json \ "name").convertTo[String],
-      (json \ "target").toOpt[String]
+      (json \ "image" \ "url").convertTo[String],
+      (json \ "image" \ "kind").convertTo[String],
+      (json \ "image" \ "size").convertTo[String].toLong,
+      (json \ "image" \ "name").convertTo[String],
+      (json \ "image" \ "target").toOpt[String]
     )
 
     override def write(obj: ImageLink): JsValue = throw new SerializationException("Not implemented")
