@@ -209,11 +209,11 @@ case class AlternateLanguage(id: String, uid: Option[String], typ: String, lang:
     def asHtml(linkResolver: DocumentLinkResolver): String = {
       var className = (Seq("slice") ++ sliceLabel.toSeq).mkString(" ")
       s"""<div data-slicetype="$sliceType" class="$className">
-        <div class="non-repeat">
-          ${nonRepeat.fragments.toSeq.map{case (key, value) => Fragment.getHtml(value, linkResolver)}}
-        </div>
-        ${repeat.asHtml(linkResolver)}
-      </div>"""
+        |<div class="non-repeat">
+        |${nonRepeat.fragments.toSeq.map{case (key, value) => Fragment.getHtml(value, linkResolver)}.mkString(" ")}
+        |</div>
+        |${repeat.asHtml(linkResolver)}
+        |</div>""".stripMargin
     }
   }
 

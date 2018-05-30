@@ -142,7 +142,84 @@ class FragmentSpec extends Specification {
               |<div data-slicetype="text" class="slice"><p>C'est un bloc content</p></div>""".stripMargin
         }
       }
+
+
+    val json2 = JsonParser(
+      """
+        |{
+        |      "id": "Wu20hiIAANyI48lV",
+        |      "uid": "page-contact",
+        |      "type": "pageweb",
+        |      "href": "https://t-stook.cdn.prismic.io/toto",
+        |      "tags":["test"],
+        |      "slugs":["contactez-nous"],
+        |      "linked_documents":[],
+        |      "lang": "fr-fr",
+        |       "data": {
+        |         "pageweb": {
+        |           "title": {
+        |             "type": "StructuredText",
+        |               "value": [{
+        |                 "type": "heading1",
+        |                 "text": "Contactez-nous",
+        |                 "spans": [ ]
+        |                        }]
+        |                   },
+        |           "body": {
+        |                 "type": "SliceZone",
+        |                 "value": [{
+        |                           "type": "Slice",
+        |                           "slice_type": "text",
+        |                           "slice_label": null,
+        |                           "repeat": [{ }],
+        |                           "non-repeat": {
+        |                                "text": {
+        |                                  "type": "StructuredText",
+        |                                  "value": [{
+        |                                     "type": "paragraph",
+        |                                     "text": "Contactez-nous pour toute demande de devis",
+        |                                     "spans": [ ]
+        |                                   }]
+        |                                }
+        |                            }
+        |                         }]
+        |                 }
+        |             }
+        |       }
+        |   }
+      """.stripMargin)
+    val struct2 = json2.convertTo[Document].getSliceZone("pageweb.body")
+
+    "not output a Seq and flatten in CompositeSlice asHTML" in {
+      struct2 must beSome.like { case blocks: SliceZone =>
+        blocks.asHtml(resolver).stripMargin.stripLineEnd mustEqual
+          """<div data-slicetype="text" class="slice">
+            |<div class="non-repeat">
+            |<p>Contactez-nous pour toute demande de devis</p>
+            |</div>
+            |
+            |</div>""".stripMargin
+      }
+    }
   }
+
+  "StructuredText" should {
+    "deserialize to simple text" in{
+      val json = JsonParser(
+        """
+          | [
+          |   {
+          |   "type":"paragraph",
+          |   "direction":"rtl",
+          |   "text":"coucou",
+          |   "spans":[]
+          |   }
+          |]
+        """.stripMargin)
+      json.convertTo[StructuredText].asHtml(DocumentLinkResolver(_ => "")) mustEqual "<p dir=\"rtl\">coucou</p>"
+    }
+  }
+
   "Slice Separator" should {
     val json = JsonParser(
       """
