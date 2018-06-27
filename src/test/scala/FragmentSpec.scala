@@ -38,6 +38,72 @@ class FragmentSpec extends Specification {
 <section data-field="linktodoc"><a href="http://localhost/doc/UrDmKgEAALwMyrXA">using-meta-micro</a></section>"""
       }
     }
+    "not be None if a DocumentLink is broken" in {
+      val json = JsonParser(
+        """
+          |{
+          |  "id":"VFo9SDIAAC0A8Ixa",
+          |  "uid":null,
+          |  "type":"article",
+          |  "href":"http://toto.wroom.dev/api/documents/search?ref=VFo9SDIAAC0A8Ixa&q=%5B%5B%3Ad+%3D+at%28document.id%2C+%22VQ_hV31Za5EAy02H%22%29+%5D%5D",
+          |  "tags":[],
+          |  "slugs":["une-activite"],
+          |  "linked_documents":[],
+          |  "lang": "fr-fr",
+          |  "data": {
+          |    "article": {
+          |      "a_group": {
+          |        "type": "Group",
+          |        "value": [
+          |          {
+          |            "link": {
+          |              "type": "Link.document",
+          |              "value": {
+          |                "document": {
+          |                  "id": "UtUsygEAAEoh6CmH",
+          |                  "type": "machine",
+          |                  "tags": [],
+          |                  "slug": "slug-1",
+          |                  "lang": "en-us",
+          |                  "link_type": "Document"
+          |                },
+          |                "isBroken": false
+          |              }
+          |            }
+          |          },
+          |          {
+          |            "link": {
+          |              "type": "Link.document",
+          |              "value": {
+          |                "document": {
+          |                  "id": "UtUtIAEAAFEh6CmT",
+          |                  "type": "machine",
+          |                  "tags": [ ],
+          |                  "slug": "-",
+          |                  "lang": null,
+          |                  "link_type": "Document"
+          |                },
+          |                "isBroken": true
+          |              }
+          |            }
+          |          }
+          |        ]
+          |      }
+          |    }
+          |  }
+          |}
+        """.stripMargin)
+      val doc: Option[Group] = json.convertTo[Document].getGroup("article.a_group")
+      doc mustNotEqual None
+      val docList = doc.get.docs
+      docList.size mustEqual 2
+      docList.head.getLink("link").get match {
+        case DocumentLink(_, _, _, _, _, _, _, isBroken, _) => isBroken mustEqual false
+      }
+      docList.last.getLink("link").get match {
+        case DocumentLink(_, _, _, _, _, _, _, isBroken, _) => isBroken mustEqual true
+      }
+    }
   }
   "GeoPoint" should {
     val api = await(Api.get("https://test-public.prismic.io/api"))
