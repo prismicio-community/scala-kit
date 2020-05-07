@@ -59,7 +59,8 @@ object PrismicJsonProtocol extends DefaultJsonProtocol with NullOptions {
         typ,
         (json \ "document" \ "tags").toOpt[Seq[String]].getOrElse(Nil),
         (json \ "document" \ "slug").convertTo[String],
-        (json \ "document" \ "lang").convertTo[String],
+        // Must not be null, *except* when isBroken is true (see #61)
+        (json \ "document" \ "lang").toOpt[String].orNull,
         fragments,
         (json \ "isBroken").toOpt[Boolean].getOrElse(false),
         (json \ "target").toOpt[String]
